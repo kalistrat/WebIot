@@ -48,7 +48,8 @@
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.mail.glassfish:1.4.1.v201005082020" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.activation:1.1.0.v201105071233" level="project" />
-    <orderEntry type="library" name="Maven: com.vaadin:vaadin-icons:2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin:vaadin-icons:3.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.vaadin.addons:canvas:2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1" level="project" />
   </component>
 </module>

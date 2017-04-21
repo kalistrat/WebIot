@@ -29,6 +29,10 @@
 			<id>vaadin-addons</id>
 			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
+		<repository>
+			<id>Eclipse Paho Repo</id>
+			<url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
+		</repository>
 	</repositories>
 
 	<dependencyManagement>
@@ -89,12 +93,17 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-icons</artifactId>
-			<version>2.0.0</version>
+			<version>3.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>canvas</artifactId>
 			<version>2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+			<version>1.1.1</version>
 		</dependency>
 	</dependencies>
 

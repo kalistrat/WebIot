@@ -83,9 +83,9 @@ public class tMainView extends CustomComponent implements View {
         Tab1Cont.setMargin(true);
         Tab1Cont.addComponent(MidSec);
         // Tab 2 content
-        VerticalLayout Tab2Cont = new VerticalLayout();
-        Tab2Cont.setMargin(true);
-        Tab2Cont.addComponent(new Label("Здесь будет настройка"));
+        tMqttClientLayout Tab2Cont = new tMqttClientLayout();
+        //Tab2Cont.setMargin(true);
+        //Tab2Cont.addComponent(new Label("Здесь будет настройка"));
         // Tab 3 content
         VerticalLayout Tab3Cont = new VerticalLayout();
         Tab3Cont.setMargin(true);
