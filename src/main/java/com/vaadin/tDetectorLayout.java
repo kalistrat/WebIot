@@ -32,11 +32,8 @@ public class tDetectorLayout extends VerticalLayout {
 
 
         VerticalLayout DeviceDataLayout = new VerticalLayout(
-                new tDeviceCharacteristicsLayout(eUserDeviceId)
-                ,new tDetectorScheduleLayout(eUserDeviceId)
-                ,new tDetectorLastMeasure(eUserDeviceId)
-                ,new tPeriodMeasuresLayout(eUserDeviceId)
-                ,new tEventsControlDevicesLayout(eUserDeviceId));
+                new Label(String.valueOf(eUserDeviceId))
+        );
 
         tReturnParentFolderButton = new Button("Вверх");
         tReturnParentFolderButton.setIcon(FontAwesome.LEVEL_UP);

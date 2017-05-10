@@ -27,72 +27,6 @@ INSERT INTO `action_type` (`action_type_id`, `action_type_name`, `icon_code`) VA
 /*!40000 ALTER TABLE `action_type` ENABLE KEYS */;
 
 
--- Дамп структуры для таблица things.device
-CREATE TABLE IF NOT EXISTS `device` (
-  `device_id` int(11) NOT NULL AUTO_INCREMENT,
-  `action_type_id` int(11) DEFAULT NULL,
-  `device_name` text,
-  `device_units` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`device_id`),
-  KEY `FK_device_action_type` (`action_type_id`),
-  CONSTRAINT `FK_device_action_type` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`action_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
-
--- Дамп данных таблицы things.device: ~6 rows (приблизительно)
-DELETE FROM `device`;
-/*!40000 ALTER TABLE `device` DISABLE KEYS */;
-INSERT INTO `device` (`device_id`, `action_type_id`, `device_name`, `device_units`) VALUES
-	(1, 2, 'Logitech HD Webcam C270', NULL),
-	(2, 2, 'Microsoft LifeCam HD-3000', NULL),
-	(3, 2, 'Canyon CNE-CWC3', NULL),
-	(4, 1, 'HWg-STE', '°C'),
-	(5, 1, 'Sensitec NF-3101', '°C'),
-	(6, 1, 'UniPing RS-485', '°C');
-/*!40000 ALTER TABLE `device` ENABLE KEYS */;
-
-
--- Дамп структуры для таблица things.device_method
-CREATE TABLE IF NOT EXISTS `device_method` (
-  `device_method_id` int(11) NOT NULL AUTO_INCREMENT,
-  `device_id` int(11) DEFAULT NULL,
-  `method_code` varchar(100) DEFAULT NULL,
-  `method_name` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`device_method_id`),
-  KEY `DEVICE_ID_METHOD_NAME_INDX` (`device_id`,`method_name`),
-  CONSTRAINT `FK_device_method_device` FOREIGN KEY (`device_id`) REFERENCES `device` (`device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
-
--- Дамп данных таблицы things.device_method: ~6 rows (приблизительно)
-DELETE FROM `device_method`;
-/*!40000 ALTER TABLE `device_method` DISABLE KEYS */;
-INSERT INTO `device_method` (`device_method_id`, `device_id`, `method_code`, `method_name`) VALUES
-	(1, 6, 'GetData', 'Снять показания'),
-	(2, 1, 'SwitchOn', 'Включить устройство'),
-	(3, 4, 'GetData', 'Снять показания'),
-	(4, 2, 'SwitchOn', 'Включить устройство'),
-	(5, 2, 'SwitchOff', 'Выключить устройство'),
-	(6, 1, 'SwitchOff', 'Выключить устройство');
-/*!40000 ALTER TABLE `device_method` ENABLE KEYS */;
-
-
--- Дамп структуры для таблица things.event_criteria_type
-CREATE TABLE IF NOT EXISTS `event_criteria_type` (
-  `event_criteria_type_id` int(11) NOT NULL AUTO_INCREMENT,
-  `event_criteria_type_name` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`event_criteria_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-
--- Дамп данных таблицы things.event_criteria_type: ~4 rows (приблизительно)
-DELETE FROM `event_criteria_type`;
-/*!40000 ALTER TABLE `event_criteria_type` DISABLE KEYS */;
-INSERT INTO `event_criteria_type` (`event_criteria_type_id`, `event_criteria_type_name`) VALUES
-	(1, 'интервал значений'),
-	(2, 'полуинтервал значений >'),
-	(3, 'полуинтервал значений <'),
-	(4, 'фиксированное значение =');
-/*!40000 ALTER TABLE `event_criteria_type` ENABLE KEYS */;
-
-
 -- Дамп структуры для функция things.f_do_time_marks
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_do_time_marks`(
@@ -162,8 +96,7 @@ select concat(udt.leaf_id,'/'
 from user_devices_tree udt
 join users usr on usr.user_id=udt.user_id
 left join user_device ud on ud.user_device_id=udt.user_device_id
-left join device d on d.device_id=ud.device_id
-left join action_type aty on aty.action_type_id=d.action_type_id
+left join action_type aty on aty.action_type_id=ud.action_type_id
 where udt.user_devices_tree_id=eTreeId
 );
 
@@ -275,8 +208,7 @@ DELIMITER ;
 
 -- Дамп структуры для функция things.f_get_device_data
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_device_data`(
-eUserDeviceId int
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_device_data`(`eUserDeviceId` int
 ) RETURNS varchar(1000) CHARSET utf8
 begin
 return(
@@ -284,8 +216,7 @@ select concat(d.device_name,'/'
 ,aty.action_type_name,'/'
 )
 from user_device ud
-join device d on d.device_id=ud.device_id
-join action_type aty on aty.action_type_id=d.action_type_id
+join action_type aty on aty.action_type_id=ud.action_type_id
 where ud.user_device_id=eUserDeviceId
 );
 end//
@@ -294,7 +225,7 @@ DELIMITER ;
 
 -- Дамп структуры для функция things.f_get_device_name
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_device_name`(eLeafId int,eUserLog varchar(100)) RETURNS varchar(1000) CHARSET utf8
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_device_name`(`eLeafId` int, `eUserLog` varchar(100)) RETURNS varchar(1000) CHARSET utf8
 begin
 
 return (
@@ -304,8 +235,7 @@ select concat(ifnull(aty.icon_code,'FOLDER'),'/'
 from user_devices_tree udt
 join users usr on usr.user_id=udt.user_id
 left join user_device ud on ud.user_device_id=udt.user_device_id
-left join device d on d.device_id=ud.device_id
-left join action_type aty on aty.action_type_id=d.action_type_id
+left join action_type aty on aty.action_type_id=ud.action_type_id
 where udt.leaf_id=eLeafId
 and usr.user_log=eUserLog
 );
@@ -426,8 +356,7 @@ DELIMITER ;
 
 -- Дамп структуры для функция things.f_get_last_device_measure
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_last_device_measure`(
-eUserDeviceId int
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_last_device_measure`(`eUserDeviceId` int
 ) RETURNS varchar(1000) CHARSET utf8
 begin
 return(
@@ -439,13 +368,12 @@ select concat(t.device_name,'/'
 )
 from (
 select ud.user_device_id
-,d.device_name
+,ud.device_user_name
 ,aty.action_type_name
-,d.device_units
+,ud.device_units
 ,max(ume1.user_device_measure_id) max_measure_id
 from user_device ud
-join device d on d.device_id=ud.device_id
-join action_type aty on aty.action_type_id=d.action_type_id
+join action_type aty on aty.action_type_id=ud.action_type_id
 join user_device_measures ume1 on ume1.user_device_id=ud.user_device_id
 where ud.user_device_id=eUserDeviceId
 and ume1.measure_date = (
@@ -454,9 +382,9 @@ from user_device_measures ume
 where ume.user_device_id=eUserDeviceId
 )
 group by ud.user_device_id
-,d.device_name
+,ud.device_user_name
 ,aty.action_type_name
-,d.device_units
+,ud.device_units
 ) t
 join user_device_measures udme on udme.user_device_measure_id=t.max_measure_id
 );
@@ -466,15 +394,12 @@ DELIMITER ;
 
 -- Дамп структуры для функция things.f_get_leaf_name
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_leaf_name`(eLeafId int,eUserLog varchar(50)) RETURNS varchar(50) CHARSET utf8
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_leaf_name`(`eLeafId` int, `eUserLog` varchar(50)) RETURNS varchar(50) CHARSET utf8
 begin
 return(
 select udt.leaf_name
 from user_devices_tree udt
 join users usr on usr.user_id=udt.user_id
-left join user_device ud on ud.user_device_id=udt.user_device_id
-left join device d on d.device_id=ud.device_id
-left join action_type aty on aty.action_type_id=d.action_type_id
 where udt.leaf_id=eLeafId
 and usr.user_log=eUserLog
 );
@@ -512,12 +437,11 @@ DELIMITER ;
 
 -- Дамп структуры для функция things.f_get_unit_sym
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_unit_sym`(eUserDeviceId int) RETURNS varchar(50) CHARSET utf8
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_unit_sym`(`eUserDeviceId` int) RETURNS varchar(50) CHARSET utf8
 begin
 return(
-select d.device_units
+select ud.device_units
 from user_device ud
-join device d on d.device_id=ud.device_id
 where ud.user_device_id=eUserDeviceId
 );
 end//
@@ -538,8 +462,7 @@ select concat(udt.user_device_id,'/'
 from user_devices_tree udt
 join users usr on usr.user_id=udt.user_id
 left join user_device ud on ud.user_device_id=udt.user_device_id
-left join device d on d.device_id=ud.device_id
-left join action_type aty on aty.action_type_id=d.action_type_id
+left join action_type aty on aty.action_type_id=ud.action_type_id
 where udt.leaf_id=eLeafId
 and usr.user_log=eUserLog
 );
@@ -640,95 +563,6 @@ INSERT INTO `graph_period` (`period_id`, `period_code`) VALUES
 	(5, 'месяц'),
 	(6, 'год');
 /*!40000 ALTER TABLE `graph_period` ENABLE KEYS */;
-
-
--- Дамп структуры для процедура things.p_add_device_event_condition
-DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_device_event_condition`(
-eUserDeviceId int
-,eEventName varchar(100)
-,eEventCriteria varchar(100)
-,eMaxFieldValue decimal(5,2)
-,eMinFieldValue decimal(5,2)
-,eRelationDeviceId int
-,eRelationDeviceMethodId int
-)
-begin
-declare i_event_criteria_type_id int;
-
-select ect.event_criteria_type_id into i_event_criteria_type_id
-from event_criteria_type ect
-where ect.event_criteria_type_name=eEventCriteria;
-
-insert into user_device_event_condition(
-user_device_id
-,user_device_event_name
-,event_max_val
-,event_min_val
-,event_criteria_type_id
-,relation_user_device_id
-,relation_user_device_method_id
-)
-values(
-eUserDeviceId
-,eEventName
-,eMaxFieldValue
-,eMinFieldValue
-,i_event_criteria_type_id
-,eRelationDeviceId
-,eRelationDeviceMethodId
-);
-
-
-end//
-DELIMITER ;
-
-
--- Дамп структуры для процедура things.p_add_user_device_event
-DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_user_device_event`(
-euser_device_event_name varchar(100)
-,euser_device_id int
-,euser_switch_device_id int
-,evalue_from decimal(10,2)
-,evalue_till decimal(10,2)
-,edevice_method_id int
-)
-begin
-
-insert into user_device_event(
-user_device_event_name
-,user_device_id
-,user_switch_device_id
-,value_from
-,value_till
-,device_method_id
-)
-values(
-euser_device_event_name
-,euser_device_id
-,euser_switch_device_id
-,evalue_from
-,evalue_till
-,edevice_method_id
-);
-
-end//
-DELIMITER ;
-
-
--- Дамп структуры для процедура things.p_delete_device_event_condition
-DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_device_event_condition`(
-in eUserDeviceEventConditionId int
-)
-begin
-
-delete from user_device_event_condition
-where user_device_event_condition_id = eUserDeviceEventConditionId;
-
-end//
-DELIMITER ;
 
 
 -- Дамп структуры для процедура things.p_get_int_bounds_for_date
@@ -1050,26 +884,6 @@ end//
 DELIMITER ;
 
 
--- Дамп структуры для процедура things.p_upd_user_device_perfs
-DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_upd_user_device_perfs`(
-in eUserDeviceId int
-,in eUserDeviceMode varchar(100)
-,in eUserDeviceMeasurePeriod varchar(100)
-,in eUserDeviceDateFrom datetime
-)
-begin
-
-update user_device ud
-set ud.user_device_mode=eUserDeviceMode
-,ud.user_device_measure_period=eUserDeviceMeasurePeriod
-,ud.user_device_date_from=eUserDeviceDateFrom
-where ud.user_device_id=eUserDeviceId;
-
-end//
-DELIMITER ;
-
-
 -- Дамп структуры для таблица things.users
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1094,25 +908,28 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   `user_device_id` int(11) NOT NULL AUTO_INCREMENT,
   `device_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `device_user_name` varchar(100) DEFAULT NULL,
+  `device_user_name` varchar(25) DEFAULT NULL,
   `user_device_mode` varchar(100) DEFAULT NULL,
   `user_device_measure_period` varchar(100) DEFAULT NULL,
   `user_device_date_from` datetime DEFAULT NULL,
+  `action_type_id` int(11) DEFAULT NULL,
+  `device_units` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`user_device_id`),
   KEY `FK_user_device_device` (`device_id`),
   KEY `USER_DEVICE_NAME_INDX` (`user_id`,`device_user_name`),
-  CONSTRAINT `FK_user_device_device` FOREIGN KEY (`device_id`) REFERENCES `device` (`device_id`),
+  KEY `FK_user_device_action_type` (`action_type_id`),
+  CONSTRAINT `FK_user_device_action_type` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`action_type_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_device: ~4 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
-INSERT INTO `user_device` (`user_device_id`, `device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`) VALUES
-	(1, 6, 1, 'UniPing RS-485 : в комнате', 'Однократное измерение', NULL, '2017-03-03 18:43:27'),
-	(2, 4, 1, 'HWg-STE : на кухне', 'Периодическое измерение', 'ежечасно', '2017-02-28 18:32:52'),
-	(3, 1, 1, 'Logitech HD Webcam C270 : на кухне', NULL, NULL, NULL),
-	(4, 2, 1, 'Microsoft LifeCam HD-3000 : в комнате', NULL, NULL, NULL);
+INSERT INTO `user_device` (`user_device_id`, `device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`) VALUES
+	(1, 6, 1, 'UniPing RS-485', 'Однократное измерение', NULL, '2017-03-03 18:43:27', 1, NULL),
+	(2, 4, 1, 'HWg-STE', 'Периодическое измерение', 'ежечасно', '2017-02-28 18:32:52', 1, NULL),
+	(3, 1, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL),
+	(4, 2, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL);
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -1122,7 +939,7 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   `leaf_id` int(11) NOT NULL,
   `parent_leaf_id` int(11) DEFAULT NULL,
   `user_device_id` int(11) DEFAULT NULL,
-  `leaf_name` varchar(50) NOT NULL,
+  `leaf_name` varchar(25) NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`user_devices_tree_id`),
   KEY `FK_user_devices_tree_user_device` (`user_device_id`),
@@ -1146,57 +963,6 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(9, 9, 1, NULL, 'Мыльня', 1),
 	(10, 10, 1, NULL, '1-я уборная', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
-
-
--- Дамп структуры для таблица things.user_device_event
-CREATE TABLE IF NOT EXISTS `user_device_event` (
-  `user_device_event_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_device_event_name` varchar(100) DEFAULT NULL,
-  `user_device_id` int(11) DEFAULT NULL,
-  `user_switch_device_id` int(11) DEFAULT NULL,
-  `value_from` decimal(10,2) DEFAULT NULL,
-  `value_till` decimal(10,2) DEFAULT NULL,
-  `device_method_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`user_device_event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Дамп данных таблицы things.user_device_event: ~0 rows (приблизительно)
-DELETE FROM `user_device_event`;
-/*!40000 ALTER TABLE `user_device_event` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user_device_event` ENABLE KEYS */;
-
-
--- Дамп структуры для таблица things.user_device_event_condition
-CREATE TABLE IF NOT EXISTS `user_device_event_condition` (
-  `user_device_event_condition_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_device_id` int(11) NOT NULL DEFAULT '0',
-  `user_device_event_name` varchar(100) DEFAULT NULL,
-  `event_max_val` decimal(5,2) DEFAULT NULL,
-  `event_min_val` decimal(5,2) DEFAULT NULL,
-  `event_criteria_type_id` int(11) NOT NULL,
-  `relation_user_device_id` int(11) NOT NULL,
-  `relation_user_device_method_id` int(11) NOT NULL,
-  PRIMARY KEY (`user_device_event_condition_id`),
-  KEY `FK_user_device_event_condition_user_device` (`relation_user_device_id`),
-  KEY `FK_user_device_event_condition_device_method` (`relation_user_device_method_id`),
-  KEY `FK_user_device_event_condition_event_criteria_type` (`event_criteria_type_id`),
-  KEY `DEVICE_EVENT_NAME_INDX` (`user_device_id`,`user_device_event_name`) USING BTREE,
-  CONSTRAINT `FK_user_device_event_condition_device_method` FOREIGN KEY (`relation_user_device_method_id`) REFERENCES `device_method` (`device_method_id`),
-  CONSTRAINT `FK_user_device_event_condition_event_criteria_type` FOREIGN KEY (`event_criteria_type_id`) REFERENCES `event_criteria_type` (`event_criteria_type_id`),
-  CONSTRAINT `FK_user_device_event_condition_user_device` FOREIGN KEY (`relation_user_device_id`) REFERENCES `user_device` (`user_device_id`),
-  CONSTRAINT `FK_user_device_event_condition_user_device_2` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
-
--- Дамп данных таблицы things.user_device_event_condition: ~5 rows (приблизительно)
-DELETE FROM `user_device_event_condition`;
-/*!40000 ALTER TABLE `user_device_event_condition` DISABLE KEYS */;
-INSERT INTO `user_device_event_condition` (`user_device_event_condition_id`, `user_device_id`, `user_device_event_name`, `event_max_val`, `event_min_val`, `event_criteria_type_id`, `relation_user_device_id`, `relation_user_device_method_id`) VALUES
-	(2, 1, 'Включение другого датчика', 5.00, 500.00, 3, 2, 1),
-	(6, 2, 'Включение камеры', 56.00, 34.00, 1, 3, 2),
-	(9, 1, '1-2', 2.00, 1.00, 1, 2, 3),
-	(13, 2, '4555', 45.00, NULL, 4, 3, 2),
-	(17, 1, '777', 777.00, NULL, 4, 2, 3);
-/*!40000 ALTER TABLE `user_device_event_condition` ENABLE KEYS */;
 
 
 -- Дамп структуры для таблица things.user_device_measures

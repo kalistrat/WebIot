@@ -99,8 +99,7 @@ public class tTree extends Tree {
                     "from user_devices_tree udt\n" +
                     "join users u on u.user_id=udt.user_id\n" +
                     "left join user_device ud on ud.user_device_id=udt.user_device_id\n" +
-                    "left join device dev on dev.device_id=ud.device_id\n" +
-                    "left join action_type act on act.action_type_id=dev.action_type_id\n" +
+                    "left join action_type act on act.action_type_id=ud.action_type_id\n" +
                     "where u.user_log=?";
 
             PreparedStatement TreeSqlStmt = Con.prepareStatement(TreeSql);
