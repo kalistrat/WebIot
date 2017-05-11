@@ -27,11 +27,11 @@ public class tDeviceLayout extends VerticalLayout {
         String iLeafName = (String) eParentContentLayout.itTree.getItem(eLeafId).getItemProperty(4).getValue();
         System.out.println("eLeafId: " + eLeafId);
 
-        if (iActionType.equals("Термометры")) {
+        if (iActionType.equals("Измерительное устройство")) {
             this.addComponent(new tDetectorLayout(Integer.valueOf(iUserDeviceId),iLeafName,eLeafId,eParentContentLayout));
         }
-        if (iActionType.equals("Камеры")) {
-            this.addComponent(new tCameraLayout(Integer.valueOf(iUserDeviceId),iLeafName));
+        if (iActionType.equals("Исполнительное устройство")) {
+            this.addComponent(new tActuatorLayout(Integer.valueOf(iUserDeviceId),iLeafName,eLeafId,eParentContentLayout));
         }
 
     }

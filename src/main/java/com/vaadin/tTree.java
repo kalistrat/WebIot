@@ -4,6 +4,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.AbstractSelect;
@@ -14,11 +15,6 @@ import java.sql.*;
  * Created by kalistrat on 18.11.2016.
  */
 public class tTree extends Tree {
-
-    static final private String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final private String DB_URL = "jdbc:mysql://localhost/things";
-    static final private String USER = "kalistrat";
-    static final private String PASS = "045813";
 
     public HierarchicalContainer TreeContainer;
     //public String iUserLog;
@@ -39,11 +35,10 @@ public class tTree extends Tree {
             if (IconStr.equals("TACHOMETER")) {
                 setItemIcon(j, FontAwesome.TACHOMETER);
             }
-            if (IconStr.equals("VIDEO_CAMERA")) {
-                setItemIcon(j, FontAwesome.VIDEO_CAMERA);
+            if (IconStr.equals("AUTOMATION")) {
+                setItemIcon(j, VaadinIcons.AUTOMATION);
             }
         }
-
 
         setContainerDataSource(this.TreeContainer);
 
@@ -86,8 +81,12 @@ public class tTree extends Tree {
 
 
         try {
-            Class.forName(JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(DB_URL, USER, PASS);
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
 
             String TreeSql = "select udt.user_devices_tree_id\n" +
                     ",udt.leaf_id\n" +

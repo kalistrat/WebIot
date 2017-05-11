@@ -8,6 +8,11 @@ import java.util.List;
  */
 public class tUsefulFuctions {
 
+    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    static final String DB_URL = "jdbc:mysql://localhost/things";
+    static final String USER = "kalistrat";
+    static final String PASS = "045813";
+
     public static List<String> GetListFromString(String DevidedString){
         List<String> StrPieces = new ArrayList<String>();
         int k = 0;

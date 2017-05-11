@@ -70,9 +70,9 @@ public class tMainView extends CustomComponent implements View {
         MidSec.addComponent(this.TreeContentUsr);
 
         //MidSec.setHeight("1000px");
-        //MidSec.setWidth("100%");
+        //MidSec.setWidth("1000px");
         MidSec.setSizeFull();
-        MidSec.setSplitPosition(40, Sizeable.UNITS_PERCENTAGE); // percent
+        MidSec.setSplitPosition(35, Sizeable.UNITS_PERCENTAGE); // percent
         //MidSec.addStyleName(ValoTheme.LAYOUT_CARD);
 
 

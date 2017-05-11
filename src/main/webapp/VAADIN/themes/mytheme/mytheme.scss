@@ -52,14 +52,25 @@ $v-component-group-spacing: 6px;
 @mixin mytheme {
   @include valo;
 
+
+
   // Insert your own theme rules here
 
-  .icon-align-top.huge-icon .v-icon {
-    font-size: 50px;
+  //.icon-align-top.huge-icon .v-icon {
+  //  font-size: 50px;
+  //}
+  //
+  //.v-caption-mystyle {
+  //  font-size: 5px;
+  //}
+  .ButtonHugeIcon{
+    .v-icon {font-size: 50px;}
+    .v-button-caption {
+      font-size: 14px;
+      white-space: pre;
+    }
   }
 
-  //.icon-align-top.huge-icon .v-button-caption {
-  //  font-size: 10px;
-  //}
+
 
 }

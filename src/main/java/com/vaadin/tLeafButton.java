@@ -1,7 +1,9 @@
 package com.vaadin;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.themes.ValoTheme;
 
 import java.sql.*;
@@ -17,6 +19,8 @@ public class tLeafButton extends Button {
         String iButtonIconCode = (String) iParentContentLayout.itTree.getItem(eButtonLeafId).getItemProperty(5).getValue();
         Integer iUserDeviceId = (Integer) iParentContentLayout.itTree.getItem(eButtonLeafId).getItemProperty(6).getValue();
 
+        iButtonCaption = iButtonCaption.replace(" ","\n");
+        System.out.println(iButtonCaption);
 
         this.setCaption(iButtonCaption);
 
@@ -26,8 +30,8 @@ public class tLeafButton extends Button {
         if (iButtonIconCode.equals("TACHOMETER")) {
             this.setIcon(FontAwesome.TACHOMETER);
         }
-        if (iButtonIconCode.equals("VIDEO_CAMERA")) {
-            this.setIcon(FontAwesome.VIDEO_CAMERA);
+        if (iButtonIconCode.equals("AUTOMATION")) {
+            this.setIcon(VaadinIcons.AUTOMATION);
         }
 
         this.addClickListener(new Button.ClickListener() {
@@ -37,7 +41,13 @@ public class tLeafButton extends Button {
             }
         });
 
-        this.addStyleName(ValoTheme.BUTTON_ICON_ALIGN_TOP + " " + "huge-icon");
+
+        this.setSizeUndefined();
+        this.addStyleName("ButtonHugeIcon");
+        this.addStyleName(ValoTheme.BUTTON_ICON_ALIGN_TOP);
+        this.addStyleName(ValoTheme.BUTTON_LINK);
+
+
     }
 
 }

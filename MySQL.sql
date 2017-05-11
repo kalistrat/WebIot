@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS `action_type` (
 DELETE FROM `action_type`;
 /*!40000 ALTER TABLE `action_type` DISABLE KEYS */;
 INSERT INTO `action_type` (`action_type_id`, `action_type_name`, `icon_code`) VALUES
-	(1, 'Термометры', 'TACHOMETER'),
-	(2, 'Камеры', 'VIDEO_CAMERA');
+	(1, 'Измерительное устройство', 'TACHOMETER'),
+	(2, 'Исполнительное устройство', 'AUTOMATION');
 /*!40000 ALTER TABLE `action_type` ENABLE KEYS */;
 
 

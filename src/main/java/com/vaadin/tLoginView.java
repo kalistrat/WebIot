@@ -30,15 +30,6 @@ public class tLoginView extends CustomComponent implements View {
     PasswordField PassField = new PasswordField("Пароль");
 
 
-
-    private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost/things";
-
-    //  Database credentials
-    private static final String USER = "kalistrat";
-    private static final String PASS = "045813";
-
-
     public tLoginView(){
         setSizeFull();
         VerticalLayout LoginViewLayOut = new VerticalLayout();
@@ -89,8 +80,12 @@ public class tLoginView extends CustomComponent implements View {
                 Integer IsPlayerExists = 0;
 
                 try {
-                    Class.forName(JDBC_DRIVER);
-                    Connection conn = DriverManager.getConnection(DB_URL,USER,PASS);
+                    Class.forName(tUsefulFuctions.JDBC_DRIVER);
+                    Connection conn = DriverManager.getConnection(
+                            tUsefulFuctions.DB_URL
+                            ,tUsefulFuctions.USER
+                            ,tUsefulFuctions.PASS
+                    );
 
                     CallableStatement CheckUserStmt = conn.prepareCall("{? = call f_is_user_exists(?, ?)}");
                     CheckUserStmt.registerOutParameter (1, Types.INTEGER);

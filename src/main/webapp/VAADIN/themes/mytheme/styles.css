@@ -12957,6 +12957,11 @@ div.v-layout.v-horizontal.v-widget {
 	overflow: hidden;
 }
 
-.mytheme .icon-align-top.huge-icon .v-icon {
+.mytheme .ButtonHugeIcon .v-icon {
 	font-size: 50px;
+}
+
+.mytheme .ButtonHugeIcon .v-button-caption {
+	font-size: 14px;
+	white-space: pre;
 }

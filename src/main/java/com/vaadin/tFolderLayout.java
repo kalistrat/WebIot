@@ -70,32 +70,64 @@ public class tFolderLayout extends VerticalLayout {
         tFolderTable = new Table();
         //tFolderTable.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
         tFolderContainer = new IndexedContainer();
-        tFolderContainer.addContainerProperty(1, tLeafButtonLayout.class, null);
-        tFolderContainer.addContainerProperty(2, tLeafButtonLayout.class, null);
-        tFolderContainer.addContainerProperty(3, tLeafButtonLayout.class, null);
+//        tFolderContainer.addContainerProperty(1, tLeafButtonLayout.class, null);
+//        tFolderContainer.addContainerProperty(2, tLeafButtonLayout.class, null);
+//        tFolderContainer.addContainerProperty(3, tLeafButtonLayout.class, null);
+
+        tFolderContainer.addContainerProperty(1, tTableNodeLayout.class, null);
+        tFolderContainer.addContainerProperty(2, tTableNodeLayout.class, null);
+        tFolderContainer.addContainerProperty(3, tTableNodeLayout.class, null);
+
         this.ChildLeafs = ParentContentLayout.GetChildLeafsById(LeafId);
 
         if (this.ChildLeafs.size() != 0) {
+            int ChS = this.ChildLeafs.size();
+            Double CntItems = Math.ceil(ChS/(double) 3);
+            int CntItemsI = CntItems.intValue();
+            System.out.println("this.ChildLeafs.size() " + this.ChildLeafs.size());
+            System.out.println("CntItemsI " + CntItemsI);
 
-            this.tFolderContainer.addItem();
+            for (int i = 0; i< Math.ceil(this.ChildLeafs.size()/(double) 3); i++){
+                this.tFolderContainer.addItem();
+                for (int j = 0; j < 3; j++) {
+                    this.tFolderContainer.getItem(this.tFolderContainer.getIdByIndex(this.tFolderContainer.size() - 1))
+                            .getItemProperty(j+1).setValue(new tTableNodeLayout());
+                }
+            }
 
             for (Integer Chids : this.ChildLeafs) {
                 ncol = ncol + 1;
-                this.tFolderContainer.getItem(this.tFolderContainer.getIdByIndex(this.tFolderContainer.size() - 1))
-                        .getItemProperty(ncol).setValue(new tLeafButtonLayout(Chids, ParentContentLayout));
+                tTableNodeLayout tTableNodeLayoutNode = (tTableNodeLayout) this.tFolderContainer.getItem(this.tFolderContainer.getIdByIndex(nrow))
+                        .getItemProperty(ncol).getValue();
+                tLeafButtonLayout tLeafButtonNodeLayout = new tLeafButtonLayout(Chids, ParentContentLayout);
+                tTableNodeLayoutNode.addComponent(tLeafButtonNodeLayout);
+                tTableNodeLayoutNode.setComponentAlignment(tLeafButtonNodeLayout,Alignment.MIDDLE_CENTER);
                 if (ncol > 2) {
-                    this.tFolderContainer.addItem();
                     ncol = 0;
-
+                    nrow = nrow + 1;
                 }
 
             }
 
+//            this.tFolderContainer.addItem();
+//
+//            for (Integer Chids : this.ChildLeafs) {
+//                ncol = ncol + 1;
+//                this.tFolderContainer.getItem(this.tFolderContainer.getIdByIndex(this.tFolderContainer.size() - 1))
+//                        .getItemProperty(ncol).setValue(new tLeafButtonLayout(Chids, ParentContentLayout));
+//                if (ncol > 2) {
+//                    this.tFolderContainer.addItem();
+//                    ncol = 0;
+//
+//                }
+//
+//            }
+
             this.tFolderTable.setContainerDataSource(this.tFolderContainer);
             this.tFolderTable.setPageLength(this.tFolderContainer.size());
             this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_HEADER);
-            this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-            this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+            //this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
+            //this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
             this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
             this.tFolderTable.setColumnAlignment(1,Table.Align.CENTER);
             this.tFolderTable.setColumnAlignment(2,Table.Align.CENTER);
@@ -140,7 +172,7 @@ public class tFolderLayout extends VerticalLayout {
         TopLabelLayout.setSizeFull();
         FolderContentLayout.setSizeFull();
         TopLabelLayout.setMargin(new MarginInfo(false, true, false, true));
-        FolderContentLayout.setMargin(false);
+        FolderContentLayout.setMargin(true);
 
         VerticalSplitPanel SplPanel = new VerticalSplitPanel();
         SplPanel.setFirstComponent(TopLabelLayout);

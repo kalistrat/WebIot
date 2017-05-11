@@ -21,10 +21,6 @@ import static com.vaadin.tUsefulFuctions.GetMarksFromString;
  */
 public class tPeriodMeasuresLayout extends VerticalLayout {
 
-    static final private String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final private String DB_URL = "jdbc:mysql://localhost/things";
-    static final private String USER = "kalistrat";
-    static final private String PASS = "045813";
 
     NativeSelect tPeriodCB = new NativeSelect();
     Integer XD;
@@ -110,8 +106,12 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
     public void setComboBoxData(){
 
         try {
-            Class.forName(JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(DB_URL, USER, PASS);
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
 
             String PeriodSql = "select g.period_id\n" +
                     ",g.period_code\n" +
@@ -150,8 +150,12 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
         }
 
         try {
-            Class.forName(JDBC_DRIVER);
-            Connection conn = DriverManager.getConnection(DB_URL,USER,PASS);
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection conn = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    ,tUsefulFuctions.USER
+                    ,tUsefulFuctions.PASS
+            );
 
             CallableStatement XMarksListStmt = conn.prepareCall(SqlContent);
             XMarksListStmt.setInt(1, iUserDeviceId);
@@ -185,8 +189,12 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
     public void GetGraphData(int iUserDeviceId, String iPeriodCode){
 
         try {
-            Class.forName(JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(DB_URL, USER, PASS);
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
 
             String GraphSql = "select TIMESTAMPDIFF(second,f_get_graph_min_date_mark(?,?),udm.measure_date) x\n" +
                     ",round(udm.measure_value) y\n" +
@@ -230,8 +238,12 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
         String UnitSymbol = "";
 
         try {
-            Class.forName(JDBC_DRIVER);
-            Connection conn = DriverManager.getConnection(DB_URL,USER,PASS);
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection conn = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    ,tUsefulFuctions.USER
+                    ,tUsefulFuctions.PASS
+            );
 
             CallableStatement UnitSymStmt =  conn.prepareCall("{? = call f_get_unit_sym(?)}");
             UnitSymStmt.registerOutParameter (1, Types.INTEGER);
