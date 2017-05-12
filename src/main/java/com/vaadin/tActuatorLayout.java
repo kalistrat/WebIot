@@ -69,7 +69,10 @@ public class tActuatorLayout extends VerticalLayout {
         VerticalSplitPanel SplPanel = new VerticalSplitPanel();
         SplPanel.setFirstComponent(TopLabelLayout);
         SplPanel.setSecondComponent(DeviceDataLayout);
-        SplPanel.setSplitPosition(40, Sizeable.UNITS_PIXELS);
+
+        SplPanel.setSplitPosition(40, Unit.PIXELS);
+        SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
+        SplPanel.setMinSplitPosition(40,Unit.PIXELS);
         SplPanel.setHeight("1200px");
         //SplPanel.setWidth("1000px");
 

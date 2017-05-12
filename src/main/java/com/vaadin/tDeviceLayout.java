@@ -25,7 +25,7 @@ public class tDeviceLayout extends VerticalLayout {
         Integer iUserDeviceId = (Integer) eParentContentLayout.itTree.getItem(eLeafId).getItemProperty(6).getValue();
         String iActionType = (String) eParentContentLayout.itTree.getItem(eLeafId).getItemProperty(7).getValue();
         String iLeafName = (String) eParentContentLayout.itTree.getItem(eLeafId).getItemProperty(4).getValue();
-        System.out.println("eLeafId: " + eLeafId);
+        //System.out.println("eLeafId: " + eLeafId);
 
         if (iActionType.equals("Измерительное устройство")) {
             this.addComponent(new tDetectorLayout(Integer.valueOf(iUserDeviceId),iLeafName,eLeafId,eParentContentLayout));

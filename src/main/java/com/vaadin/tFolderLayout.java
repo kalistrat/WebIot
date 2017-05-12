@@ -1,15 +1,13 @@
 package com.vaadin;
 
-import com.vaadin.data.Item;
+
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,11 +79,12 @@ public class tFolderLayout extends VerticalLayout {
         this.ChildLeafs = ParentContentLayout.GetChildLeafsById(LeafId);
 
         if (this.ChildLeafs.size() != 0) {
-            int ChS = this.ChildLeafs.size();
-            Double CntItems = Math.ceil(ChS/(double) 3);
-            int CntItemsI = CntItems.intValue();
-            System.out.println("this.ChildLeafs.size() " + this.ChildLeafs.size());
-            System.out.println("CntItemsI " + CntItemsI);
+
+//            int ChS = this.ChildLeafs.size();
+//            Double CntItems = Math.ceil(ChS/(double) 3);
+//            int CntItemsI = CntItems.intValue();
+//            System.out.println("this.ChildLeafs.size() " + this.ChildLeafs.size());
+//            System.out.println("CntItemsI " + CntItemsI);
 
             for (int i = 0; i< Math.ceil(this.ChildLeafs.size()/(double) 3); i++){
                 this.tFolderContainer.addItem();
@@ -147,6 +146,7 @@ public class tFolderLayout extends VerticalLayout {
         TopLabel.addStyleName(ValoTheme.LABEL_COLORED);
         TopLabel.addStyleName(ValoTheme.LABEL_SMALL);
 
+
         tReturnParentFolderButton = new Button("Вверх");
         tReturnParentFolderButton.setIcon(FontAwesome.LEVEL_UP);
         tReturnParentFolderButton.addStyleName(ValoTheme.BUTTON_SMALL);
@@ -177,7 +177,9 @@ public class tFolderLayout extends VerticalLayout {
         VerticalSplitPanel SplPanel = new VerticalSplitPanel();
         SplPanel.setFirstComponent(TopLabelLayout);
         SplPanel.setSecondComponent(FolderContentLayout);
-        SplPanel.setSplitPosition(40, Sizeable.UNITS_PIXELS);
+        SplPanel.setSplitPosition(40, Unit.PIXELS);
+        SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
+        SplPanel.setMinSplitPosition(40,Unit.PIXELS);
         SplPanel.setHeight("500px");
         //SplPanel.setWidth("1000px");
 

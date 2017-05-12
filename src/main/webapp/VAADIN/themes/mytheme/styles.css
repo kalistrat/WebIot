@@ -12965,3 +12965,7 @@ div.v-layout.v-horizontal.v-widget {
 	font-size: 14px;
 	white-space: pre;
 }
+
+.mytheme .CaptionTree .v-tree-node-caption {
+	font-size: 14px;
+}

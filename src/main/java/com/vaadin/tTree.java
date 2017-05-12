@@ -1,15 +1,18 @@
 package com.vaadin;
 
+import com.vaadin.contextmenu.ContextMenu;
+import com.vaadin.contextmenu.Menu;
+import com.vaadin.contextmenu.MenuItem;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.Action;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
-import com.vaadin.ui.AbstractSelect;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Tree;
+import com.vaadin.ui.*;
+
 import java.sql.*;
 /**
  * Created by kalistrat on 18.11.2016.
@@ -17,6 +20,12 @@ import java.sql.*;
 public class tTree extends Tree {
 
     public HierarchicalContainer TreeContainer;
+
+//    private static final Action ACTION_ADD = new Action("Добавить");
+//    private static final Action ACTION_DELETE = new Action("Удалить");
+//    private static final Action[] ACTIONS = new Action[] { ACTION_ADD,
+//            ACTION_DELETE };
+
     //public String iUserLog;
 
     public tTree(String eUserLog,tMainView eMainView){
@@ -24,13 +33,14 @@ public class tTree extends Tree {
         this.TreeContainer = tTreeGetData(eUserLog);
 
         setItemCaptionPropertyId(4);
+        //this.addStyleName("captiontree");
 
 
         for (int j=1;j<this.TreeContainer.size()+1;j++) {
             String IconStr =  (String) this.TreeContainer.getItem(j).getItemProperty(5).getValue();
 
             if (IconStr.equals("FOLDER")) {
-                setItemIcon(j, FontAwesome.FOLDER);
+                setItemIcon(j, VaadinIcons.FOLDER);
             }
             if (IconStr.equals("TACHOMETER")) {
                 setItemIcon(j, FontAwesome.TACHOMETER);
@@ -42,6 +52,8 @@ public class tTree extends Tree {
 
         setContainerDataSource(this.TreeContainer);
 
+
+
         //Разворачиваю дерево
         for (Object id : this.rootItemIds()) {
             this.expandItemsRecursively(id);
@@ -49,21 +61,58 @@ public class tTree extends Tree {
 
         this.select(1);
 
-        //Добавляю слушатель для каждого листочка дерева
-        this.addListener(new Property.ValueChangeListener() {
+        //this.addStyleName("captiontree");
 
-            public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
-                if(event.getProperty().getValue() != null)
+        this.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                if(valueChangeEvent.getProperty().getValue() != null)
                 {
                     //String atribut = getItemCaption(event.getProperty().getValue());
                     //System.out.println(event.getProperty().getValue());
-                    Item SelectedItem = TreeContainer.getItem(event.getProperty().getValue());
+                    Item SelectedItem = TreeContainer.getItem(valueChangeEvent.getProperty().getValue());
                     //SelectedItem.getItemProperty(5).getValue();
                     eMainView.TreeContentUsr.tTreeContentLayoutRefresh((int) SelectedItem.getItemProperty(2).getValue(),(int) SelectedItem.getItemProperty(6).getValue());
 
                 }
             }
         });
+
+//        this.addActionHandler(new Action.Handler() {
+//            @Override
+//            public Action[] getActions(Object o, Object o1) {
+//                return ACTIONS;
+//            }
+//
+//            @Override
+//            public void handleAction(Action action, Object o, Object o1) {
+//
+//                if (action == ACTION_ADD) {
+//                 System.out.println("Попытка добавления");
+//                }
+//
+//                if (action == ACTION_DELETE) {
+//                    System.out.println("Попытка удаления");
+//                }
+//
+//            }
+//        });
+
+        //Добавляю слушатель для каждого листочка дерева
+//        this.addListener(new Property.ValueChangeListener() {
+//
+//            public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
+//                if(event.getProperty().getValue() != null)
+//                {
+//                    //String atribut = getItemCaption(event.getProperty().getValue());
+//                    //System.out.println(event.getProperty().getValue());
+//                    Item SelectedItem = TreeContainer.getItem(event.getProperty().getValue());
+//                    //SelectedItem.getItemProperty(5).getValue();
+//                    eMainView.TreeContentUsr.tTreeContentLayoutRefresh((int) SelectedItem.getItemProperty(2).getValue(),(int) SelectedItem.getItemProperty(6).getValue());
+//
+//                }
+//            }
+//        });
 
     }
 

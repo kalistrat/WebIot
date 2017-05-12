@@ -60,6 +60,8 @@ public class tMainView extends CustomComponent implements View {
 //        DeviceForm.addComponent(new tDeviceLayout());
 
         tTree DeviceTree = new tTree(this.CurrentUsr,this);
+        DeviceTree.addStyleName("CaptionTree");
+
         DeviceTree.setSizeFull();
         //DeviceForm.addStyleName(ValoTheme.LAYOUT_CARD);
         //DeviceTree.addStyleName(ValoTheme.LAYOUT_CARD);
