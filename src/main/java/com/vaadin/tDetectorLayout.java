@@ -73,7 +73,7 @@ public class tDetectorLayout extends VerticalLayout {
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);
 
-        SplPanel.setHeight("1200px");
+        SplPanel.setHeight("1000px");
         //SplPanel.setWidth("1000px");
 
         this.addComponent(SplPanel);

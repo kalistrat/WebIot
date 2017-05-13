@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win32
--- HeidiSQL Версия:              9.3.0.4984
+-- ОС Сервера:                   Win64
+-- HeidiSQL Версия:              9.1.0.4867
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -25,6 +25,23 @@ INSERT INTO `action_type` (`action_type_id`, `action_type_name`, `icon_code`) VA
 	(1, 'Измерительное устройство', 'TACHOMETER'),
 	(2, 'Исполнительное устройство', 'AUTOMATION');
 /*!40000 ALTER TABLE `action_type` ENABLE KEYS */;
+
+
+-- Дамп структуры для функция things.fIsLeafNameExists
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `fIsLeafNameExists`(eUserLog varchar(50)
+,eLeafNewName varchar(30)
+) RETURNS int(11)
+begin
+return(
+select count(*)
+from user_devices_tree udt
+join users u on u.user_id=udt.user_id
+where u.user_log = eUserLog
+and udt.leaf_name = eLeafNewName
+);
+end//
+DELIMITER ;
 
 
 -- Дамп структуры для функция things.f_do_time_marks
@@ -884,6 +901,39 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для процедура things.p_rename_leaf
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_rename_leaf`(IN `eUserLog` varchar(50)
+, IN `eLeafId` int
+, IN `eNewLeafName` varchar(30)
+)
+begin
+declare i_user_devices_tree_id int;
+declare i_user_device_id int;
+
+select udt.user_devices_tree_id
+,udt.user_device_id
+into i_user_devices_tree_id
+,i_user_device_id
+from user_devices_tree udt
+join users u on u.user_id=udt.user_id
+where udt.leaf_id = eLeafId
+and u.user_log = eUserLog;
+
+if (i_user_device_id is not null) then
+	update user_device ud
+	set ud.device_user_name = eNewLeafName
+	where ud.user_device_id = i_user_device_id;
+end if;
+
+update user_devices_tree udt
+set udt.leaf_name = eNewLeafName
+where udt.user_devices_tree_id = i_user_devices_tree_id;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для таблица things.users
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -906,16 +956,14 @@ INSERT INTO `users` (`user_id`, `user_log`, `user_pass`, `user_last_activity`, `
 -- Дамп структуры для таблица things.user_device
 CREATE TABLE IF NOT EXISTS `user_device` (
   `user_device_id` int(11) NOT NULL AUTO_INCREMENT,
-  `device_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `device_user_name` varchar(25) DEFAULT NULL,
+  `device_user_name` varchar(30) DEFAULT NULL,
   `user_device_mode` varchar(100) DEFAULT NULL,
   `user_device_measure_period` varchar(100) DEFAULT NULL,
   `user_device_date_from` datetime DEFAULT NULL,
   `action_type_id` int(11) DEFAULT NULL,
   `device_units` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`user_device_id`),
-  KEY `FK_user_device_device` (`device_id`),
   KEY `USER_DEVICE_NAME_INDX` (`user_id`,`device_user_name`),
   KEY `FK_user_device_action_type` (`action_type_id`),
   CONSTRAINT `FK_user_device_action_type` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`action_type_id`),
@@ -925,11 +973,11 @@ CREATE TABLE IF NOT EXISTS `user_device` (
 -- Дамп данных таблицы things.user_device: ~4 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
-INSERT INTO `user_device` (`user_device_id`, `device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`) VALUES
-	(1, 6, 1, 'UniPing RS-485', 'Однократное измерение', NULL, '2017-03-03 18:43:27', 1, NULL),
-	(2, 4, 1, 'HWg-STE', 'Периодическое измерение', 'ежечасно', '2017-02-28 18:32:52', 1, NULL),
-	(3, 1, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL),
-	(4, 2, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL);
+INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`) VALUES
+	(1, 1, 'UniPing RS-485', 'Однократное измерение', NULL, '2017-03-03 18:43:27', 1, NULL),
+	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежечасно', '2017-02-28 18:32:52', 1, NULL),
+	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL),
+	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL);
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -939,7 +987,7 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   `leaf_id` int(11) NOT NULL,
   `parent_leaf_id` int(11) DEFAULT NULL,
   `user_device_id` int(11) DEFAULT NULL,
-  `leaf_name` varchar(25) NOT NULL,
+  `leaf_name` varchar(30) NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`user_devices_tree_id`),
   KEY `FK_user_devices_tree_user_device` (`user_device_id`),
@@ -953,7 +1001,7 @@ DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
 	(1, 1, NULL, NULL, 'Устройства', 1),
-	(2, 2, 1, NULL, 'Комната', 1),
+	(2, 2, 1, NULL, 'Комната1', 1),
 	(3, 3, 2, 4, 'Microsoft LifeCam HD-3000', 1),
 	(4, 4, 2, 1, 'UniPing RS-485', 1),
 	(5, 5, 1, NULL, 'Кухня', 1),
@@ -961,7 +1009,7 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(7, 7, 5, 2, 'HWg-STE', 1),
 	(8, 8, 1, NULL, 'Прихожая', 1),
 	(9, 9, 1, NULL, 'Мыльня', 1),
-	(10, 10, 1, NULL, '1-я уборная', 1);
+	(10, 10, 1, NULL, '1-я уборная сортир', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

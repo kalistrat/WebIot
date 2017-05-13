@@ -12969,3 +12969,11 @@ div.v-layout.v-horizontal.v-widget {
 .mytheme .CaptionTree .v-tree-node-caption {
 	font-size: 14px;
 }
+
+.mytheme .CaptionMenu .v-menubar-menuitem-caption {
+	font-size: 14px;
+}
+
+.mytheme .TopLabel {
+	margin-top: 6px;
+}

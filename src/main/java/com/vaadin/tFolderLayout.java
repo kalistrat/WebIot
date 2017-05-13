@@ -1,7 +1,9 @@
 package com.vaadin;
 
 
+
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -23,6 +25,11 @@ public class tFolderLayout extends VerticalLayout {
     Button tReturnParentFolderButton;
     tTreeContentLayout tParentContentLayout;
     Integer tCurrentLeafId;
+
+    Button DeleteSubTreeButton;
+    Button EditSubTreeNameButton;
+    Label TopLabel;
+
 
     //int tLeafId;
     //tTreeContentLayout tParentContentLayout;
@@ -139,12 +146,19 @@ public class tFolderLayout extends VerticalLayout {
         }
 
 
-        Label TopLabel = new Label();
+        TopLabel = new Label();
         TopLabel.setContentMode(ContentMode.HTML);
 
         TopLabel.setValue(FontAwesome.FOLDER.getHtml() + " " + ParentContentLayout.GetLeafNameById(LeafId));
         TopLabel.addStyleName(ValoTheme.LABEL_COLORED);
         TopLabel.addStyleName(ValoTheme.LABEL_SMALL);
+        TopLabel.addStyleName("TopLabel");
+        TopLabel.setData("FOLDER");
+
+        //TopLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+        //TopLabel.setHeight("20px");
+
+
 
 
         tReturnParentFolderButton = new Button("Вверх");
@@ -165,23 +179,104 @@ public class tFolderLayout extends VerticalLayout {
             }
         });
 
-        HorizontalLayout TopLabelLayout = new HorizontalLayout(TopLabel,tReturnParentFolderButton);
-        TopLabelLayout.setComponentAlignment(TopLabel,Alignment.MIDDLE_LEFT);
-        TopLabelLayout.setComponentAlignment(tReturnParentFolderButton,Alignment.MIDDLE_RIGHT);
+        DeleteSubTreeButton = new Button("Удалить");
+        DeleteSubTreeButton.setIcon(VaadinIcons.CLOSE_CIRCLE);
+        DeleteSubTreeButton.addStyleName(ValoTheme.BUTTON_SMALL);
+        DeleteSubTreeButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 
-        TopLabelLayout.setSizeFull();
+        EditSubTreeNameButton = new Button();
+        EditSubTreeNameButton.setIcon(VaadinIcons.PENCIL);
+        EditSubTreeNameButton.addStyleName(ValoTheme.BUTTON_SMALL);
+        EditSubTreeNameButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+
+        EditSubTreeNameButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+
+                if (tParentContentLayout.GetParentLeafById(tCurrentLeafId)!=0) {
+                    UI.getCurrent().addWindow(new tChangeNameWindow(tCurrentLeafId
+                    ,tParentContentLayout
+                            ,TopLabel
+                    ));
+                } else {
+                    Notification.show(null,
+                            "Корневой каталог не редактируется",
+                            Notification.Type.TRAY_NOTIFICATION);
+                }
+            }
+        });
+
+        MenuBar EditFolderMenu = new MenuBar();
+
+        MenuBar.MenuItem AdditionItem = EditFolderMenu.addItem("Добавить"
+                , VaadinIcons.PLUS
+                , null);
+
+        MenuBar.Command mycommand = new MenuBar.Command() {
+            public void menuSelected(MenuBar.MenuItem selectedItem) {
+
+                Notification.show("Выбранный пункт:",
+                        selectedItem.getText(),
+                        Notification.Type.TRAY_NOTIFICATION);
+
+            }
+        };
+
+        AdditionItem.addItem("Добавить подкаталог"
+                , VaadinIcons.FOLDER_ADD
+                , mycommand
+        );
+
+        //Item1.setStyleName(ValoTheme.MENU_ITEM);
+
+        AdditionItem.addItem("Добавить устройство"
+                , VaadinIcons.PLUG
+                , mycommand
+        );
+
+        EditFolderMenu.addStyleName(ValoTheme.MENUBAR_SMALL);
+        EditFolderMenu.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+        EditFolderMenu.addStyleName("CaptionMenu");
+
+
+        HorizontalLayout FolderEditLayout = new HorizontalLayout(
+                EditFolderMenu
+                ,DeleteSubTreeButton
+                ,tReturnParentFolderButton
+        );
+        FolderEditLayout.setSizeUndefined();
+
+        HorizontalLayout LabelEditLayout = new HorizontalLayout(
+                TopLabel
+                ,EditSubTreeNameButton
+        );
+        LabelEditLayout.setSizeUndefined();
+        LabelEditLayout.setSpacing(true);
+
+        HorizontalLayout TopLayout = new HorizontalLayout(
+                LabelEditLayout
+                ,FolderEditLayout
+        );
+
+        TopLayout.setComponentAlignment(LabelEditLayout,Alignment.MIDDLE_LEFT);
+        TopLayout.setComponentAlignment(FolderEditLayout,Alignment.MIDDLE_RIGHT);
+
+//        TopLayout.setWidth("100%");
+//        TopLayout.setHeight("40px");
+        TopLayout.setSizeFull();
+
         FolderContentLayout.setSizeFull();
-        TopLabelLayout.setMargin(new MarginInfo(false, true, false, true));
+        TopLayout.setMargin(new MarginInfo(false, true, false, true));
         FolderContentLayout.setMargin(true);
 
         VerticalSplitPanel SplPanel = new VerticalSplitPanel();
-        SplPanel.setFirstComponent(TopLabelLayout);
+        SplPanel.setFirstComponent(TopLayout);
         SplPanel.setSecondComponent(FolderContentLayout);
         SplPanel.setSplitPosition(40, Unit.PIXELS);
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);
-        SplPanel.setHeight("500px");
-        //SplPanel.setWidth("1000px");
+        SplPanel.setHeight("1000px");
+        //SplPanel.setWidth("100%");
 
         this.addComponent(SplPanel);
         this.setSpacing(true);

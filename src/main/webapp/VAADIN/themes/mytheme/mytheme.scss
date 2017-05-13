@@ -56,13 +56,6 @@ $v-component-group-spacing: 6px;
 
   // Insert your own theme rules here
 
-  //.icon-align-top.huge-icon .v-icon {
-  //  font-size: 50px;
-  //}
-  //
-  //.v-caption-mystyle {
-  //  font-size: 5px;
-  //}
   .ButtonHugeIcon{
     .v-icon {font-size: 50px;}
     .v-button-caption {
@@ -77,6 +70,23 @@ $v-component-group-spacing: 6px;
     }
   }
 
+  .CaptionMenu {
+    .v-menubar-menuitem-caption{
+      font-size: 14px;
+    }
+  }
+
+  .TopLabel {
+    margin-top: 6px;
+  }
+
+
+  //.DeleteButton{
+  //  .v-icon {color: red}
+  //  .v-button-caption {
+  //    color: red;
+  //  }
+  //}
 
 
 }

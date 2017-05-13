@@ -74,7 +74,7 @@ public class tMainView extends CustomComponent implements View {
         //MidSec.setHeight("1000px");
         //MidSec.setWidth("1000px");
         MidSec.setSizeFull();
-        MidSec.setSplitPosition(35, Sizeable.UNITS_PERCENTAGE); // percent
+        MidSec.setSplitPosition(35, Unit.PERCENTAGE); // percent
         //MidSec.addStyleName(ValoTheme.LAYOUT_CARD);
 
 

@@ -1,8 +1,6 @@
 package com.vaadin;
 
-import com.vaadin.contextmenu.ContextMenu;
-import com.vaadin.contextmenu.Menu;
-import com.vaadin.contextmenu.MenuItem;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.HierarchicalContainer;

@@ -12,9 +12,12 @@ import java.util.List;
 public class tTreeContentLayout extends VerticalLayout {
 
     tTree itTree;
+    String iUserLog;
+
     public tTreeContentLayout(String tUserLog,tTree etTree){
 
         this.itTree = etTree;
+        this.iUserLog = tUserLog;
         this.addComponent(new tFolderLayout(1,this));
 
 
@@ -56,6 +59,18 @@ public class tTreeContentLayout extends VerticalLayout {
         } else {
             return iParentLeafId;
         }
+    }
+
+    public void setNewLeafName(int eLeafId,String eNewLeafName){
+
+        this.itTree.getItem(eLeafId).getItemProperty(4).setValue(eNewLeafName);
+
+    }
+
+    public String getLeafIconCode(int eLeafId){
+
+        return (String) this.itTree.getItem(eLeafId).getItemProperty(5).getValue();
+
     }
 
 }
