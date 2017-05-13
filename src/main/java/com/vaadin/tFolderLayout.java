@@ -153,7 +153,7 @@ public class tFolderLayout extends VerticalLayout {
         TopLabel.addStyleName(ValoTheme.LABEL_COLORED);
         TopLabel.addStyleName(ValoTheme.LABEL_SMALL);
         TopLabel.addStyleName("TopLabel");
-        TopLabel.setData("FOLDER");
+
 
         //TopLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         //TopLabel.setHeight("20px");
@@ -164,8 +164,8 @@ public class tFolderLayout extends VerticalLayout {
         tReturnParentFolderButton = new Button("Вверх");
         tReturnParentFolderButton.setIcon(FontAwesome.LEVEL_UP);
         tReturnParentFolderButton.addStyleName(ValoTheme.BUTTON_SMALL);
-        //tReturnParentFolderButton.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
         tReturnParentFolderButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        tReturnParentFolderButton.addStyleName("TopButton");
 
         tReturnParentFolderButton.addClickListener(new Button.ClickListener() {
             @Override
@@ -183,9 +183,10 @@ public class tFolderLayout extends VerticalLayout {
         DeleteSubTreeButton.setIcon(VaadinIcons.CLOSE_CIRCLE);
         DeleteSubTreeButton.addStyleName(ValoTheme.BUTTON_SMALL);
         DeleteSubTreeButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        DeleteSubTreeButton.addStyleName("TopButton");
 
         EditSubTreeNameButton = new Button();
-        EditSubTreeNameButton.setIcon(VaadinIcons.PENCIL);
+        EditSubTreeNameButton.setIcon(VaadinIcons.EDIT);
         EditSubTreeNameButton.addStyleName(ValoTheme.BUTTON_SMALL);
         EditSubTreeNameButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 

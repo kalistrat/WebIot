@@ -1,5 +1,6 @@
 package com.vaadin;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.MarginInfo;
@@ -16,6 +17,8 @@ public class tDetectorLayout extends VerticalLayout {
     Integer tCurrentLeafId;
     Label TopLabel;
     tTreeContentLayout tParentContentLayout;
+    Button EditSubTreeNameButton;
+    Button DeleteSubTreeButton;
 
     public tDetectorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
 
@@ -29,17 +32,16 @@ public class tDetectorLayout extends VerticalLayout {
         TopLabel.setValue(FontAwesome.TACHOMETER.getHtml() + " " + eLeafName);
         TopLabel.addStyleName(ValoTheme.LABEL_COLORED);
         TopLabel.addStyleName(ValoTheme.LABEL_SMALL);
+        TopLabel.addStyleName("TopLabel");
 
+        tDetectorFormLayout DeviceDataLayout = new tDetectorFormLayout();
 
-        VerticalLayout DeviceDataLayout = new VerticalLayout(
-                new Label(String.valueOf(eUserDeviceId))
-        );
 
         tReturnParentFolderButton = new Button("Вверх");
         tReturnParentFolderButton.setIcon(FontAwesome.LEVEL_UP);
         tReturnParentFolderButton.addStyleName(ValoTheme.BUTTON_SMALL);
-        //tReturnParentFolderButton.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
         tReturnParentFolderButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        tReturnParentFolderButton.addStyleName("TopButton");
 
         tReturnParentFolderButton.addClickListener(new Button.ClickListener() {
             @Override
@@ -53,21 +55,59 @@ public class tDetectorLayout extends VerticalLayout {
             }
         });
 
+        EditSubTreeNameButton = new Button();
+        EditSubTreeNameButton.setIcon(VaadinIcons.EDIT);
+        EditSubTreeNameButton.addStyleName(ValoTheme.BUTTON_SMALL);
+        EditSubTreeNameButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 
-        HorizontalLayout TopLabelLayout = new HorizontalLayout(TopLabel,tReturnParentFolderButton);
-        TopLabelLayout.setComponentAlignment(TopLabel,Alignment.MIDDLE_LEFT);
-        TopLabelLayout.setComponentAlignment(tReturnParentFolderButton,Alignment.MIDDLE_RIGHT);
-        TopLabelLayout.setSizeFull();
+        EditSubTreeNameButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                    UI.getCurrent().addWindow(new tChangeNameWindow(tCurrentLeafId
+                            ,tParentContentLayout
+                            ,TopLabel
+                    ));
+            }
+        });
+
+        DeleteSubTreeButton = new Button("Удалить");
+        DeleteSubTreeButton.setIcon(VaadinIcons.CLOSE_CIRCLE);
+        DeleteSubTreeButton.addStyleName(ValoTheme.BUTTON_SMALL);
+        DeleteSubTreeButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        DeleteSubTreeButton.addStyleName("TopButton");
 
 
-        TopLabelLayout.setHeight("100%");
-        DeviceDataLayout.setSizeUndefined();
-        TopLabelLayout.setMargin(new MarginInfo(false, true, false, true));
+        HorizontalLayout DetectorEditLayout = new HorizontalLayout(
+                DeleteSubTreeButton
+                ,tReturnParentFolderButton
+        );
+        DetectorEditLayout.setSizeUndefined();
+
+        HorizontalLayout LabelEditLayout = new HorizontalLayout(
+                TopLabel
+                ,EditSubTreeNameButton
+        );
+        LabelEditLayout.setSizeUndefined();
+        LabelEditLayout.setSpacing(true);
+
+        HorizontalLayout TopLayout = new HorizontalLayout(
+                LabelEditLayout
+                ,DetectorEditLayout
+        );
+
+        TopLayout.setComponentAlignment(LabelEditLayout,Alignment.MIDDLE_LEFT);
+        TopLayout.setComponentAlignment(DetectorEditLayout,Alignment.MIDDLE_RIGHT);
+
+        TopLayout.setSizeFull();
+        TopLayout.setMargin(new MarginInfo(false, true, false, true));
+
+
         DeviceDataLayout.setMargin(true);
         DeviceDataLayout.setSpacing(true);
+        DeviceDataLayout.setSizeFull();
 
         VerticalSplitPanel SplPanel = new VerticalSplitPanel();
-        SplPanel.setFirstComponent(TopLabelLayout);
+        SplPanel.setFirstComponent(TopLayout);
         SplPanel.setSecondComponent(DeviceDataLayout);
         SplPanel.setSplitPosition(40, Unit.PIXELS);
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
