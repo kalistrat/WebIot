@@ -21,6 +21,7 @@ public class tDetectorLayout extends VerticalLayout {
     Button DeleteSubTreeButton;
     int iUserDeviceId;
     tDetectorFormLayout DeviceDataLayout;
+    tPeriodMeasuresLayout DeviceMeasuresLayout;
 
     public tDetectorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
 
@@ -105,14 +106,22 @@ public class tDetectorLayout extends VerticalLayout {
         TopLayout.setSizeFull();
         TopLayout.setMargin(new MarginInfo(false, true, false, true));
 
+        DeviceMeasuresLayout = new tPeriodMeasuresLayout(iUserDeviceId);
 
-        DeviceDataLayout.setMargin(true);
-        DeviceDataLayout.setSpacing(true);
-        DeviceDataLayout.setSizeFull();
+        VerticalLayout ContentLayout = new VerticalLayout(
+                DeviceDataLayout
+                ,DeviceMeasuresLayout
+        );
+
+
+        ContentLayout.setMargin(true);
+        ContentLayout.setSpacing(true);
+        ContentLayout.setWidth("100%");
+        ContentLayout.setHeightUndefined();
 
         VerticalSplitPanel SplPanel = new VerticalSplitPanel();
         SplPanel.setFirstComponent(TopLayout);
-        SplPanel.setSecondComponent(DeviceDataLayout);
+        SplPanel.setSecondComponent(ContentLayout);
         SplPanel.setSplitPosition(40, Unit.PIXELS);
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);

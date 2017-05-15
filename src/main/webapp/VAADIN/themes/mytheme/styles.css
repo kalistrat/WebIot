@@ -12985,3 +12985,13 @@ div.v-layout.v-horizontal.v-widget {
 .mytheme .FormFont {
 	font-size: 14px;
 }
+
+.mytheme .SelectFont {
+	font-size: 14px;
+	color: #07a9ca;
+}
+
+.mytheme .SelectFont .v-caption {
+	font-size: 14px;
+	color: #07a9ca;
+}

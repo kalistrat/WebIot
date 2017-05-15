@@ -108,6 +108,8 @@ public class tDetectorFormLayout extends VerticalLayout {
                 dform
         );
         dForm.addStyleName(ValoTheme.LAYOUT_CARD);
+        dForm.setWidth("100%");
+        dForm.setHeightUndefined();
 
 
 
@@ -128,7 +130,8 @@ public class tDetectorFormLayout extends VerticalLayout {
                 DetectorFormHeader
                 ,FormHeaderButtons
         );
-        FormHeaderLayout.setSizeFull();
+        FormHeaderLayout.setWidth("100%");
+        FormHeaderLayout.setHeightUndefined();
         FormHeaderLayout.setComponentAlignment(DetectorFormHeader,Alignment.MIDDLE_LEFT);
         FormHeaderLayout.setComponentAlignment(FormHeaderButtons,Alignment.MIDDLE_RIGHT);
 
@@ -139,9 +142,11 @@ public class tDetectorFormLayout extends VerticalLayout {
                 ,dForm
         );
         ContentLayout.setSpacing(true);
-        //ContentLayout.setSizeFull();
+        ContentLayout.setWidth("100%");
+        ContentLayout.setHeightUndefined();
 
         this.addComponent(ContentLayout);
+        //this.addStyleName(ValoTheme.LAYOUT_WELL);
 
 
     }

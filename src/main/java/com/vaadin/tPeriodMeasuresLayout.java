@@ -4,10 +4,9 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.*;
+import com.vaadin.ui.themes.ValoTheme;
 import org.vaadin.teemu.VaadinIcons;
 
 import java.sql.*;
@@ -22,19 +21,22 @@ import static com.vaadin.tUsefulFuctions.GetMarksFromString;
 public class tPeriodMeasuresLayout extends VerticalLayout {
 
 
-    NativeSelect tPeriodCB = new NativeSelect();
+    NativeSelect tPeriodCB;
     Integer XD;
     Integer YD;
     List<tMark> MarkXList;
     List<tMark> MarkYList;
-    List<tMark> XYList = new ArrayList<tMark>();
+    List<tMark> XYList;
     Integer tUserDeviceId;
     tGraphLayout GraphDraw;
+    VerticalLayout ContentLayout;
 
     public tPeriodMeasuresLayout(int eUserDeviceId){
 
 
         this.tUserDeviceId = eUserDeviceId;
+        tPeriodCB = new NativeSelect();
+        XYList = new ArrayList<tMark>();
 
         setComboBoxData();
 
@@ -74,7 +76,7 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
                  );
                  //addComponent(GraphDraw);
 
-                 replaceComponent(GraphDraw,  GraphDrawNew);
+                 ContentLayout.replaceComponent(GraphDraw,GraphDrawNew);
                  GraphDraw = GraphDrawNew;
 
                  if (XYList.size() == 0){
@@ -92,14 +94,52 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
         ,this.XYList
         ,GetMeasureUnits(this.tUserDeviceId)
         );
+        GraphDraw.setMargin(false);
 
-        this.setCaption("Показания за ближайший период");
-        this.setIcon(VaadinIcons.CHART);
-        this.addComponent(tPeriodCB);
-        this.addComponent(GraphDraw);
+//        this.setCaption("Показания за ближайший период");
+//        this.setIcon(VaadinIcons.CHART);
 
-        this.setSpacing(true);
-        this.setSizeUndefined();
+
+        Label GraphHeader = new Label();
+        GraphHeader.setContentMode(ContentMode.HTML);
+        GraphHeader.setValue(com.vaadin.icons.VaadinIcons.CHART.getHtml() + "  " + "Показания за ближайший период");
+        GraphHeader.addStyleName(ValoTheme.LABEL_COLORED);
+        GraphHeader.addStyleName(ValoTheme.LABEL_SMALL);
+
+        FormLayout SelectForm = new FormLayout(
+                tPeriodCB
+        );
+        SelectForm.setSizeUndefined();
+        SelectForm.setMargin(false);
+
+        HorizontalLayout GraphSelect = new HorizontalLayout(
+                SelectForm
+        );
+        GraphSelect.setSpacing(true);
+        GraphSelect.setSizeUndefined();
+        GraphSelect.addStyleName("SelectFont");
+
+        HorizontalLayout GraphHeaderLayout = new HorizontalLayout(
+                GraphHeader
+                ,GraphSelect
+        );
+        GraphHeaderLayout.setHeightUndefined();
+        GraphHeaderLayout.setWidth("100%");
+        GraphHeaderLayout.setMargin(false);
+        GraphHeaderLayout.setComponentAlignment(GraphHeader,Alignment.MIDDLE_LEFT);
+        GraphHeaderLayout.setComponentAlignment(GraphSelect,Alignment.MIDDLE_RIGHT);
+
+
+        ContentLayout = new VerticalLayout(
+                GraphHeaderLayout
+                ,GraphDraw
+        );
+        ContentLayout.setSpacing(true);
+        ContentLayout.setMargin(false);
+        //ContentLayout.setSizeFull();
+
+        this.addComponent(ContentLayout);
+        //this.addStyleName(ValoTheme.LAYOUT_WELL);
 
     }
 

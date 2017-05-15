@@ -217,9 +217,15 @@ public class tFolderLayout extends VerticalLayout {
         MenuBar.Command mycommand = new MenuBar.Command() {
             public void menuSelected(MenuBar.MenuItem selectedItem) {
 
-                Notification.show("Выбранный пункт:",
-                        selectedItem.getText(),
-                        Notification.Type.TRAY_NOTIFICATION);
+                if (selectedItem.getText().equals("Добавить подкаталог")) {
+                    UI.getCurrent().addWindow(new tAddFolderWindow(tCurrentLeafId
+                            ,tParentContentLayout
+                    ));
+                } else {
+                    Notification.show("Выбранный пункт:",
+                            selectedItem.getText(),
+                            Notification.Type.TRAY_NOTIFICATION);
+                }
 
             }
         };

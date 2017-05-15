@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win64
--- HeidiSQL Версия:              9.1.0.4867
+-- ОС Сервера:                   Win32
+-- HeidiSQL Версия:              9.3.0.4984
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -599,6 +599,50 @@ INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`) 
 /*!40000 ALTER TABLE `mqtt_servers` ENABLE KEYS */;
 
 
+-- Дамп структуры для процедура things.p_add_subfolder
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_subfolder`(
+eParentLeafId int
+,eFolderName varchar(30)
+,eUserLog varchar(50)
+,out oTreeId int
+,out oNewLeafId int 
+)
+begin
+declare i_user_id int;
+declare i_leaf_id int;
+
+select u.user_id
+,max(udt.leaf_id) + 1
+into i_user_id
+,i_leaf_id
+from user_devices_tree udt
+join users u on u.user_id = udt.user_id
+where u.user_log = 'k'
+group by u.user_id;
+
+insert into user_devices_tree(
+leaf_id
+,parent_leaf_id
+,user_device_id
+,leaf_name
+,user_id
+)
+values(
+i_leaf_id
+,eParentLeafId
+,null
+,eFolderName
+,i_user_id
+);
+
+select LAST_INSERT_ID() into oTreeId;
+set oNewLeafId = i_leaf_id;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для процедура things.p_get_int_bounds_for_date
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_get_int_bounds_for_date`(IN `eMinValDate` datetime
@@ -1016,14 +1060,14 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_devices_tree: ~10 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
 	(1, 1, NULL, NULL, 'Устройства', 1),
-	(2, 2, 1, NULL, 'Комната Ани', 1),
+	(2, 2, 1, NULL, 'Комната', 1),
 	(3, 3, 2, 4, 'Microsoft LifeCam HD-3000', 1),
 	(4, 4, 2, 1, 'UniPing RS-485', 1),
 	(5, 5, 1, NULL, 'Кухня', 1),
@@ -1031,7 +1075,22 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(7, 7, 5, 2, 'HWg-STE', 1),
 	(8, 8, 1, NULL, 'Прихожая', 1),
 	(9, 9, 1, NULL, 'Мыльня', 1),
-	(10, 10, 1, NULL, '1-я уборная сортир', 1);
+	(10, 10, 1, NULL, '1-я уборная сортир', 1),
+	(11, 11, 2, NULL, 'Подкаталог 1', 1),
+	(12, 12, 11, NULL, 'подкаталог 22', 1),
+	(13, 13, 11, NULL, '123', 1),
+	(14, 14, 1, NULL, 'Подвальное помещение', 1),
+	(15, 15, 1, NULL, 'Гаражный отсек', 1),
+	(16, 16, 1, NULL, 'Подсобка', 1),
+	(17, 17, 1, NULL, 'Сенцы', 1),
+	(18, 18, 1, NULL, '123456', 1),
+	(19, 19, 13, NULL, '5546546', 1),
+	(20, 20, 12, NULL, '4565463', 1),
+	(21, 21, 20, NULL, '457756756', 1),
+	(22, 22, 13, NULL, '463464', 1),
+	(23, 23, 22, NULL, '346343', 1),
+	(24, 24, 22, NULL, '54654', 1),
+	(25, 25, 24, NULL, '546456', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

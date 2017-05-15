@@ -73,4 +73,28 @@ public class tTreeContentLayout extends VerticalLayout {
 
     }
 
+    public List<Integer> getChildAllLeafsByList(List<Integer> eParentLeafIds){
+
+        List<Integer> PrevList = eParentLeafIds;
+
+        int PrevListSize = eParentLeafIds.size();
+
+            for (int i = 0; i < eParentLeafIds.size(); i++) {
+                for (int j = 0; j < GetChildLeafsById(eParentLeafIds.get(i)).size(); j++) {
+                    PrevList.add(GetChildLeafsById(eParentLeafIds.get(i)).get(j));
+                }
+            }
+
+        if (PrevList.size() != eParentLeafIds.size()) {
+            return getChildAllLeafsByList(PrevList);
+        } else {
+            return PrevList;
+        }
+
+    }
+
+    public List<Integer> getChildAllLeafsById(int LeafId){
+        return getChildAllLeafsByList(GetChildLeafsById(LeafId));
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.vaadin;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,5 +84,36 @@ public class tUsefulFuctions {
             }
         }
         else return null;
+    }
+
+    public static int fIsLeafNameBusy(String qUserLog,String qNewLeafName){
+        int IsBusy = 0;
+
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement LeafNameBusyStmt = Con.prepareCall("{? = call fIsLeafNameExists(?, ?)}");
+            LeafNameBusyStmt.registerOutParameter (1, Types.INTEGER);
+            LeafNameBusyStmt.setString(2, qUserLog);
+            LeafNameBusyStmt.setString(3, qNewLeafName);
+            LeafNameBusyStmt.execute();
+            IsBusy = LeafNameBusyStmt.getInt(1);
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+
+        return IsBusy;
     }
 }

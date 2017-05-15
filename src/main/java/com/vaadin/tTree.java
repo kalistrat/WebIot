@@ -72,6 +72,15 @@ public class tTree extends Tree {
                     //SelectedItem.getItemProperty(5).getValue();
                     eMainView.TreeContentUsr.tTreeContentLayoutRefresh((int) SelectedItem.getItemProperty(2).getValue(),(int) SelectedItem.getItemProperty(6).getValue());
 
+                    int SelectedLeafId = (int) SelectedItem.getItemProperty(2).getValue();
+                    System.out.println("SelectedLeafId :" + SelectedLeafId);
+
+                    for (Integer iL : eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId)) {
+                        System.out.println("iL :" + iL);
+                    }
+
+                    System.out.println("last iL :" + eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId).get(eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId).size()-1));
+
                 }
             }
         });

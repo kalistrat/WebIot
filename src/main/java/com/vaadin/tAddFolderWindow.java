@@ -1,46 +1,41 @@
 package com.vaadin;
 
+import com.vaadin.data.Item;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
 import java.sql.*;
 
 /**
- * Created by kalistrat on 13.05.2017.
+ * Created by kalistrat on 15.05.2017.
  */
-public class tChangeNameWindow extends Window {
+public class tAddFolderWindow extends Window {
 
     Button SaveButton;
     TextField EditTextField;
     tTreeContentLayout iTreeContentLayout;
     int iLeafId;
-    Label iTopLabel;
+    int iNewTreeId;
+    int iNewLeafId;
 
-
-    public tChangeNameWindow(int eLeafId
+    public tAddFolderWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
-                             ,Label eTopLabel
-                             ,TextField ChangingTextField
-
     ){
         iLeafId = eLeafId;
         iTreeContentLayout = eParentContentLayout;
-        iTopLabel = eTopLabel;
+
+        iNewTreeId = 0;
+        iNewLeafId = 0;
 
 
-        this.setIcon(VaadinIcons.PENCIL);
-        this.setCaption(" Введите новое наименование");
+        this.setIcon(VaadinIcons.FOLDER_ADD);
+        this.setCaption(" Добавление подкаталога");
 
-        EditTextField = new TextField("Новое наименование");
+        EditTextField = new TextField("Наименование подкаталога");
+        EditTextField.setIcon(VaadinIcons.FOLDER);
         EditTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
-        EditTextField.setValue(
-                iTreeContentLayout.GetLeafNameById(iLeafId)
-        );
-
 
         SaveButton = new Button("Сохранить");
 
@@ -56,11 +51,11 @@ public class tChangeNameWindow extends Window {
                 String sFieldValue = EditTextField.getValue();
 
                 if (sFieldValue == null){
-                    sErrorMessage = "Новое значение не задано\n";
+                    sErrorMessage = "Наименование подкаталога не задано\n";
                 }
 
                 if (sFieldValue.equals("")){
-                    sErrorMessage = "Новое значение не задано\n";
+                    sErrorMessage = "Наименование подкаталога не задано\n";
                 }
 
                 if (sFieldValue.length() > 30){
@@ -77,32 +72,28 @@ public class tChangeNameWindow extends Window {
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
 
-                    String IconCode = iTreeContentLayout.getLeafIconCode(iLeafId);
 
-                    if (IconCode.equals("FOLDER")) {
-                        iTopLabel.setValue(VaadinIcons.FOLDER.getHtml() + " " + sFieldValue);
+                    addSubFolder(iLeafId,sFieldValue,iTreeContentLayout.iUserLog);
+
+                    if (iNewTreeId != 0) {
+
+                        Item newItem = iTreeContentLayout.itTree.TreeContainer.getItem(iTreeContentLayout.itTree.TreeContainer.addItem());
+                        newItem.getItemProperty(1).setValue(iNewTreeId);
+                        newItem.getItemProperty(2).setValue(iNewLeafId);
+                        newItem.getItemProperty(3).setValue(iLeafId);
+                        newItem.getItemProperty(4).setValue(sFieldValue);
+                        newItem.getItemProperty(5).setValue("FOLDER");
+                        newItem.getItemProperty(6).setValue(0);
+                        newItem.getItemProperty(7).setValue(null);
+
+                        iTreeContentLayout.itTree.TreeContainer.setParent(iNewLeafId, iLeafId);
+                        iTreeContentLayout.itTree.setItemIcon(iNewLeafId, VaadinIcons.FOLDER);
+                        iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId,0);
                     }
-
-                    if (IconCode.equals("TACHOMETER")) {
-                        iTopLabel.setValue(FontAwesome.TACHOMETER.getHtml() + " " + sFieldValue);
-                    }
-
-                    if (IconCode.equals("AUTOMATION")) {
-                        iTopLabel.setValue(VaadinIcons.AUTOMATION.getHtml() + " " + sFieldValue);
-                    }
-
-                    if (ChangingTextField != null) {
-                        ChangingTextField.setValue(sFieldValue);
-                    }
-
-
-                    iTreeContentLayout.setNewLeafName(iLeafId,sFieldValue);
-                    renameUserLeaf(iTreeContentLayout.iUserLog,iLeafId,sFieldValue);
-
-                    Notification.show("Наименование изменено!",
+                    Notification.show("Подкаталог добавлен!",
                             null,
                             Notification.Type.TRAY_NOTIFICATION);
-                    UI.getCurrent().removeWindow((tChangeNameWindow) clickEvent.getButton().getData());
+                    UI.getCurrent().removeWindow((tAddFolderWindow) clickEvent.getButton().getData());
 
                 }
 
@@ -141,8 +132,11 @@ public class tChangeNameWindow extends Window {
         this.setModal(true);
     }
 
-
-    public void renameUserLeaf(String qUserLog,int qLeafId,String qNewLeafName){
+    public void addSubFolder(
+            int qParentLeafId
+            ,String qSubFolderName
+            ,String qUserLog
+    ){
         try {
 
             Class.forName(tUsefulFuctions.JDBC_DRIVER);
@@ -152,11 +146,17 @@ public class tChangeNameWindow extends Window {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement NewLeafNameStmt = Con.prepareCall("{call p_rename_leaf(?, ?, ?)}");
-            NewLeafNameStmt.setString(1, qUserLog);
-            NewLeafNameStmt.setInt(2, qLeafId);
-            NewLeafNameStmt.setString(3, qNewLeafName);
-            NewLeafNameStmt.execute();
+            CallableStatement addFolderStmt = Con.prepareCall("{call p_add_subfolder(?, ?, ?, ?, ?)}");
+            addFolderStmt.setInt(1, qParentLeafId);
+            addFolderStmt.setString(2, qSubFolderName);
+            addFolderStmt.setString(3, qUserLog);
+            addFolderStmt.registerOutParameter(4, Types.INTEGER);
+            addFolderStmt.registerOutParameter(5, Types.INTEGER);
+            addFolderStmt.execute();
+
+            iNewTreeId = addFolderStmt.getInt(4);
+            iNewLeafId = addFolderStmt.getInt(5);
+
             Con.close();
 
         }catch(SQLException se){
