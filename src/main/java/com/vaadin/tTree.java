@@ -12,6 +12,8 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.*;
 
 import java.sql.*;
+import java.util.List;
+
 /**
  * Created by kalistrat on 18.11.2016.
  */
@@ -75,11 +77,13 @@ public class tTree extends Tree {
                     int SelectedLeafId = (int) SelectedItem.getItemProperty(2).getValue();
                     System.out.println("SelectedLeafId :" + SelectedLeafId);
 
-                    for (Integer iL : eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId)) {
+                    List<Integer> chList = eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId);
+
+                    for (Integer iL : chList) {
                         System.out.println("iL :" + iL);
                     }
 
-                    System.out.println("last iL :" + eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId).get(eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId).size()-1));
+                    //System.out.println("last iL :" + eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId).get(eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId).size()-1));
 
                 }
             }

@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win32
--- HeidiSQL Версия:              9.3.0.4984
+-- ОС Сервера:                   Win64
+-- HeidiSQL Версия:              9.1.0.4867
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -1060,9 +1060,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~10 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~25 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -1083,14 +1083,9 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(15, 15, 1, NULL, 'Гаражный отсек', 1),
 	(16, 16, 1, NULL, 'Подсобка', 1),
 	(17, 17, 1, NULL, 'Сенцы', 1),
-	(18, 18, 1, NULL, '123456', 1),
-	(19, 19, 13, NULL, '5546546', 1),
-	(20, 20, 12, NULL, '4565463', 1),
-	(21, 21, 20, NULL, '457756756', 1),
-	(22, 22, 13, NULL, '463464', 1),
-	(23, 23, 22, NULL, '346343', 1),
-	(24, 24, 22, NULL, '54654', 1),
-	(25, 25, 24, NULL, '546456', 1);
+	(28, 18, 13, NULL, '123-1', 1),
+	(29, 19, 18, NULL, '12321', 1),
+	(30, 20, 19, NULL, '123123', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

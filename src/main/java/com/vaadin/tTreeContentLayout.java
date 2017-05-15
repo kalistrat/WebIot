@@ -77,8 +77,6 @@ public class tTreeContentLayout extends VerticalLayout {
 
         List<Integer> PrevList = eParentLeafIds;
 
-        int PrevListSize = eParentLeafIds.size();
-
             for (int i = 0; i < eParentLeafIds.size(); i++) {
                 for (int j = 0; j < GetChildLeafsById(eParentLeafIds.get(i)).size(); j++) {
                     PrevList.add(GetChildLeafsById(eParentLeafIds.get(i)).get(j));
