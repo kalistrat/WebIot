@@ -198,6 +198,7 @@ public class tFolderLayout extends VerticalLayout {
                     UI.getCurrent().addWindow(new tChangeNameWindow(tCurrentLeafId
                     ,tParentContentLayout
                             ,TopLabel
+                            ,null
                     ));
                 } else {
                     Notification.show(null,

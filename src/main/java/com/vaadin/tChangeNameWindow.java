@@ -24,6 +24,7 @@ public class tChangeNameWindow extends Window {
     public tChangeNameWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
                              ,Label eTopLabel
+                             ,TextField ChangingTextField
 
     ){
         iLeafId = eLeafId;
@@ -88,6 +89,10 @@ public class tChangeNameWindow extends Window {
 
                     if (IconCode.equals("AUTOMATION")) {
                         iTopLabel.setValue(VaadinIcons.AUTOMATION.getHtml() + " " + sFieldValue);
+                    }
+
+                    if (ChangingTextField != null) {
+                        ChangingTextField.setValue(sFieldValue);
                     }
 
 

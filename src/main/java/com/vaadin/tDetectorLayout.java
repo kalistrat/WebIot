@@ -19,11 +19,14 @@ public class tDetectorLayout extends VerticalLayout {
     tTreeContentLayout tParentContentLayout;
     Button EditSubTreeNameButton;
     Button DeleteSubTreeButton;
+    int iUserDeviceId;
+    tDetectorFormLayout DeviceDataLayout;
 
     public tDetectorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
 
         this.tCurrentLeafId = eLeafId;
         this.tParentContentLayout = eParentContentLayout;
+        iUserDeviceId = eUserDeviceId;
 
         TopLabel = new Label();
         TopLabel.setContentMode(ContentMode.HTML);
@@ -34,7 +37,7 @@ public class tDetectorLayout extends VerticalLayout {
         TopLabel.addStyleName(ValoTheme.LABEL_SMALL);
         TopLabel.addStyleName("TopLabel");
 
-        tDetectorFormLayout DeviceDataLayout = new tDetectorFormLayout();
+        DeviceDataLayout = new tDetectorFormLayout(iUserDeviceId);
 
 
         tReturnParentFolderButton = new Button("Вверх");
@@ -66,6 +69,7 @@ public class tDetectorLayout extends VerticalLayout {
                     UI.getCurrent().addWindow(new tChangeNameWindow(tCurrentLeafId
                             ,tParentContentLayout
                             ,TopLabel
+                            ,DeviceDataLayout.NameTextField
                     ));
             }
         });

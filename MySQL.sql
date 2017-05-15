@@ -582,6 +582,23 @@ INSERT INTO `graph_period` (`period_id`, `period_code`) VALUES
 /*!40000 ALTER TABLE `graph_period` ENABLE KEYS */;
 
 
+-- Дамп структуры для таблица things.mqtt_servers
+CREATE TABLE IF NOT EXISTS `mqtt_servers` (
+  `server_id` int(11) NOT NULL AUTO_INCREMENT,
+  `server_ip` varchar(20) DEFAULT NULL,
+  `server_port` varchar(8) DEFAULT NULL,
+  `is_busy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`server_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- Дамп данных таблицы things.mqtt_servers: ~1 rows (приблизительно)
+DELETE FROM `mqtt_servers`;
+/*!40000 ALTER TABLE `mqtt_servers` DISABLE KEYS */;
+INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`) VALUES
+	(1, '192.168.1.64', '8383', 0);
+/*!40000 ALTER TABLE `mqtt_servers` ENABLE KEYS */;
+
+
 -- Дамп структуры для процедура things.p_get_int_bounds_for_date
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_get_int_bounds_for_date`(IN `eMinValDate` datetime
@@ -963,9 +980,14 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   `user_device_date_from` datetime DEFAULT NULL,
   `action_type_id` int(11) DEFAULT NULL,
   `device_units` varchar(20) DEFAULT NULL,
+  `mqtt_topic_write` varchar(200) DEFAULT NULL,
+  `mqtt_topic_read` varchar(200) DEFAULT NULL,
+  `mqqt_server_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`user_device_id`),
   KEY `USER_DEVICE_NAME_INDX` (`user_id`,`device_user_name`),
   KEY `FK_user_device_action_type` (`action_type_id`),
+  KEY `FK_user_device_mqtt_servers` (`mqqt_server_id`),
+  CONSTRAINT `FK_user_device_mqtt_servers` FOREIGN KEY (`mqqt_server_id`) REFERENCES `mqtt_servers` (`server_id`),
   CONSTRAINT `FK_user_device_action_type` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`action_type_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
@@ -973,11 +995,11 @@ CREATE TABLE IF NOT EXISTS `user_device` (
 -- Дамп данных таблицы things.user_device: ~4 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
-INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`) VALUES
-	(1, 1, 'UniPing RS-485', 'Однократное измерение', NULL, '2017-03-03 18:43:27', 1, NULL),
-	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежечасно', '2017-02-28 18:32:52', 1, NULL),
-	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL),
-	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL);
+INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`) VALUES
+	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'ежесекундно', '2017-03-03 18:43:27', 1, '°С', 'k/1W', '', 1),
+	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежечасно', '2017-02-28 18:32:52', 1, '°С', 'k/2W', NULL, 1),
+	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL),
+	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -1001,7 +1023,7 @@ DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
 	(1, 1, NULL, NULL, 'Устройства', 1),
-	(2, 2, 1, NULL, 'Комната1', 1),
+	(2, 2, 1, NULL, 'Комната Ани', 1),
 	(3, 3, 2, 4, 'Microsoft LifeCam HD-3000', 1),
 	(4, 4, 2, 1, 'UniPing RS-485', 1),
 	(5, 5, 1, NULL, 'Кухня', 1),
