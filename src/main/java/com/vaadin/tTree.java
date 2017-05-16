@@ -44,31 +44,16 @@ public class tTree extends Tree {
         tTreeGetData(eUserLog);
 
         setItemCaptionPropertyId(4);
-        //this.addStyleName("captiontree");
-
-
-        for (int j=1;j<this.TreeContainer.size()+1;j++) {
-            String IconStr =  (String) this.TreeContainer.getItem(j).getItemProperty(5).getValue();
-
-            if (IconStr.equals("FOLDER")) {
-                setItemIcon(j, VaadinIcons.FOLDER);
-            }
-            if (IconStr.equals("TACHOMETER")) {
-                setItemIcon(j, FontAwesome.TACHOMETER);
-            }
-            if (IconStr.equals("AUTOMATION")) {
-                setItemIcon(j, VaadinIcons.AUTOMATION);
-            }
-        }
 
         setContainerDataSource(this.TreeContainer);
 
-
-
         //Разворачиваю дерево
-        for (Object id : this.rootItemIds()) {
-            this.expandItemsRecursively(id);
-        }
+//        for (Object id : this.rootItemIds()) {
+//            this.expandItemsRecursively(id);
+//        }
+
+        this.expandItem(1);
+
 
         this.select(1);
 
@@ -205,21 +190,28 @@ public class tTree extends Tree {
         }
 
         //String s1 = (String) iTreeContainer.getItem(1).getItemProperty(4).getValue();
-        System.out.println("TreeContainer.size() : " + TreeContainer.size());
 
 
         for (int i = 0; i < TreeContainer.size(); i++){
 
-            System.out.println("set Parent getItem(i+1) : " + ((Integer) TreeContainer.getItem(i+1).getItemProperty(1).getValue()).intValue());
-
             if (((Integer) TreeContainer.getItem(i+1).getItemProperty(3).getValue()).intValue() != 0) {
                 TreeContainer.setParent(i+1, TreeContainer.getItem(i+1).getItemProperty(3).getValue());
-                //String s1 = (String) iTreeContainer.getItem(i).getItemProperty(4).getValue();
-                //String s1 = String.valueOf(iTreeContainer.getItem(i).getItemProperty(3).getValue());
-
-                //System.out.println(s1);
             }
 
+        }
+
+        for (int j=1;j<TreeContainer.size()+1;j++) {
+            String IconStr =  (String) TreeContainer.getItem(j).getItemProperty(5).getValue();
+
+            if (IconStr.equals("FOLDER")) {
+                setItemIcon(j, VaadinIcons.FOLDER);
+            }
+            if (IconStr.equals("TACHOMETER")) {
+                setItemIcon(j, FontAwesome.TACHOMETER);
+            }
+            if (IconStr.equals("AUTOMATION")) {
+                setItemIcon(j, VaadinIcons.AUTOMATION);
+            }
         }
 
     }

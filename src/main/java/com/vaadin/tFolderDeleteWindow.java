@@ -57,6 +57,9 @@ public class tFolderDeleteWindow extends Window {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
 
+//                String sParentLeafName = iTreeContentLayout
+//                        .GetLeafNameById(iTreeContentLayout.GetParentLeafById(iLeafId));
+
                 List<Integer> ChildsLeafs = iTreeContentLayout.getChildAllLeafsById(iLeafId);
                 int childLeafsCount = ChildsLeafs.size();
 
@@ -74,7 +77,9 @@ public class tFolderDeleteWindow extends Window {
 
                 tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,iLeafId);
                 iTreeContentLayout.reloadTreeContainer();
+                //Integer iNewParentLeafId = iTreeContentLayout.getLeafIdByName(sParentLeafName);
                 iTreeContentLayout.tTreeContentLayoutRefresh(1,0);
+                iTreeContentLayout.itTree.expandItem(1);
 
                 Notification.show("Подкаталог удалён!",
                         null,

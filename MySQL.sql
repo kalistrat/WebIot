@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win32
--- HeidiSQL Версия:              9.3.0.4984
+-- ОС Сервера:                   Win64
+-- HeidiSQL Версия:              9.1.0.4867
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -1156,9 +1156,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~11 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~12 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -1166,13 +1166,14 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(5, 2, 1, NULL, 'Кухня', 1),
 	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1),
 	(7, 4, 2, 2, 'HWg-STE', 1),
-	(8, 5, 1, NULL, 'Прихожая', 1),
-	(9, 6, 1, NULL, 'Мыльня', 1),
-	(10, 7, 1, NULL, '1-я уборная сортир', 1),
-	(15, 8, 1, NULL, 'Гаражный отсек', 1),
-	(39, 9, 1, NULL, 'Комната', 1),
-	(40, 10, 9, 4, 'Microsoft LifeCam HD-3000', 1),
-	(41, 11, 9, 1, 'UniPing RS-485', 1);
+	(39, 5, 1, NULL, 'Комната', 1),
+	(40, 6, 5, 4, 'Microsoft LifeCam HD-3000', 1),
+	(41, 7, 5, 1, 'UniPing RS-485', 1),
+	(74, 8, 1, NULL, 'Мыльня', 1),
+	(75, 9, 1, NULL, 'Гараж', 1),
+	(76, 10, 1, NULL, '1-я уборная', 1),
+	(78, 11, 1, NULL, '432543', 1),
+	(79, 12, 1, NULL, '436346', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

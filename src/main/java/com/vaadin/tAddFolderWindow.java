@@ -89,6 +89,7 @@ public class tAddFolderWindow extends Window {
                         iTreeContentLayout.itTree.TreeContainer.setParent(iNewLeafId, iLeafId);
                         iTreeContentLayout.itTree.setItemIcon(iNewLeafId, VaadinIcons.FOLDER);
                         iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId,0);
+                        iTreeContentLayout.itTree.expandItem(iLeafId);
                     }
                     Notification.show("Подкаталог добавлен!",
                             null,

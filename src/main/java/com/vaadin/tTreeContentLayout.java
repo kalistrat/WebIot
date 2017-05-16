@@ -79,6 +79,20 @@ public class tTreeContentLayout extends VerticalLayout {
 
     }
 
+
+    public Integer getLeafIdByName(String eLeafName){
+        Integer sLeafId = 0;
+
+        for (int i=0;i<this.itTree.TreeContainer.size();i++) {
+            String iLeafName = (String) this.itTree.getItem(i + 1).getItemProperty(4).getValue();
+            if (eLeafName.equals(iLeafName)){
+                sLeafId = i + 1;
+            }
+        }
+        return sLeafId;
+
+    }
+
     public List<Integer> getChildAllLeafsByList(List<Integer> eParentLeafIds){
 
         List<Integer> PrevList = eParentLeafIds;
