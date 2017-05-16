@@ -116,4 +116,92 @@ public class tUsefulFuctions {
 
         return IsBusy;
     }
+
+    public static void deleteUserDevice(
+            String qUserLog
+            ,int qLeafId
+    ){
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement deleteDeviceStmt = Con.prepareCall("{call p_delete_user_device(?, ?)}");
+            deleteDeviceStmt.setString(1, qUserLog);
+            deleteDeviceStmt.setInt(2, qLeafId);
+            deleteDeviceStmt.execute();
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void deleteTreeLeaf(
+            String qUserLog
+            ,int qLeafId
+    ){
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement deleteLeafStmt = Con.prepareCall("{call p_delete_tree_leaf(?, ?)}");
+            deleteLeafStmt.setString(1, qUserLog);
+            deleteLeafStmt.setInt(2, qLeafId);
+            deleteLeafStmt.execute();
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void refreshUserTree(
+            String qUserLog
+    ){
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement treeStmt = Con.prepareCall("{call p_refresh_user_tree(?)}");
+            treeStmt.setString(1, qUserLog);
+            treeStmt.execute();
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+
+    }
 }

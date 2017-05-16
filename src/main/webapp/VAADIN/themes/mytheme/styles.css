@@ -12995,3 +12995,8 @@ div.v-layout.v-horizontal.v-widget {
 	font-size: 14px;
 	color: #07a9ca;
 }
+
+.mytheme .WarningFont {
+	font-size: 14px;
+	color: red;
+}

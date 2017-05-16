@@ -30,7 +30,18 @@ public class tTree extends Tree {
 
     public tTree(String eUserLog,tMainView eMainView){
 
-        this.TreeContainer = tTreeGetData(eUserLog);
+        TreeContainer = new HierarchicalContainer();
+
+        TreeContainer.addContainerProperty(1, Integer.class, null);
+        TreeContainer.addContainerProperty(2, Integer.class, null);
+        TreeContainer.addContainerProperty(3, Integer.class, null);
+        TreeContainer.addContainerProperty(4, String.class, null);
+        TreeContainer.addContainerProperty(5, String.class, null);
+        TreeContainer.addContainerProperty(6, Integer.class, null);
+        TreeContainer.addContainerProperty(7, String.class, null);
+
+
+        tTreeGetData(eUserLog);
 
         setItemCaptionPropertyId(4);
         //this.addStyleName("captiontree");
@@ -74,14 +85,14 @@ public class tTree extends Tree {
                     //SelectedItem.getItemProperty(5).getValue();
                     eMainView.TreeContentUsr.tTreeContentLayoutRefresh((int) SelectedItem.getItemProperty(2).getValue(),(int) SelectedItem.getItemProperty(6).getValue());
 
-                    int SelectedLeafId = (int) SelectedItem.getItemProperty(2).getValue();
-                    System.out.println("SelectedLeafId :" + SelectedLeafId);
-
-                    List<Integer> chList = eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId);
-
-                    for (Integer iL : chList) {
-                        System.out.println("iL :" + iL);
-                    }
+//                    int SelectedLeafId = (int) SelectedItem.getItemProperty(2).getValue();
+//                    System.out.println("SelectedLeafId :" + SelectedLeafId);
+//
+//                    List<Integer> chList = eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId);
+//
+//                    for (Integer iL : chList) {
+//                        System.out.println("iL :" + iL);
+//                    }
 
                     //System.out.println("last iL :" + eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId).get(eMainView.TreeContentUsr.getChildAllLeafsById(SelectedLeafId).size()-1));
 
@@ -127,17 +138,7 @@ public class tTree extends Tree {
 
     }
 
-    public HierarchicalContainer tTreeGetData(String qUserLog){
-
-        HierarchicalContainer iTreeContainer = new HierarchicalContainer();
-
-        iTreeContainer.addContainerProperty(1, Integer.class, null);
-        iTreeContainer.addContainerProperty(2, Integer.class, null);
-        iTreeContainer.addContainerProperty(3, Integer.class, null);
-        iTreeContainer.addContainerProperty(4, String.class, null);
-        iTreeContainer.addContainerProperty(5, String.class, null);
-        iTreeContainer.addContainerProperty(6, Integer.class, null);
-        iTreeContainer.addContainerProperty(7, String.class, null);
+    public void tTreeGetData(String qUserLog){
 
 
         try {
@@ -150,7 +151,7 @@ public class tTree extends Tree {
 
             String TreeSql = "select udt.user_devices_tree_id\n" +
                     ",udt.leaf_id\n" +
-                    ",udt.parent_leaf_id\n" +
+                    ",ifnull(udt.parent_leaf_id,0)\n" +
                     ",udt.leaf_name\n" +
                     ",ifnull(act.icon_code,'FOLDER') icon_code\n" +
                     ",ifnull(udt.user_device_id,0) user_device_id\n" +
@@ -159,7 +160,8 @@ public class tTree extends Tree {
                     "join users u on u.user_id=udt.user_id\n" +
                     "left join user_device ud on ud.user_device_id=udt.user_device_id\n" +
                     "left join action_type act on act.action_type_id=ud.action_type_id\n" +
-                    "where u.user_log=?";
+                    "where u.user_log=?\n" +
+                    "order by udt.leaf_id";
 
             PreparedStatement TreeSqlStmt = Con.prepareStatement(TreeSql);
             TreeSqlStmt.setString(1,qUserLog);
@@ -169,7 +171,7 @@ public class tTree extends Tree {
 
             while (TreeSqlRs.next()) {
 
-                Item newItem = iTreeContainer.getItem(iTreeContainer.addItem());
+                Item newItem = TreeContainer.addItem(TreeSqlRs.getInt(2));
                 Integer UsrDevTreeId = TreeSqlRs.getInt(1);
                 Integer UsrLeafId = TreeSqlRs.getInt(2);
                 Integer UsrParentLeafId = TreeSqlRs.getInt(3);
@@ -203,20 +205,22 @@ public class tTree extends Tree {
         }
 
         //String s1 = (String) iTreeContainer.getItem(1).getItemProperty(4).getValue();
-        //System.out.println(s1);
+        System.out.println("TreeContainer.size() : " + TreeContainer.size());
 
 
-        for (int i = 1; i < iTreeContainer.size()+1; i++){
-            if ((Integer) iTreeContainer.getItem(i).getItemProperty(3).getValue() != 0) {
-                iTreeContainer.setParent(i, iTreeContainer.getItem(i).getItemProperty(3).getValue());
+        for (int i = 0; i < TreeContainer.size(); i++){
+
+            System.out.println("set Parent getItem(i+1) : " + ((Integer) TreeContainer.getItem(i+1).getItemProperty(1).getValue()).intValue());
+
+            if (((Integer) TreeContainer.getItem(i+1).getItemProperty(3).getValue()).intValue() != 0) {
+                TreeContainer.setParent(i+1, TreeContainer.getItem(i+1).getItemProperty(3).getValue());
                 //String s1 = (String) iTreeContainer.getItem(i).getItemProperty(4).getValue();
                 //String s1 = String.valueOf(iTreeContainer.getItem(i).getItemProperty(3).getValue());
 
                 //System.out.println(s1);
             }
-        }
 
-        return iTreeContainer;
+        }
 
     }
 

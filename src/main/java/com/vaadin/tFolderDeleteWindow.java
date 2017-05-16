@@ -3,9 +3,11 @@ package com.vaadin;
 import com.vaadin.data.Item;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
+import java.sql.*;
 import java.util.List;
 
 /**
@@ -32,13 +34,21 @@ public class tFolderDeleteWindow extends Window {
 
 
         this.setIcon(VaadinIcons.FOLDER_REMOVE);
-        this.setCaption(" Добавление подкаталога");
+        this.setCaption(" Удаление подкаталога");
 
         WarningLabel = new Label();
 
+        WarningLabel = new Label(
+                "ВНИМАНИЕ! Все подкаталоги и устройства,\n"
+                + "находящиеся внутри данного каталога\n"
+                + "будут удалены. Вы не сможете востановить\n"
+                + "информацию об измерениях и переходах"
+        );
+        WarningLabel.setContentMode(ContentMode.PREFORMATTED);
+        WarningLabel.addStyleName("WarningFont");
+
 
         DeleteButton = new Button("Удалить");
-
         DeleteButton.setData(this);
         DeleteButton.addStyleName(ValoTheme.BUTTON_SMALL);
         DeleteButton.setIcon(VaadinIcons.FOLDER_REMOVE);
@@ -47,30 +57,48 @@ public class tFolderDeleteWindow extends Window {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
 
+                List<Integer> ChildsLeafs = iTreeContentLayout.getChildAllLeafsById(iLeafId);
+                int childLeafsCount = ChildsLeafs.size();
 
-                    //addSubFolder(iLeafId,sFieldValue,iTreeContentLayout.iUserLog);
+                if (childLeafsCount > 0) {
+                    for (int i = 0; i < childLeafsCount; i++) {
+                        int RemoveLeafId = ChildsLeafs.get(childLeafsCount-(i+1));
 
-                for (Integer iLf : iTreeContentLayout.GetChildLeafsById(iLeafId)) {
-                    iTreeContentLayout.itTree.TreeContainer.removeItem(iLf);
+                        if (iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId).intValue()!=0) {
+                            tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,RemoveLeafId);
+                        } else {
+                            tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,RemoveLeafId);
+                        }
+                    }
                 }
 
-                iTreeContentLayout.itTree.TreeContainer.removeItem(iLeafId);
-                Integer ParentLeafId = iTreeContentLayout.GetParentLeafById(iLeafId);
-
-                iTreeContentLayout.itTree.select(ParentLeafId);
-
-                iTreeContentLayout.tTreeContentLayoutRefresh(ParentLeafId,0);
+                tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,iLeafId);
+                iTreeContentLayout.reloadTreeContainer();
+                iTreeContentLayout.tTreeContentLayoutRefresh(1,0);
 
                 Notification.show("Подкаталог удалён!",
                         null,
                         Notification.Type.TRAY_NOTIFICATION);
-                UI.getCurrent().removeWindow((tAddFolderWindow) clickEvent.getButton().getData());
+                UI.getCurrent().removeWindow((tFolderDeleteWindow) clickEvent.getButton().getData());
 
+            }
+        });
+
+        CancelButton = new Button("Отменить");
+        CancelButton.setData(this);
+        CancelButton.addStyleName(ValoTheme.BUTTON_SMALL);
+        CancelButton.setIcon(FontAwesome.HAND_STOP_O);
+
+        CancelButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                UI.getCurrent().removeWindow((tFolderDeleteWindow) clickEvent.getButton().getData());
             }
         });
 
         HorizontalLayout ButtonsLayout = new HorizontalLayout(
                 DeleteButton
+                ,CancelButton
         );
 
         ButtonsLayout.setSizeUndefined();
@@ -80,7 +108,7 @@ public class tFolderDeleteWindow extends Window {
                 WarningLabel
         );
         MessageLayout.setSpacing(true);
-        MessageLayout.setWidth("320px");
+        MessageLayout.setWidth("400px");
         MessageLayout.setHeightUndefined();
         MessageLayout.setMargin(true);
         MessageLayout.setComponentAlignment(WarningLabel, Alignment.MIDDLE_CENTER);
@@ -99,5 +127,6 @@ public class tFolderDeleteWindow extends Window {
         this.setSizeUndefined();
         this.setModal(true);
     }
+
 
 }

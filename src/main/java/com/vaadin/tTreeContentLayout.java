@@ -54,7 +54,7 @@ public class tTreeContentLayout extends VerticalLayout {
 
     public Integer GetParentLeafById(int eLeafId){
         Integer iParentLeafId = (Integer) this.itTree.getItem(eLeafId).getItemProperty(3).getValue();
-        if (iParentLeafId == null) {
+        if (iParentLeafId == 0) {
             return 0;
         } else {
             return iParentLeafId;
@@ -70,6 +70,12 @@ public class tTreeContentLayout extends VerticalLayout {
     public String getLeafIconCode(int eLeafId){
 
         return (String) this.itTree.getItem(eLeafId).getItemProperty(5).getValue();
+
+    }
+
+    public Integer getLeafUserDeviceId(int eLeafId){
+
+        return (Integer) this.itTree.getItem(eLeafId).getItemProperty(6).getValue();
 
     }
 
@@ -95,4 +101,10 @@ public class tTreeContentLayout extends VerticalLayout {
         return getChildAllLeafsByList(GetChildLeafsById(LeafId));
     }
 
+    public void reloadTreeContainer(){
+        itTree.TreeContainer.removeAllItems();
+        //itTree.TreeContainer.removeAllContainerFilters();
+        tUsefulFuctions.refreshUserTree(iUserLog);
+        itTree.tTreeGetData(iUserLog);
+    }
 }

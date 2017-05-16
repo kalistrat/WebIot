@@ -185,6 +185,21 @@ public class tFolderLayout extends VerticalLayout {
         DeleteSubTreeButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         DeleteSubTreeButton.addStyleName("TopButton");
 
+        DeleteSubTreeButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                if (tParentContentLayout.GetParentLeafById(tCurrentLeafId)!=0) {
+                    UI.getCurrent().addWindow(new tFolderDeleteWindow(tCurrentLeafId
+                            ,tParentContentLayout
+                    ));
+                } else {
+                    Notification.show(null,
+                            "Корневой каталог не может быть изменён",
+                            Notification.Type.TRAY_NOTIFICATION);
+                }
+            }
+        });
+
         EditSubTreeNameButton = new Button();
         EditSubTreeNameButton.setIcon(VaadinIcons.EDIT);
         EditSubTreeNameButton.addStyleName(ValoTheme.BUTTON_SMALL);
@@ -202,7 +217,7 @@ public class tFolderLayout extends VerticalLayout {
                     ));
                 } else {
                     Notification.show(null,
-                            "Корневой каталог не редактируется",
+                            "Корневой каталог не может быть изменён",
                             Notification.Type.TRAY_NOTIFICATION);
                 }
             }

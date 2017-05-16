@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win64
--- HeidiSQL Версия:              9.1.0.4867
+-- ОС Сервера:                   Win32
+-- HeidiSQL Версия:              9.3.0.4984
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -643,6 +643,59 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для процедура things.p_delete_tree_leaf
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_tree_leaf`(
+eUserLog varchar(50)
+,eLeafId int
+)
+begin
+declare i_tree_id int;
+
+select udt.user_devices_tree_id
+into i_tree_id
+from user_devices_tree udt
+join users u on u.user_id=udt.user_id
+where u.user_log = eUserLog
+and udt.leaf_id = eLeafId;
+
+delete from user_devices_tree
+where user_devices_tree_id = i_tree_id;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_delete_user_device
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_user_device`(
+eUserLog varchar(50)
+,eLeafId int
+)
+begin
+
+declare i_tree_id int;
+declare i_user_device_id int;
+
+select udt.user_devices_tree_id
+,udt.user_device_id
+into i_tree_id
+,i_user_device_id
+from user_devices_tree udt
+join users u on u.user_id=udt.user_id
+where u.user_log = eUserLog
+and udt.leaf_id = eLeafId;
+
+delete from user_device
+where user_device_id = i_user_device_id;
+
+delete from user_devices_tree
+where user_devices_tree_id = i_tree_id;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для процедура things.p_get_int_bounds_for_date
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_get_int_bounds_for_date`(IN `eMinValDate` datetime
@@ -962,6 +1015,49 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для процедура things.p_refresh_user_tree
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_refresh_user_tree`(IN `eUserLog` varchar(50))
+begin
+declare i_user_id int;
+
+select u.user_id into i_user_id
+from users u
+where u.user_log = eUserLog;
+
+update user_devices_tree tin
+join (
+
+select utr.user_devices_tree_id
+,utr.leaf_id
+,utr.parent_leaf_id
+,utr.leaf_name
+,@num:=@num+1 t2_new_leaf_id
+,(
+select a.new_leaf_id
+ from (
+select @num1:=@num1+1 new_leaf_id
+,udt.leaf_id old_leaf_id
+from user_devices_tree udt
+join (select @num1:=0) t1
+where udt.user_id = i_user_id
+) a
+where a.old_leaf_id = utr.parent_leaf_id
+) new_parent_leaf_id
+from user_devices_tree utr
+join (select @num:=0) t2
+where utr.user_id = i_user_id
+
+) tou
+on tin.user_devices_tree_id=tou.user_devices_tree_id
+set tin.leaf_id = tou.t2_new_leaf_id
+,tin.parent_leaf_id = tou.new_parent_leaf_id
+where tin.user_id = i_user_id;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для процедура things.p_rename_leaf
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_rename_leaf`(IN `eUserLog` varchar(50)
@@ -1060,32 +1156,23 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~25 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~11 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
 	(1, 1, NULL, NULL, 'Устройства', 1),
-	(2, 2, 1, NULL, 'Комната', 1),
-	(3, 3, 2, 4, 'Microsoft LifeCam HD-3000', 1),
-	(4, 4, 2, 1, 'UniPing RS-485', 1),
-	(5, 5, 1, NULL, 'Кухня', 1),
-	(6, 6, 5, 3, 'Logitech HD Webcam C270', 1),
-	(7, 7, 5, 2, 'HWg-STE', 1),
-	(8, 8, 1, NULL, 'Прихожая', 1),
-	(9, 9, 1, NULL, 'Мыльня', 1),
-	(10, 10, 1, NULL, '1-я уборная сортир', 1),
-	(11, 11, 2, NULL, 'Подкаталог 1', 1),
-	(12, 12, 11, NULL, 'подкаталог 22', 1),
-	(13, 13, 11, NULL, '123', 1),
-	(14, 14, 1, NULL, 'Подвальное помещение', 1),
-	(15, 15, 1, NULL, 'Гаражный отсек', 1),
-	(16, 16, 1, NULL, 'Подсобка', 1),
-	(17, 17, 1, NULL, 'Сенцы', 1),
-	(28, 18, 13, NULL, '123-1', 1),
-	(29, 19, 18, NULL, '12321', 1),
-	(30, 20, 19, NULL, '123123', 1);
+	(5, 2, 1, NULL, 'Кухня', 1),
+	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1),
+	(7, 4, 2, 2, 'HWg-STE', 1),
+	(8, 5, 1, NULL, 'Прихожая', 1),
+	(9, 6, 1, NULL, 'Мыльня', 1),
+	(10, 7, 1, NULL, '1-я уборная сортир', 1),
+	(15, 8, 1, NULL, 'Гаражный отсек', 1),
+	(39, 9, 1, NULL, 'Комната', 1),
+	(40, 10, 9, 4, 'Microsoft LifeCam HD-3000', 1),
+	(41, 11, 9, 1, 'UniPing RS-485', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

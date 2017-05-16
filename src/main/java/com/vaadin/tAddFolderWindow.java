@@ -77,7 +77,7 @@ public class tAddFolderWindow extends Window {
 
                     if (iNewTreeId != 0) {
 
-                        Item newItem = iTreeContentLayout.itTree.TreeContainer.getItem(iTreeContentLayout.itTree.TreeContainer.addItem());
+                        Item newItem = iTreeContentLayout.itTree.TreeContainer.addItem(iNewLeafId);
                         newItem.getItemProperty(1).setValue(iNewTreeId);
                         newItem.getItemProperty(2).setValue(iNewLeafId);
                         newItem.getItemProperty(3).setValue(iLeafId);
