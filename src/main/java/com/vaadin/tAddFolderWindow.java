@@ -14,6 +14,7 @@ import java.sql.*;
 public class tAddFolderWindow extends Window {
 
     Button SaveButton;
+    Button CancelButton;
     TextField EditTextField;
     tTreeContentLayout iTreeContentLayout;
     int iLeafId;
@@ -102,8 +103,20 @@ public class tAddFolderWindow extends Window {
             }
         });
 
+        CancelButton = new Button("Отменить");
+
+        CancelButton.setData(this);
+        CancelButton.addStyleName(ValoTheme.BUTTON_SMALL);
+        CancelButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                UI.getCurrent().removeWindow((tAddFolderWindow) clickEvent.getButton().getData());
+            }
+        });
+
         HorizontalLayout ButtonsLayout = new HorizontalLayout(
                 SaveButton
+                ,CancelButton
         );
 
         ButtonsLayout.setSizeUndefined();

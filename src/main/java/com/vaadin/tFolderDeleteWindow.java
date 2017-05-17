@@ -79,7 +79,10 @@ public class tFolderDeleteWindow extends Window {
                 iTreeContentLayout.reloadTreeContainer();
                 //Integer iNewParentLeafId = iTreeContentLayout.getLeafIdByName(sParentLeafName);
                 iTreeContentLayout.tTreeContentLayoutRefresh(1,0);
-                iTreeContentLayout.itTree.expandItem(1);
+
+                for (Object id : iTreeContentLayout.itTree.rootItemIds()) {
+                    iTreeContentLayout.itTree.expandItemsRecursively(id);
+                }
 
                 Notification.show("Подкаталог удалён!",
                         null,

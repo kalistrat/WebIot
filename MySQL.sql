@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win64
--- HeidiSQL Версия:              9.1.0.4867
+-- ОС Сервера:                   Win32
+-- HeidiSQL Версия:              9.3.0.4984
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -562,6 +562,51 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для функция things.f_user_device_insert
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_user_device_insert`(
+eDeviceName varchar(30)
+,eUserId int
+,eUserLog varchar(50)
+,eActionTypeId int
+,eMqttServerName varchar(30)
+) RETURNS int(11)
+begin
+declare i_server_id int;
+declare i_user_device_id int;
+
+select ms.server_id into i_server_id
+from mqtt_servers ms
+where concat(concat(ms.server_ip,':'),ms.server_port)=eMqttServerName;
+
+insert into user_device(
+user_id
+,device_user_name
+,user_device_date_from
+,action_type_id
+,mqqt_server_id
+)
+values(
+eUserId
+,eDeviceName
+,sysdate()
+,eActionTypeId
+,i_server_id
+);
+
+select LAST_INSERT_ID() into i_user_device_id;
+
+update user_device ud
+set ud.mqtt_topic_write=concat(concat(concat(eUserLog,'/'),i_user_device_id),'W')
+,ud.mqtt_topic_read=concat(concat(concat(eUserLog,'/'),i_user_device_id),'R')
+where ud.user_device_id=i_user_device_id;
+
+return i_user_device_id;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для таблица things.graph_period
 CREATE TABLE IF NOT EXISTS `graph_period` (
   `period_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -601,12 +646,11 @@ INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`) 
 
 -- Дамп структуры для процедура things.p_add_subfolder
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_subfolder`(
-eParentLeafId int
-,eFolderName varchar(30)
-,eUserLog varchar(50)
-,out oTreeId int
-,out oNewLeafId int 
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_subfolder`(IN `eParentLeafId` int
+, IN `eFolderName` varchar(30)
+, IN `eUserLog` varchar(50)
+, OUT `oTreeId` int
+, OUT `oNewLeafId` int 
 )
 begin
 declare i_user_id int;
@@ -618,7 +662,7 @@ into i_user_id
 ,i_leaf_id
 from user_devices_tree udt
 join users u on u.user_id = udt.user_id
-where u.user_log = 'k'
+where u.user_log = eUserLog
 group by u.user_id;
 
 insert into user_devices_tree(
@@ -638,6 +682,72 @@ i_leaf_id
 
 select LAST_INSERT_ID() into oTreeId;
 set oNewLeafId = i_leaf_id;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_add_user_device
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_user_device`(
+eParentLeafId int
+,eDeviceName varchar(30)
+,eUserLog varchar(50)
+,eActionTypeName varchar(100)
+,eMqttServerName varchar(30)
+,out oTreeId int
+,out oNewLeafId int
+,out oIconCode varchar(100)
+,out oUserDeviceId int
+)
+begin
+declare i_action_type_id int;
+declare i_user_id int;
+declare i_leaf_id int;
+declare i_user_device_id int;
+
+select aty.action_type_id
+,aty.icon_code
+into i_action_type_id
+,oIconCode
+from action_type aty
+where aty.action_type_name=eActionTypeName;
+
+select u.user_id
+,max(udt.leaf_id) + 1
+into i_user_id
+,i_leaf_id
+from user_devices_tree udt
+join users u on u.user_id = udt.user_id
+where u.user_log = eUserLog
+group by u.user_id;
+
+set i_user_device_id = f_user_device_insert(
+eDeviceName
+,i_user_id
+,eUserLog
+,i_action_type_id
+,eMqttServerName
+);
+
+insert into user_devices_tree(
+leaf_id
+,parent_leaf_id
+,user_device_id
+,leaf_name
+,user_id
+)
+values(
+i_leaf_id
+,eParentLeafId
+,i_user_device_id
+,eDeviceName
+,i_user_id
+);
+
+select LAST_INSERT_ID() into oTreeId;
+set oNewLeafId = i_leaf_id;
+set oUserDeviceId = i_user_device_id;
 
 end//
 DELIMITER ;
@@ -1041,13 +1151,14 @@ select @num1:=@num1+1 new_leaf_id
 from user_devices_tree udt
 join (select @num1:=0) t1
 where udt.user_id = i_user_id
+order by udt.leaf_id
 ) a
 where a.old_leaf_id = utr.parent_leaf_id
 ) new_parent_leaf_id
 from user_devices_tree utr
 join (select @num:=0) t2
 where utr.user_id = i_user_id
-
+order by utr.leaf_id
 ) tou
 on tin.user_devices_tree_id=tou.user_devices_tree_id
 set tin.leaf_id = tou.t2_new_leaf_id
@@ -1130,7 +1241,7 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_mqtt_servers` FOREIGN KEY (`mqqt_server_id`) REFERENCES `mqtt_servers` (`server_id`),
   CONSTRAINT `FK_user_device_action_type` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`action_type_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_device: ~4 rows (приблизительно)
 DELETE FROM `user_device`;
@@ -1139,7 +1250,9 @@ INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `use
 	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'ежесекундно', '2017-03-03 18:43:27', 1, '°С', 'k/1W', '', 1),
 	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежечасно', '2017-02-28 18:32:52', 1, '°С', 'k/2W', NULL, 1),
 	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL),
-	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL);
+	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL),
+	(5, 1, 'Насос', NULL, NULL, '2017-05-17 19:31:38', 2, NULL, 'k/5W', 'k/5R', 1),
+	(6, 1, 'Датчик давления-1', NULL, NULL, '2017-05-17 19:33:38', 1, NULL, 'k/6W', 'k/6R', 1);
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -1156,9 +1269,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~12 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~13 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -1169,11 +1282,14 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(39, 5, 1, NULL, 'Комната', 1),
 	(40, 6, 5, 4, 'Microsoft LifeCam HD-3000', 1),
 	(41, 7, 5, 1, 'UniPing RS-485', 1),
-	(74, 8, 1, NULL, 'Мыльня', 1),
-	(75, 9, 1, NULL, 'Гараж', 1),
-	(76, 10, 1, NULL, '1-я уборная', 1),
-	(78, 11, 1, NULL, '432543', 1),
-	(79, 12, 1, NULL, '436346', 1);
+	(76, 8, 1, NULL, '1-я уборная', 1),
+	(105, 9, 1, NULL, 'Гаражное отделение', 1),
+	(106, 10, 1, NULL, 'Подсобное помещение', 1),
+	(107, 11, 1, NULL, 'Санитарный блок', 1),
+	(108, 12, 11, NULL, 'Ванная комната', 1),
+	(109, 13, 11, NULL, 'Туалет', 1),
+	(110, 14, 8, 5, 'Насос', 1),
+	(111, 15, 8, 6, 'Датчик давления-1', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

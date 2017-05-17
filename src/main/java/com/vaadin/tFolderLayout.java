@@ -236,10 +236,12 @@ public class tFolderLayout extends VerticalLayout {
                     UI.getCurrent().addWindow(new tAddFolderWindow(tCurrentLeafId
                             ,tParentContentLayout
                     ));
-                } else {
-                    Notification.show("Выбранный пункт:",
-                            selectedItem.getText(),
-                            Notification.Type.TRAY_NOTIFICATION);
+
+                }  else {
+
+                    UI.getCurrent().addWindow(new tAddDeviceWindow(tCurrentLeafId
+                            ,tParentContentLayout
+                    ));
                 }
 
             }

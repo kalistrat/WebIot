@@ -48,11 +48,11 @@ public class tTree extends Tree {
         setContainerDataSource(this.TreeContainer);
 
         //Разворачиваю дерево
-//        for (Object id : this.rootItemIds()) {
-//            this.expandItemsRecursively(id);
-//        }
+        for (Object id : this.rootItemIds()) {
+            this.expandItemsRecursively(id);
+        }
 
-        this.expandItem(1);
+        //this.expandItem(1);
 
 
         this.select(1);
