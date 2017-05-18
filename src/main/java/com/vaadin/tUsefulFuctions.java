@@ -1,6 +1,8 @@
 package com.vaadin;
 
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -204,4 +206,100 @@ public class tUsefulFuctions {
         }
 
     }
+
+    public static void getUserDetectorData(
+            int qUserDeviceId
+            ,tDetectorFormLayout qParamsForm
+            ,tDescriptionLayout qDescriptionForm
+            ,tDetectorUnitsLayout qUnitsForm
+    ){
+
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+
+
+        try {
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            String DataSql = "select ud.device_user_name\n" +
+                    ",ud.user_device_measure_period\n" +
+                    ",ud.user_device_date_from\n" +
+                    ",ud.device_units\n" +
+                    ",ud.mqtt_topic_write\n" +
+                    ",concat(concat(ser.server_ip,':'),ser.server_port) mqqtt\n" +
+                    ",ud.description\n" +
+                    ",concat(un.unit_name,concat(' : ',un.unit_symbol))\n" +
+                    ",uf.factor_value\n" +
+                    "from user_device ud\n" +
+                    "left join mqtt_servers ser on ser.server_id = ud.mqqt_server_id\n" +
+                    "left join unit un on un.unit_id = ud.unit_id\n" +
+                    "left join unit_factor uf on uf.factor_id = ud.factor_id\n" +
+                    "where ud.user_device_id = ?";
+
+            PreparedStatement DetectorDataStmt = Con.prepareStatement(DataSql);
+            DetectorDataStmt.setInt(1,qUserDeviceId);
+
+            ResultSet DetectorDataRs = DetectorDataStmt.executeQuery();
+
+            while (DetectorDataRs.next()) {
+                qParamsForm.NameTextField.setValue(DetectorDataRs.getString(1));
+                qParamsForm.PeriodMeasureSelect.select(DetectorDataRs.getString(2));
+                qParamsForm.DetectorAddDate.setValue(df.format(new Date(DetectorDataRs.getTimestamp(3).getTime())));
+                qUnitsForm.UnitTextField.setValue(DetectorDataRs.getString(4));
+                qParamsForm.InTopicNameField.setValue(DetectorDataRs.getString(5));
+                qParamsForm.MqttServerSelect.select(DetectorDataRs.getString(6));
+                qUnitsForm.UnitSymbolSelect.select(DetectorDataRs.getString(8));
+                qUnitsForm.UnitFactorSelect.select(DetectorDataRs.getString(9));
+                qDescriptionForm.DescritionArea.setValue(DetectorDataRs.getString(7));
+
+            }
+
+
+            Con.close();
+
+        } catch (SQLException se3) {
+            //Handle errors for JDBC
+            se3.printStackTrace();
+        } catch (Exception e13) {
+            //Handle errors for Class.forName
+            e13.printStackTrace();
+        }
+    }
+
+
+    public static void updateDeviceDescription(
+            int qUserDeviceId
+            ,String qDescValue
+    ){
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement Stmt = Con.prepareCall("{call p_device_description_update(?, ?)}");
+            Stmt.setInt(1, qUserDeviceId);
+            Stmt.setString(2, qDescValue);
+
+            Stmt.execute();
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+
+    }
+
 }

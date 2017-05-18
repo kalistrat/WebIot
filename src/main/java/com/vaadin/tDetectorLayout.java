@@ -21,6 +21,8 @@ public class tDetectorLayout extends VerticalLayout {
     Button DeleteSubTreeButton;
     int iUserDeviceId;
     tDetectorFormLayout DeviceDataLayout;
+    tDetectorUnitsLayout DeviceUnitsLayout;
+    tDescriptionLayout DeviceDescription;
     tPeriodMeasuresLayout DeviceMeasuresLayout;
 
     public tDetectorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
@@ -39,6 +41,7 @@ public class tDetectorLayout extends VerticalLayout {
         TopLabel.addStyleName("TopLabel");
 
         DeviceDataLayout = new tDetectorFormLayout(iUserDeviceId);
+        DeviceUnitsLayout = new tDetectorUnitsLayout(iUserDeviceId);
 
 
         tReturnParentFolderButton = new Button("Вверх");
@@ -108,8 +111,19 @@ public class tDetectorLayout extends VerticalLayout {
 
         DeviceMeasuresLayout = new tPeriodMeasuresLayout(iUserDeviceId);
 
+        DeviceDescription = new tDescriptionLayout(iUserDeviceId);
+
+        tUsefulFuctions.getUserDetectorData(
+                iUserDeviceId
+                ,DeviceDataLayout
+                ,DeviceDescription
+                ,DeviceUnitsLayout
+        );
+
         VerticalLayout ContentLayout = new VerticalLayout(
                 DeviceDataLayout
+                ,DeviceUnitsLayout
+                ,DeviceDescription
                 ,DeviceMeasuresLayout
         );
 

@@ -18,7 +18,7 @@ public class tDetectorFormLayout extends VerticalLayout {
     Button SaveButton;
     Button EditButton;
     TextField NameTextField;
-    TextField UnitsTextField;
+    //TextField UnitsTextField;
     NativeSelect PeriodMeasureSelect;
     TextField DetectorAddDate;
     TextField InTopicNameField;
@@ -40,7 +40,7 @@ public class tDetectorFormLayout extends VerticalLayout {
             public void buttonClick(Button.ClickEvent clickEvent) {
                 SaveButton.setEnabled(false);
                 EditButton.setEnabled(true);
-                UnitsTextField.setEnabled(false);
+                //UnitsTextField.setEnabled(false);
                 PeriodMeasureSelect.setEnabled(false);
             }
         });
@@ -55,15 +55,15 @@ public class tDetectorFormLayout extends VerticalLayout {
             public void buttonClick(Button.ClickEvent clickEvent) {
                 SaveButton.setEnabled(true);
                 EditButton.setEnabled(false);
-                UnitsTextField.setEnabled(true);
+                //UnitsTextField.setEnabled(true);
                 PeriodMeasureSelect.setEnabled(true);
             }
         });
 
         NameTextField = new TextField("Наименование устройства :");
         NameTextField.setEnabled(false);
-        UnitsTextField = new TextField("Единицы измерения :");
-        UnitsTextField.setEnabled(false);
+        //UnitsTextField = new TextField("Единицы измерения :");
+        //UnitsTextField.setEnabled(false);
         PeriodMeasureSelect = new NativeSelect("Период измерений :");
         PeriodMeasureSelect.setEnabled(false);
         PeriodMeasureSelect.addItem("ежесекундно");
@@ -90,7 +90,7 @@ public class tDetectorFormLayout extends VerticalLayout {
 
         FormLayout dform = new FormLayout(
                 NameTextField
-                ,UnitsTextField
+                //,UnitsTextField
                 ,PeriodMeasureSelect
                 ,DetectorAddDate
                 ,InTopicNameField
@@ -100,8 +100,6 @@ public class tDetectorFormLayout extends VerticalLayout {
         dform.addStyleName("FormFont");
 
         dform.setMargin(false);
-
-        getUserDetectorData();
 
 
         VerticalLayout dForm = new VerticalLayout(
@@ -151,54 +149,6 @@ public class tDetectorFormLayout extends VerticalLayout {
 
     }
 
-    public void getUserDetectorData(){
-
-        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-
-
-        try {
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            String DataSql = "select ud.device_user_name\n" +
-                    ",ud.user_device_measure_period\n" +
-                    ",ud.user_device_date_from\n" +
-                    ",ud.device_units\n" +
-                    ",ud.mqtt_topic_write\n" +
-                    ",concat(concat(ser.server_ip,':'),ser.server_port) mqqtt\n" +
-                    "from user_device ud\n" +
-                    "left join mqtt_servers ser on ser.server_id = ud.mqqt_server_id\n" +
-                    "where ud.user_device_id = ?";
-
-            PreparedStatement DetectorDataStmt = Con.prepareStatement(DataSql);
-            DetectorDataStmt.setInt(1,iUserDeviceId);
-
-            ResultSet DetectorDataRs = DetectorDataStmt.executeQuery();
-
-            while (DetectorDataRs.next()) {
-                NameTextField.setValue(DetectorDataRs.getString(1));
-                PeriodMeasureSelect.select(DetectorDataRs.getString(2));
-                DetectorAddDate.setValue(df.format(new Date(DetectorDataRs.getTimestamp(3).getTime())));
-                UnitsTextField.setValue(DetectorDataRs.getString(4));
-                InTopicNameField.setValue(DetectorDataRs.getString(5));
-                MqttServerSelect.select(DetectorDataRs.getString(6));
-            }
-
-
-            Con.close();
-
-        } catch (SQLException se3) {
-            //Handle errors for JDBC
-            se3.printStackTrace();
-        } catch (Exception e13) {
-            //Handle errors for Class.forName
-            e13.printStackTrace();
-        }
-    }
 
     public void getMqttServerData(){
 
