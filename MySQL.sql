@@ -1306,6 +1306,54 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для процедура things.s_p_topic_data_log
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_p_topic_data_log`(
+eDeviceId int
+,eMessAge varchar(255)
+)
+begin
+
+insert into user_device_measures(
+user_device_id
+,measure_value
+,measure_date
+,measure_mess
+)
+values(
+eDeviceId
+,null
+,sysdate()
+,eMessAge
+);
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.s_p_topic_initial
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_p_topic_initial`(IN `eUserLog` varchar(50)
+, IN `eDeviceId` int
+, OUT `oMqttTopicWrite` varchar(200)
+, OUT `oMqttServerHost` varchar(100)
+)
+begin
+
+select ud.mqtt_topic_write
+,concat(ms.server_ip,concat(':',ms.server_port))
+into oMqttTopicWrite
+,oMqttServerHost
+from user_device ud
+join users u on u.user_id = ud.user_id
+join mqtt_servers ms on ms.server_id=ud.mqqt_server_id
+where ud.user_device_id = eDeviceId
+and u.user_log = eUserLog;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для таблица things.unit
 CREATE TABLE IF NOT EXISTS `unit` (
   `unit_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1314,7 +1362,7 @@ CREATE TABLE IF NOT EXISTS `unit` (
   PRIMARY KEY (`unit_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=98 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.unit: ~75 rows (приблизительно)
+-- Дамп данных таблицы things.unit: ~76 rows (приблизительно)
 DELETE FROM `unit`;
 /*!40000 ALTER TABLE `unit` DISABLE KEYS */;
 INSERT INTO `unit` (`unit_id`, `unit_symbol`, `unit_name`) VALUES
@@ -1536,7 +1584,7 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~10 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~12 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -1561,6 +1609,7 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   `user_device_id` int(11) NOT NULL,
   `measure_value` double(10,2) DEFAULT NULL,
   `measure_date` datetime DEFAULT NULL,
+  `measure_mess` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`user_device_measure_id`),
   KEY `FK_user_device_measures_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
@@ -1569,25 +1618,25 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
 -- Дамп данных таблицы things.user_device_measures: ~18 rows (приблизительно)
 DELETE FROM `user_device_measures`;
 /*!40000 ALTER TABLE `user_device_measures` DISABLE KEYS */;
-INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`) VALUES
-	(1, 2, 21.00, '2017-01-18 18:19:40'),
-	(2, 2, 25.00, '2017-01-19 18:20:13'),
-	(3, 2, 22.00, '2017-01-20 18:20:33'),
-	(4, 2, 27.00, '2017-01-21 18:20:49'),
-	(5, 2, 15.00, '2017-01-22 18:21:05'),
-	(6, 2, 24.00, '2017-01-23 18:21:21'),
-	(7, 1, 10.00, '2017-01-23 10:21:42'),
-	(8, 1, 7.00, '2017-01-23 12:21:54'),
-	(9, 1, 15.00, '2017-01-23 14:22:05'),
-	(10, 1, 17.00, '2017-01-23 16:22:15'),
-	(11, 1, 20.54, '2017-01-23 18:22:30'),
-	(12, 2, 34.00, '2017-01-26 19:22:47'),
-	(13, 2, 34.00, '2017-01-26 19:22:57'),
-	(14, 2, 56.00, '2017-01-26 19:23:06'),
-	(15, 2, 45.00, '2017-01-26 19:23:15'),
-	(16, 2, 34.00, '2017-01-26 19:23:23'),
-	(17, 2, 35.00, '2017-01-26 19:23:35'),
-	(18, 2, 44.21, '2017-01-26 19:23:46');
+INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`, `measure_mess`) VALUES
+	(1, 2, 21.00, '2017-01-18 18:19:40', NULL),
+	(2, 2, 25.00, '2017-01-19 18:20:13', NULL),
+	(3, 2, 22.00, '2017-01-20 18:20:33', NULL),
+	(4, 2, 27.00, '2017-01-21 18:20:49', NULL),
+	(5, 2, 15.00, '2017-01-22 18:21:05', NULL),
+	(6, 2, 24.00, '2017-01-23 18:21:21', NULL),
+	(7, 1, 10.00, '2017-01-23 10:21:42', NULL),
+	(8, 1, 7.00, '2017-01-23 12:21:54', NULL),
+	(9, 1, 15.00, '2017-01-23 14:22:05', NULL),
+	(10, 1, 17.00, '2017-01-23 16:22:15', NULL),
+	(11, 1, 20.54, '2017-01-23 18:22:30', NULL),
+	(12, 2, 34.00, '2017-01-26 19:22:47', NULL),
+	(13, 2, 34.00, '2017-01-26 19:22:57', NULL),
+	(14, 2, 56.00, '2017-01-26 19:23:06', NULL),
+	(15, 2, 45.00, '2017-01-26 19:23:15', NULL),
+	(16, 2, 34.00, '2017-01-26 19:23:23', NULL),
+	(17, 2, 35.00, '2017-01-26 19:23:35', NULL),
+	(18, 2, 44.21, '2017-01-26 19:23:46', NULL);
 /*!40000 ALTER TABLE `user_device_measures` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
