@@ -74,9 +74,11 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
                          ,XYList
                          ,GetMeasureUnits(tUserDeviceId)
                  );
-                 //addComponent(GraphDraw);
+                 GraphDrawNew.setMargin(false);
+                 GraphDrawNew.setSizeUndefined();
 
                  ContentLayout.replaceComponent(GraphDraw,GraphDrawNew);
+                 ContentLayout.setComponentAlignment(GraphDrawNew,Alignment.MIDDLE_CENTER);
                  GraphDraw = GraphDrawNew;
 
                  if (XYList.size() == 0){
@@ -95,6 +97,7 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
         ,GetMeasureUnits(this.tUserDeviceId)
         );
         GraphDraw.setMargin(false);
+        GraphDraw.setSizeUndefined();
 
 //        this.setCaption("Показания за ближайший период");
 //        this.setIcon(VaadinIcons.CHART);
@@ -136,7 +139,9 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
         );
         ContentLayout.setSpacing(true);
         ContentLayout.setMargin(false);
-        //ContentLayout.setSizeFull();
+        ContentLayout.setComponentAlignment(GraphDraw,Alignment.MIDDLE_CENTER);
+        ContentLayout.setWidth("100%");
+        ContentLayout.setHeightUndefined();
 
         this.addComponent(ContentLayout);
         //this.addStyleName(ValoTheme.LAYOUT_WELL);

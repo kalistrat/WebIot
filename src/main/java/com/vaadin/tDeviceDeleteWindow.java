@@ -1,20 +1,17 @@
 package com.vaadin;
 
-import com.vaadin.data.Item;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
-import java.sql.*;
 import java.util.List;
 
 /**
- * Created by kalistrat on 15.05.2017.
+ * Created by kalistrat on 19.05.2017.
  */
-public class tFolderDeleteWindow extends Window {
-
+public class tDeviceDeleteWindow extends Window {
     Button DeleteButton;
     Button CancelButton;
     Label WarningLabel;
@@ -22,23 +19,21 @@ public class tFolderDeleteWindow extends Window {
     int iLeafId;
 
 
-    public tFolderDeleteWindow(int eLeafId
+    public tDeviceDeleteWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
     ){
         iLeafId = eLeafId;
         iTreeContentLayout = eParentContentLayout;
 
-
-        this.setIcon(VaadinIcons.FOLDER_REMOVE);
-        this.setCaption(" Удаление подкаталога");
+        this.setIcon(VaadinIcons.CLOSE_CIRCLE);
+        this.setCaption(" Удаление устройства");
 
         WarningLabel = new Label();
 
         WarningLabel = new Label(
-                "ВНИМАНИЕ! Все подкаталоги и устройства,\n"
-                + "находящиеся внутри данного каталога\n"
-                + "будут удалены. Вы не сможете востановить\n"
-                + "информацию об измерениях и переходах"
+                "ВНИМАНИЕ! Данное устройство будет удалено.\n"
+                + "Вы не сможете востановить информацию\n"
+                + "об измерениях и переходах"
         );
         WarningLabel.setContentMode(ContentMode.PREFORMATTED);
         WarningLabel.addStyleName("WarningFont");
@@ -47,43 +42,31 @@ public class tFolderDeleteWindow extends Window {
         DeleteButton = new Button("Удалить");
         DeleteButton.setData(this);
         DeleteButton.addStyleName(ValoTheme.BUTTON_SMALL);
-        DeleteButton.setIcon(VaadinIcons.FOLDER_REMOVE);
+        DeleteButton.setIcon(VaadinIcons.CLOSE_CIRCLE);
 
         DeleteButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
 
-//                String sParentLeafName = iTreeContentLayout
-//                        .GetLeafNameById(iTreeContentLayout.GetParentLeafById(iLeafId));
+                String sParentLeafName = iTreeContentLayout
+                        .GetLeafNameById(iTreeContentLayout.GetParentLeafById(iLeafId));
 
-                List<Integer> ChildsLeafs = iTreeContentLayout.getChildAllLeafsById(iLeafId);
-                int childLeafsCount = ChildsLeafs.size();
 
-                if (childLeafsCount > 0) {
-                    for (int i = 0; i < childLeafsCount; i++) {
-                        int RemoveLeafId = ChildsLeafs.get(childLeafsCount-(i+1));
-
-                        if (iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId).intValue()!=0) {
-                            tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,RemoveLeafId);
-                        } else {
-                            tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,RemoveLeafId);
-                        }
-                    }
-                }
-
-                tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,iLeafId);
+                tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,iLeafId);
                 iTreeContentLayout.reloadTreeContainer();
-                //Integer iNewParentLeafId = iTreeContentLayout.getLeafIdByName(sParentLeafName);
-                iTreeContentLayout.tTreeContentLayoutRefresh(1,0);
+                Integer iNewParentLeafId = iTreeContentLayout.getLeafIdByName(sParentLeafName);
 
                 for (Object id : iTreeContentLayout.itTree.rootItemIds()) {
                     iTreeContentLayout.itTree.expandItemsRecursively(id);
                 }
 
-                Notification.show("Подкаталог удалён!",
+                iTreeContentLayout.tTreeContentLayoutRefresh(iNewParentLeafId,0);
+
+
+                Notification.show("Устройство удалёно!",
                         null,
                         Notification.Type.TRAY_NOTIFICATION);
-                UI.getCurrent().removeWindow((tFolderDeleteWindow) clickEvent.getButton().getData());
+                UI.getCurrent().removeWindow((tDeviceDeleteWindow) clickEvent.getButton().getData());
 
             }
         });
@@ -96,7 +79,7 @@ public class tFolderDeleteWindow extends Window {
         CancelButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                UI.getCurrent().removeWindow((tFolderDeleteWindow) clickEvent.getButton().getData());
+                UI.getCurrent().removeWindow((tDeviceDeleteWindow) clickEvent.getButton().getData());
             }
         });
 
@@ -131,6 +114,4 @@ public class tFolderDeleteWindow extends Window {
         this.setSizeUndefined();
         this.setModal(true);
     }
-
-
 }

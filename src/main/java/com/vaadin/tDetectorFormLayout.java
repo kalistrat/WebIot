@@ -40,8 +40,8 @@ public class tDetectorFormLayout extends VerticalLayout {
             public void buttonClick(Button.ClickEvent clickEvent) {
                 SaveButton.setEnabled(false);
                 EditButton.setEnabled(true);
-                //UnitsTextField.setEnabled(false);
                 PeriodMeasureSelect.setEnabled(false);
+                updateDetectorMeasurePeriod();
             }
         });
 
@@ -73,7 +73,9 @@ public class tDetectorFormLayout extends VerticalLayout {
         PeriodMeasureSelect.addItem("еженедельно");
         PeriodMeasureSelect.addItem("ежемесячно");
         PeriodMeasureSelect.addItem("ежегодно");
+        PeriodMeasureSelect.addItem("не задано");
         PeriodMeasureSelect.setNullSelectionAllowed(false);
+        PeriodMeasureSelect.select("не задано");
 
 
         DetectorAddDate = new TextField("Дата добавления устройства :");
@@ -182,4 +184,34 @@ public class tDetectorFormLayout extends VerticalLayout {
             e13.printStackTrace();
         }
     }
+
+    public void updateDetectorMeasurePeriod(){
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement Stmt = Con.prepareCall("{call p_device_measure_period(?, ?)}");
+            Stmt.setInt(1, iUserDeviceId);
+            Stmt.setString(2, (String) PeriodMeasureSelect.getValue());
+
+            Stmt.execute();
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+
+    }
+
+
 }

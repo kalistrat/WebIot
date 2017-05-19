@@ -22,7 +22,7 @@ public class tDescriptionLayout extends VerticalLayout {
 
         Label Header = new Label();
         Header.setContentMode(ContentMode.HTML);
-        Header.setValue(VaadinIcons.EXCLAMATION_CIRCLE.getHtml() + "  " + "Краткое описание");
+        Header.setValue(VaadinIcons.INFO.getHtml() + "  " + "Краткое описание");
         Header.addStyleName(ValoTheme.LABEL_COLORED);
         Header.addStyleName(ValoTheme.LABEL_SMALL);
 

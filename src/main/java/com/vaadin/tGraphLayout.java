@@ -39,7 +39,7 @@ public class tGraphLayout extends VerticalLayout {
 
         int xMarkPad = 20;
         int yMarkPad = GetNd(iMarkYList)*5+10;
-        int Pad09 = 30 + yMarkPad;
+        int Pad09 = 60 + yMarkPad;
         int SymPad = 5;
 
         int GraphWidth = dGraphWidth + Pad03 + Pad09;

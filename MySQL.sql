@@ -564,12 +564,11 @@ DELIMITER ;
 
 -- Дамп структуры для функция things.f_user_device_insert
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_user_device_insert`(
-eDeviceName varchar(30)
-,eUserId int
-,eUserLog varchar(50)
-,eActionTypeId int
-,eMqttServerName varchar(30)
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_user_device_insert`(`eDeviceName` varchar(30)
+, `eUserId` int
+, `eUserLog` varchar(50)
+, `eActionTypeId` int
+, `eMqttServerName` varchar(30)
 ) RETURNS int(11)
 begin
 declare i_server_id int;
@@ -585,6 +584,11 @@ user_id
 ,user_device_date_from
 ,action_type_id
 ,mqqt_server_id
+,device_units
+,unit_id
+,factor_id
+,description
+,user_device_measure_period
 )
 values(
 eUserId
@@ -592,13 +596,18 @@ eUserId
 ,sysdate()
 ,eActionTypeId
 ,i_server_id
+,'Ед'
+,96
+,64
+,eDeviceName
+,'не задано'
 );
 
 select LAST_INSERT_ID() into i_user_device_id;
 
 update user_device ud
-set ud.mqtt_topic_write=concat(concat(concat(eUserLog,'/'),i_user_device_id),'W')
-,ud.mqtt_topic_read=concat(concat(concat(eUserLog,'/'),i_user_device_id),'R')
+set ud.mqtt_topic_write=concat(concat(eUserLog,i_user_device_id),'W')
+,ud.mqtt_topic_read=concat(concat(eUserLog,i_user_device_id),'R')
 where ud.user_device_id=i_user_device_id;
 
 return i_user_device_id;
@@ -798,6 +807,9 @@ and udt.leaf_id = eLeafId;
 delete from user_devices_tree
 where user_devices_tree_id = i_tree_id;
 
+delete from user_device_measures
+where user_device_id = i_user_device_id;
+
 delete from user_device
 where user_device_id = i_user_device_id;
 
@@ -876,6 +888,22 @@ begin
 
 update user_device ud
 set ud.description = eDescriptionValue
+where ud.user_device_id = eUserDeviceId;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_device_measure_period
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_device_measure_period`(
+eUserDeviceId int
+,ePeriodValue varchar(100)
+)
+begin
+
+update user_device ud
+set ud.user_device_measure_period = ePeriodValue
 where ud.user_device_id = eUserDeviceId;
 
 end//
@@ -1284,7 +1312,7 @@ CREATE TABLE IF NOT EXISTS `unit` (
   `unit_symbol` varchar(25) DEFAULT NULL,
   `unit_name` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`unit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=98 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.unit: ~75 rows (приблизительно)
 DELETE FROM `unit`;
@@ -1364,7 +1392,8 @@ INSERT INTO `unit` (`unit_id`, `unit_symbol`, `unit_name`) VALUES
 	(93, 'Кл/кг', 'кулон на килограмм'),
 	(94, 'атм', 'атмосфера'),
 	(95, '°С', 'градус Цельсия'),
-	(96, 'Ед.', 'Другая единица');
+	(96, 'Ед', 'Другая единица'),
+	(97, '%', 'Процент');
 /*!40000 ALTER TABLE `unit` ENABLE KEYS */;
 
 
@@ -1373,7 +1402,7 @@ CREATE TABLE IF NOT EXISTS `unit_factor` (
   `factor_id` int(11) NOT NULL AUTO_INCREMENT,
   `factor_value` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`factor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=127 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.unit_factor: ~49 rows (приблизительно)
 DELETE FROM `unit_factor`;
@@ -1477,16 +1506,18 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_unit` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
   CONSTRAINT `FK_user_device_unit_factor` FOREIGN KEY (`factor_id`) REFERENCES `unit_factor` (`factor_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device: ~4 rows (приблизительно)
+-- Дамп данных таблицы things.user_device: ~6 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`) VALUES
-	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'ежесекундно', '2017-03-03 18:43:27', 1, '°С', 'k/1W', '', 1, 96, 64, 'UniPing RS-485 xxxxx'),
-	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежечасно', '2017-02-28 18:32:52', 1, 'Вб', 'k/2W', NULL, 1, 60, 64, 'HWg-STE zzzz1'),
+	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'не задано', '2017-03-03 18:43:27', 1, '°С', 'k1W', '', 1, 96, 64, 'UniPing RS-485 xxxxx'),
+	(2, 1, 'HWg-STE', 'Периодическое измерение', 'не задано', '2017-02-28 18:32:52', 1, '°С', 'k2W', NULL, 1, 95, 64, 'Это описание устройства HWg-STE. Максимальная длина 200 символов'),
 	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+	(11, 1, 'барометр', NULL, 'не задано', '2017-05-19 13:50:38', 1, 'атм', 'k11W', 'k11R', 1, 94, 64, 'reger'),
+	(16, 1, 'Датчик СО', NULL, 'не задано', '2017-05-19 16:31:42', 1, '%', 'k16W', 'k16R', 1, 97, 64, 'Датчик СО');
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -1503,9 +1534,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~9 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~10 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -1516,8 +1547,11 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1),
 	(41, 6, 2, 1, 'UniPing RS-485', 1),
 	(107, 7, 1, NULL, 'Санитарный блок', 1),
-	(108, 8, 7, NULL, 'Ванная комната', 1),
-	(116, 9, 1, NULL, 'Туалет', 1);
+	(125, 8, 7, 11, 'барометр', 1),
+	(131, 9, 1, NULL, 'Гараж', 1),
+	(132, 10, 9, 16, 'Датчик СО', 1),
+	(133, 11, 1, NULL, 'Подсобка', 1),
+	(134, 12, 1, NULL, 'Бассейн', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 
@@ -1530,7 +1564,7 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   PRIMARY KEY (`user_device_measure_id`),
   KEY `FK_user_device_measures_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_device_measures: ~18 rows (приблизительно)
 DELETE FROM `user_device_measures`;
@@ -1546,14 +1580,14 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 	(8, 1, 7.00, '2017-01-23 12:21:54'),
 	(9, 1, 15.00, '2017-01-23 14:22:05'),
 	(10, 1, 17.00, '2017-01-23 16:22:15'),
-	(11, 1, 20.00, '2017-01-23 18:22:30'),
+	(11, 1, 20.54, '2017-01-23 18:22:30'),
 	(12, 2, 34.00, '2017-01-26 19:22:47'),
 	(13, 2, 34.00, '2017-01-26 19:22:57'),
 	(14, 2, 56.00, '2017-01-26 19:23:06'),
 	(15, 2, 45.00, '2017-01-26 19:23:15'),
 	(16, 2, 34.00, '2017-01-26 19:23:23'),
 	(17, 2, 35.00, '2017-01-26 19:23:35'),
-	(18, 2, 44.00, '2017-01-26 19:23:46');
+	(18, 2, 44.21, '2017-01-26 19:23:46');
 /*!40000 ALTER TABLE `user_device_measures` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

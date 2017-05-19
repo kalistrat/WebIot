@@ -24,6 +24,7 @@ public class tDetectorLayout extends VerticalLayout {
     tDetectorUnitsLayout DeviceUnitsLayout;
     tDescriptionLayout DeviceDescription;
     tPeriodMeasuresLayout DeviceMeasuresLayout;
+    tDetectorLastMeasureLayout DeviceLastMeasure;
 
     public tDetectorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
 
@@ -84,6 +85,15 @@ public class tDetectorLayout extends VerticalLayout {
         DeleteSubTreeButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         DeleteSubTreeButton.addStyleName("TopButton");
 
+        DeleteSubTreeButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                UI.getCurrent().addWindow(new tDeviceDeleteWindow(tCurrentLeafId
+                        ,tParentContentLayout
+                ));
+            }
+        });
+
 
         HorizontalLayout DetectorEditLayout = new HorizontalLayout(
                 DeleteSubTreeButton
@@ -113,6 +123,8 @@ public class tDetectorLayout extends VerticalLayout {
 
         DeviceDescription = new tDescriptionLayout(iUserDeviceId);
 
+        DeviceLastMeasure = new tDetectorLastMeasureLayout(iUserDeviceId);
+
         tUsefulFuctions.getUserDetectorData(
                 iUserDeviceId
                 ,DeviceDataLayout
@@ -124,6 +136,7 @@ public class tDetectorLayout extends VerticalLayout {
                 DeviceDataLayout
                 ,DeviceUnitsLayout
                 ,DeviceDescription
+                ,DeviceLastMeasure
                 ,DeviceMeasuresLayout
         );
 
@@ -140,7 +153,7 @@ public class tDetectorLayout extends VerticalLayout {
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);
 
-        SplPanel.setHeight("1000px");
+        SplPanel.setHeight("1200px");
         //SplPanel.setWidth("1000px");
 
         this.addComponent(SplPanel);
