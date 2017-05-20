@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win32
--- HeidiSQL Версия:              9.3.0.4984
+-- ОС Сервера:                   Win64
+-- HeidiSQL Версия:              9.1.0.4867
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -606,8 +606,8 @@ eUserId
 select LAST_INSERT_ID() into i_user_device_id;
 
 update user_device ud
-set ud.mqtt_topic_write=concat(concat(eUserLog,i_user_device_id),'W')
-,ud.mqtt_topic_read=concat(concat(eUserLog,i_user_device_id),'R')
+set ud.mqtt_topic_write=concat(concat(concat(eUserLog,'/'),i_user_device_id),'/W/')
+,ud.mqtt_topic_read=concat(concat(concat(eUserLog,'/'),i_user_device_id),'/R/')
 where ud.user_device_id=i_user_device_id;
 
 return i_user_device_id;
@@ -649,7 +649,7 @@ CREATE TABLE IF NOT EXISTS `mqtt_servers` (
 DELETE FROM `mqtt_servers`;
 /*!40000 ALTER TABLE `mqtt_servers` DISABLE KEYS */;
 INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`) VALUES
-	(1, '192.168.1.64', '8383', 0);
+	(1, '192.168.1.64', '1883', 0);
 /*!40000 ALTER TABLE `mqtt_servers` ENABLE KEYS */;
 
 
@@ -1306,34 +1306,9 @@ end//
 DELIMITER ;
 
 
--- Дамп структуры для процедура things.s_p_topic_data_log
+-- Дамп структуры для процедура things.s_p_sensor_initial
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_p_topic_data_log`(
-eDeviceId int
-,eMessAge varchar(255)
-)
-begin
-
-insert into user_device_measures(
-user_device_id
-,measure_value
-,measure_date
-,measure_mess
-)
-values(
-eDeviceId
-,null
-,sysdate()
-,eMessAge
-);
-
-end//
-DELIMITER ;
-
-
--- Дамп структуры для процедура things.s_p_topic_initial
-DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_p_topic_initial`(IN `eUserLog` varchar(50)
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_p_sensor_initial`(IN `eUserLog` varchar(50)
 , IN `eDeviceId` int
 , OUT `oMqttTopicWrite` varchar(200)
 , OUT `oMqttServerHost` varchar(100)
@@ -1349,6 +1324,30 @@ join users u on u.user_id = ud.user_id
 join mqtt_servers ms on ms.server_id=ud.mqqt_server_id
 where ud.user_device_id = eDeviceId
 and u.user_log = eUserLog;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.s_p_topic_data_log
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_p_topic_data_log`(IN `eDeviceId` int
+, IN `eMessAge` varchar(255)
+, IN `eDoubleValue` DOUBLE(10,2))
+begin
+
+insert into user_device_measures(
+user_device_id
+,measure_value
+,measure_date
+,measure_mess
+)
+values(
+eDeviceId
+,eDoubleValue
+,sysdate()
+,eMessAge
+);
 
 end//
 DELIMITER ;
@@ -1560,12 +1559,12 @@ CREATE TABLE IF NOT EXISTS `user_device` (
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`) VALUES
-	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'не задано', '2017-03-03 18:43:27', 1, '°С', 'k1W', '', 1, 96, 64, 'UniPing RS-485 xxxxx'),
-	(2, 1, 'HWg-STE', 'Периодическое измерение', 'не задано', '2017-02-28 18:32:52', 1, '°С', 'k2W', NULL, 1, 95, 64, 'Это описание устройства HWg-STE. Максимальная длина 200 символов'),
-	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	(11, 1, 'барометр', NULL, 'не задано', '2017-05-19 13:50:38', 1, 'атм', 'k11W', 'k11R', 1, 94, 64, 'reger'),
-	(16, 1, 'Датчик СО', NULL, 'не задано', '2017-05-19 16:31:42', 1, '%', 'k16W', 'k16R', 1, 97, 64, 'Датчик СО');
+	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'не задано', '2017-03-03 18:43:27', 1, '°С', 'k/1/W/', 'k/2/R/', 1, 96, 64, 'UniPing RS-485 xxxxx'),
+	(2, 1, 'HWg-STE', 'Периодическое измерение', 'не задано', '2017-02-28 18:32:52', 1, '°С', 'k/2/W/', 'k/2/R/', 1, 95, 64, 'Это описание устройства HWg-STE. Максимальная длина 200 символов'),
+	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, 'k/3/W/', 'k/3/R/', NULL, NULL, NULL, NULL),
+	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, 'k/4/W/', 'k/4/R/', NULL, NULL, NULL, NULL),
+	(11, 1, 'барометр', NULL, 'не задано', '2017-05-19 13:50:38', 1, 'атм', 'k/11/W/', 'k/11/R/', 1, 94, 64, 'reger'),
+	(16, 1, 'Датчик СО', NULL, 'не задано', '2017-05-19 16:31:42', 1, '%', 'k/16/W/', 'k/16/R/', 1, 97, 64, 'Датчик СО');
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -1613,9 +1612,9 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   PRIMARY KEY (`user_device_measure_id`),
   KEY `FK_user_device_measures_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_measures: ~18 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_measures: ~88 rows (приблизительно)
 DELETE FROM `user_device_measures`;
 /*!40000 ALTER TABLE `user_device_measures` DISABLE KEYS */;
 INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`, `measure_mess`) VALUES
@@ -1636,7 +1635,97 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 	(15, 2, 45.00, '2017-01-26 19:23:15', NULL),
 	(16, 2, 34.00, '2017-01-26 19:23:23', NULL),
 	(17, 2, 35.00, '2017-01-26 19:23:35', NULL),
-	(18, 2, 44.21, '2017-01-26 19:23:46', NULL);
+	(18, 2, 44.21, '2017-01-26 19:23:46', NULL),
+	(19, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(20, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(21, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(22, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(23, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(24, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(25, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(26, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(27, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(28, 1, 20.00, '2017-05-20 15:10:22', '20'),
+	(29, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(30, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(31, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(32, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(33, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(34, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(35, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(36, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(37, 1, 25.00, '2017-05-20 15:11:58', '25'),
+	(38, 1, 25.00, '2017-05-20 15:11:59', '25'),
+	(39, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(40, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(41, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(42, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(43, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(44, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(45, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(46, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(47, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(48, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(49, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(50, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(51, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(52, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(53, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(54, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(55, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(56, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(57, 1, 25.00, '2017-05-20 15:14:57', '25'),
+	(58, 2, 18.00, '2017-05-20 15:14:57', '18'),
+	(59, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(60, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(61, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(62, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(63, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(64, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(65, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(66, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(67, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(68, 1, 25.00, '2017-05-20 15:17:36', '25'),
+	(69, 1, 20.00, '2017-05-20 15:31:53', '20'),
+	(70, 1, 20.00, '2017-05-20 15:31:53', '20'),
+	(71, 1, 20.00, '2017-05-20 15:31:53', '20'),
+	(72, 1, 20.00, '2017-05-20 15:31:53', '20'),
+	(73, 1, 20.00, '2017-05-20 15:31:53', '20'),
+	(74, 1, 20.00, '2017-05-20 15:31:53', '20'),
+	(75, 1, 20.00, '2017-05-20 15:31:54', '20'),
+	(76, 1, 20.00, '2017-05-20 15:31:54', '20'),
+	(77, 1, 20.00, '2017-05-20 15:31:54', '20'),
+	(78, 1, 20.00, '2017-05-20 15:31:54', '20'),
+	(79, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(80, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(81, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(82, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(83, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(84, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(85, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(86, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(87, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(88, 1, 20.00, '2017-05-20 15:32:27', '20'),
+	(89, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(90, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(91, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(92, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(93, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(94, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(95, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(96, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(97, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(98, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(99, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(100, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(101, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(102, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(103, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(104, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(105, 1, 11.00, '2017-05-20 19:05:13', '11'),
+	(106, 2, 22.00, '2017-05-20 19:05:13', '22'),
+	(107, 1, 11.00, '2017-05-20 19:05:14', '11'),
+	(108, 2, 22.00, '2017-05-20 19:05:14', '22');
 /*!40000 ALTER TABLE `user_device_measures` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
