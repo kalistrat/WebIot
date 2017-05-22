@@ -328,6 +328,7 @@ public class tUsefulFuctions {
             List<String> MessageAttr = GetListFromString(outSubscriberMessage,"|");
             //System.out.println("Is operation Sussess :" + MessageAttr.get(0));
             //System.out.println("Operation Message:" + MessageAttr.get(0));
+            s.close();
 
             if (MessageAttr.get(0).equals("N")) {
                 return MessageAttr.get(1);
