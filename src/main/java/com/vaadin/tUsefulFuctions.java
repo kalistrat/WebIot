@@ -1,5 +1,7 @@
 package com.vaadin;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,13 +18,13 @@ public class tUsefulFuctions {
     static final String USER = "kalistrat";
     static final String PASS = "045813";
 
-    public static List<String> GetListFromString(String DevidedString){
+    public static List<String> GetListFromString(String DevidedString,String Devider){
         List<String> StrPieces = new ArrayList<String>();
         int k = 0;
         String iDevidedString = DevidedString;
 
         while (!iDevidedString.equals("")) {
-            int Pos = iDevidedString.indexOf("/");
+            int Pos = iDevidedString.indexOf(Devider);
             StrPieces.add(iDevidedString.substring(0, Pos));
             iDevidedString = iDevidedString.substring(Pos + 1);
             k = k + 1;
@@ -34,9 +36,11 @@ public class tUsefulFuctions {
         return StrPieces;
     }
 
+
+
     public static List<tMark> GetMarksFromString(String MarksString,String AxeTitle){
         List<tMark> MarksList = new ArrayList<tMark>();
-        List<String> MarksPairs = GetListFromString(MarksString);
+        List<String> MarksPairs = GetListFromString(MarksString,"/");
         for (String sPair : MarksPairs){
             int iPos = sPair.indexOf("#");
             if (AxeTitle.equals("x")) {
@@ -139,12 +143,15 @@ public class tUsefulFuctions {
 
             Con.close();
 
+
         }catch(SQLException se){
             //Handle errors for JDBC
             se.printStackTrace();
+
         }catch(Exception e) {
             //Handle errors for Class.forName
             e.printStackTrace();
+
         }
 
     }
@@ -300,6 +307,38 @@ public class tUsefulFuctions {
             e.printStackTrace();
         }
 
+    }
+
+    public static String updateDeviceMqttLogger(
+            int qUserDeviceId
+            ,String qUserLog
+            ,String qActionType
+    ){
+        try {
+
+            Socket s = new Socket("localhost", 3128);
+            String InMessageValue = qActionType + "/" + qUserLog + "/sensor/" + String.valueOf(qUserDeviceId) + "/";
+
+
+            s.getOutputStream().write(InMessageValue.getBytes());
+            // читаем ответ
+            byte buf[] = new byte[256 * 1024];
+            int r = s.getInputStream().read(buf);
+            String outSubscriberMessage = new String(buf, 0, r);
+            List<String> MessageAttr = GetListFromString(outSubscriberMessage,"|");
+            //System.out.println("Is operation Sussess :" + MessageAttr.get(0));
+            //System.out.println("Operation Message:" + MessageAttr.get(0));
+
+            if (MessageAttr.get(0).equals("N")) {
+                return MessageAttr.get(1);
+            } else {
+                return "";
+            }
+
+        }
+        catch(IOException e) {
+            return "Ошибка подключения к серверу подписки";
+        }
     }
 
 }

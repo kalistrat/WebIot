@@ -86,22 +86,43 @@ public class tAddDeviceWindow extends Window {
                     sErrorMessage = "Указанное наименование уже используется. Введите другое.\n";
                 }
 
+                String ErrAddIntoDB = addUserDevice(
+                        iLeafId//int qParentLeafId
+                        , sFieldValue//String qDeviceName
+                        , iTreeContentLayout.iUserLog//String qUserLog
+                        , (String) DeviceActionType.getValue() //String qActionTypeName
+                        , (String) MqttSelect.getValue() //String qMqttServerName
+                );
+
+                if (!ErrAddIntoDB.equals("")) {
+                    sErrorMessage = sErrorMessage + ErrAddIntoDB + ";";
+                } else {
+
+                    String ErrAddIntoSC = tUsefulFuctions.updateDeviceMqttLogger(
+                            iNewUserDeviceId
+                            ,iTreeContentLayout.iUserLog
+                            ,"add"
+                    );
+
+                    if (!ErrAddIntoSC.equals("")) {
+
+                        sErrorMessage = sErrorMessage + ErrAddIntoSC;
+                        tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,iNewLeafId);
+                        iTreeContentLayout.reloadTreeContainer();
+                        for (Object id : iTreeContentLayout.itTree.rootItemIds()) {
+                            iTreeContentLayout.itTree.expandItemsRecursively(id);
+                        }
+
+                        iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId,0);
+                    }
+
+                }
+
                 if (!sErrorMessage.equals("")){
                     Notification.show("Ошибка сохранения:",
                             sErrorMessage,
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
-
-
-                    addUserDevice(
-                    iLeafId//int qParentLeafId
-                    , sFieldValue//String qDeviceName
-                    , iTreeContentLayout.iUserLog//String qUserLog
-                    , (String) DeviceActionType.getValue() //String qActionTypeName
-                    , (String) MqttSelect.getValue() //String qMqttServerName
-                    );
-
-                    if (iNewTreeId != 0) {
 
                         Item newItem = iTreeContentLayout.itTree.TreeContainer.addItem(iNewLeafId);
                         newItem.getItemProperty(1).setValue(iNewTreeId);
@@ -124,13 +145,13 @@ public class tAddDeviceWindow extends Window {
                             iTreeContentLayout.itTree.setItemIcon(iNewLeafId, VaadinIcons.AUTOMATION);
                         }
 
-                        iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId,0);
+                        iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId, 0);
                         iTreeContentLayout.itTree.expandItem(iLeafId);
-                    }
-                    Notification.show("Устройство добавлено!",
-                            null,
-                            Notification.Type.TRAY_NOTIFICATION);
-                    UI.getCurrent().removeWindow((tAddDeviceWindow) clickEvent.getButton().getData());
+
+                        Notification.show("Устройство добавлено!",
+                                null,
+                                Notification.Type.TRAY_NOTIFICATION);
+                        UI.getCurrent().removeWindow((tAddDeviceWindow) clickEvent.getButton().getData());
 
                 }
 
@@ -259,7 +280,7 @@ public class tAddDeviceWindow extends Window {
         }
     }
 
-    public void addUserDevice(
+    public String addUserDevice(
         int qParentLeafId
         , String qDeviceName
         , String qUserLog
@@ -294,13 +315,16 @@ public class tAddDeviceWindow extends Window {
             iNewUserDeviceId = addDeviceStmt.getInt(9);
 
             Con.close();
+            return "";
 
         }catch(SQLException se){
             //Handle errors for JDBC
             se.printStackTrace();
+            return "Ошибка JDBC";
         }catch(Exception e) {
             //Handle errors for Class.forName
             e.printStackTrace();
+            return "Ошибка Class.forName";
         }
 
     }

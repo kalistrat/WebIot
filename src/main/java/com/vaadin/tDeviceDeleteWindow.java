@@ -52,7 +52,14 @@ public class tDeviceDeleteWindow extends Window {
                         .GetLeafNameById(iTreeContentLayout.GetParentLeafById(iLeafId));
 
 
+                tUsefulFuctions.updateDeviceMqttLogger(
+                        iTreeContentLayout.getLeafUserDeviceId(iLeafId)
+                        ,iTreeContentLayout.iUserLog
+                        ,"delete"
+                );
+
                 tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,iLeafId);
+
                 iTreeContentLayout.reloadTreeContainer();
                 Integer iNewParentLeafId = iTreeContentLayout.getLeafIdByName(sParentLeafName);
 
@@ -62,10 +69,9 @@ public class tDeviceDeleteWindow extends Window {
 
                 iTreeContentLayout.tTreeContentLayoutRefresh(iNewParentLeafId,0);
 
-
                 Notification.show("Устройство удалёно!",
-                        null,
-                        Notification.Type.TRAY_NOTIFICATION);
+                                    null,
+                                    Notification.Type.TRAY_NOTIFICATION);
                 UI.getCurrent().removeWindow((tDeviceDeleteWindow) clickEvent.getButton().getData());
 
             }

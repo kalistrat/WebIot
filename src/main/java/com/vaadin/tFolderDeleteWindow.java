@@ -64,6 +64,11 @@ public class tFolderDeleteWindow extends Window {
                         int RemoveLeafId = ChildsLeafs.get(childLeafsCount-(i+1));
 
                         if (iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId).intValue()!=0) {
+                            tUsefulFuctions.updateDeviceMqttLogger(
+                                    iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId)
+                                    ,iTreeContentLayout.iUserLog
+                                    ,"delete"
+                            );
                             tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,RemoveLeafId);
                         } else {
                             tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,RemoveLeafId);
