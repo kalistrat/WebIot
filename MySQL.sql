@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win32
--- HeidiSQL Версия:              9.3.0.4984
+-- ОС Сервера:                   Win64
+-- HeidiSQL Версия:              9.1.0.4867
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -488,6 +488,19 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для функция things.f_get_user_password
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_user_password`(eUserLog varchar(50)) RETURNS varchar(150) CHARSET utf8
+begin
+return(
+select u.user_pass
+from users u
+where u.user_log = eUserLog
+);
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для функция things.f_is_user_exists
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_is_user_exists`(eUserLog varchar(50),ePassWord varchar(50)) RETURNS int(11)
@@ -646,7 +659,7 @@ CREATE TABLE IF NOT EXISTS `mqtt_servers` (
   PRIMARY KEY (`server_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.mqtt_servers: ~1 rows (приблизительно)
+-- Дамп данных таблицы things.mqtt_servers: ~3 rows (приблизительно)
 DELETE FROM `mqtt_servers`;
 /*!40000 ALTER TABLE `mqtt_servers` DISABLE KEYS */;
 INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`) VALUES
@@ -1514,18 +1527,19 @@ INSERT INTO `unit_factor` (`factor_id`, `factor_value`) VALUES
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_log` varchar(50) NOT NULL,
-  `user_pass` varchar(50) NOT NULL,
+  `user_pass` varchar(150) NOT NULL,
   `user_last_activity` datetime DEFAULT NULL,
   `user_mail` varchar(150) DEFAULT NULL,
+  `user_phone` varchar(150) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.users: ~2 rows (приблизительно)
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`user_id`, `user_log`, `user_pass`, `user_last_activity`, `user_mail`) VALUES
-	(1, 'k', '7', '2016-11-17 14:32:56', NULL),
-	(2, 'Niko', '7', '2017-01-12 18:02:48', 'akminfo@mail.ru');
+INSERT INTO `users` (`user_id`, `user_log`, `user_pass`, `user_last_activity`, `user_mail`, `user_phone`) VALUES
+	(1, 'k', '7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451', '2016-11-17 14:32:56', NULL, NULL),
+	(2, 'Niko', '2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3', '2017-01-12 18:02:48', 'akminfo@mail.ru', NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 
@@ -1558,7 +1572,7 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device: ~6 rows (приблизительно)
+-- Дамп данных таблицы things.user_device: ~7 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`) VALUES
@@ -1585,9 +1599,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=146 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~12 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~14 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -1603,7 +1617,8 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(132, 10, 9, 16, 'Датчик СО', 1),
 	(133, 11, 1, NULL, 'Подсобка', 1),
 	(134, 12, 1, NULL, 'Бассейн', 1),
-	(135, 13, 7, 17, 'термометр-1', 1);
+	(135, 13, 7, 17, 'термометр-1', 1),
+	(146, 1, NULL, NULL, 'Устройства', 2);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

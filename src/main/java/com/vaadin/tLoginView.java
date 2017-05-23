@@ -76,8 +76,8 @@ public class tLoginView extends CustomComponent implements View {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 String username = LogInField.getValue();
-                String password = PassField.getValue();
-                Integer IsPlayerExists = 0;
+                String password = tUsefulFuctions.sha256(PassField.getValue());
+                String db_Password = "";
 
                 try {
                     Class.forName(tUsefulFuctions.JDBC_DRIVER);
@@ -87,12 +87,13 @@ public class tLoginView extends CustomComponent implements View {
                             ,tUsefulFuctions.PASS
                     );
 
-                    CallableStatement CheckUserStmt = conn.prepareCall("{? = call f_is_user_exists(?, ?)}");
-                    CheckUserStmt.registerOutParameter (1, Types.INTEGER);
+                    CallableStatement CheckUserStmt = conn.prepareCall("{? = call f_get_user_password(?)}");
+                    CheckUserStmt.registerOutParameter (1, Types.VARCHAR);
                     CheckUserStmt.setString(2, username);
-                    CheckUserStmt.setString(3, password);
+
                     CheckUserStmt.execute();
-                    IsPlayerExists = CheckUserStmt.getInt(1);
+                    db_Password = CheckUserStmt.getString(1);
+                    //System.out.println(tUsefulFuctions.sha256(password));
 
                     conn.close();
                 } catch(SQLException SQLe){
@@ -103,7 +104,9 @@ public class tLoginView extends CustomComponent implements View {
                     e1.printStackTrace();
                 }
 
-                if (IsPlayerExists.equals(1)) {
+
+
+                if (db_Password.equals(password) && !password.equals("")) {
 
                     // Store the current user in the service session
                     getSession().setAttribute("user", username);
@@ -116,8 +119,9 @@ public class tLoginView extends CustomComponent implements View {
                     PassField.setValue("");
                     LogInField.setValue("");
                     PassField.focus();
-                    Notification PassWrongNotication = new Notification("Несуществующее сочетание логина и пароля","");
-                    PassWrongNotication.show(Page.getCurrent());
+                    Notification.show("Ошибка авторизации!",
+                            "Логин или пароль неверен",
+                            Notification.Type.TRAY_NOTIFICATION);
 
                 }
             }
