@@ -1,5 +1,7 @@
 package com.vaadin;
 
+import com.vaadin.ui.NativeSelect;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.security.MessageDigest;
@@ -8,6 +10,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by kalistrat on 24.01.2017.
@@ -218,7 +222,7 @@ public class tUsefulFuctions {
     public static void getUserDetectorData(
             int qUserDeviceId
             ,tDetectorFormLayout qParamsForm
-            ,tDescriptionLayout qDescriptionForm
+            //,tDescriptionLayout qDescriptionForm
             ,tDetectorUnitsLayout qUnitsForm
     ){
 
@@ -256,13 +260,17 @@ public class tUsefulFuctions {
             while (DetectorDataRs.next()) {
                 qParamsForm.NameTextField.setValue(DetectorDataRs.getString(1));
                 qParamsForm.PeriodMeasureSelect.select(DetectorDataRs.getString(2));
-                qParamsForm.DetectorAddDate.setValue(df.format(new Date(DetectorDataRs.getTimestamp(3).getTime())));
+                if (DetectorDataRs.getTimestamp(3) != null) {
+                    qParamsForm.DetectorAddDate.setValue(df.format(new Date(DetectorDataRs.getTimestamp(3).getTime())));
+                } else {
+                    qParamsForm.DetectorAddDate.setValue("");
+                }
                 qUnitsForm.UnitTextField.setValue(DetectorDataRs.getString(4));
                 qParamsForm.InTopicNameField.setValue(DetectorDataRs.getString(5));
                 qParamsForm.MqttServerSelect.select(DetectorDataRs.getString(6));
                 qUnitsForm.UnitSymbolSelect.select(DetectorDataRs.getString(8));
                 qUnitsForm.UnitFactorSelect.select(DetectorDataRs.getString(9));
-                qDescriptionForm.DescritionArea.setValue(DetectorDataRs.getString(7));
+                //qDescriptionForm.DescritionArea.setValue(DetectorDataRs.getString(7));
 
             }
 
@@ -359,6 +367,48 @@ public class tUsefulFuctions {
         } catch(Exception ex){
             throw new RuntimeException(ex);
         }
+    }
+
+    public static void getMqttServerData(NativeSelect qMqttServerSelect){
+
+        try {
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            String DataSql = "select concat(concat(s.server_ip,':'),s.server_port)\n" +
+                    "from mqtt_servers s";
+
+            PreparedStatement MqttDataStmt = Con.prepareStatement(DataSql);
+
+            ResultSet MqttDataRs = MqttDataStmt.executeQuery();
+
+            while (MqttDataRs.next()) {
+                qMqttServerSelect.addItem(MqttDataRs.getString(1));
+            }
+
+
+            Con.close();
+
+        } catch (SQLException se3) {
+            //Handle errors for JDBC
+            se3.printStackTrace();
+        } catch (Exception e13) {
+            //Handle errors for Class.forName
+            e13.printStackTrace();
+        }
+    }
+
+    public static boolean IsLatinAndDigits(String stringCode){
+        Pattern p = Pattern.compile("^[a-zA-Z0-9]+$");
+        Matcher m = p.matcher(stringCode);
+        //System.out.println("m.matches() :" + m.matches());
+        //System.out.println("Matcher m :" + m);
+
+        return m.matches();
     }
 
 }

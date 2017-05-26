@@ -87,7 +87,7 @@ public class tDetectorFormLayout extends VerticalLayout {
         MqttServerSelect.setEnabled(false);
 
 
-        getMqttServerData();
+        tUsefulFuctions.getMqttServerData(MqttServerSelect);
 
 
         FormLayout dform = new FormLayout(
@@ -152,38 +152,6 @@ public class tDetectorFormLayout extends VerticalLayout {
     }
 
 
-    public void getMqttServerData(){
-
-        try {
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            String DataSql = "select concat(concat(s.server_ip,':'),s.server_port)\n" +
-                    "from mqtt_servers s";
-
-            PreparedStatement MqttDataStmt = Con.prepareStatement(DataSql);
-
-            ResultSet MqttDataRs = MqttDataStmt.executeQuery();
-
-            while (MqttDataRs.next()) {
-                MqttServerSelect.addItem(MqttDataRs.getString(1));
-            }
-
-
-            Con.close();
-
-        } catch (SQLException se3) {
-            //Handle errors for JDBC
-            se3.printStackTrace();
-        } catch (Exception e13) {
-            //Handle errors for Class.forName
-            e13.printStackTrace();
-        }
-    }
 
     public void updateDetectorMeasurePeriod(){
         try {

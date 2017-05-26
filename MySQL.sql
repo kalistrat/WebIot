@@ -778,6 +778,22 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для процедура things.p_delete_actuator_state
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_actuator_state`(
+eUserDeviceId int
+,eActuatorCode varchar(20)
+)
+begin
+
+delete from user_actuator_state
+where user_device_id = eUserDeviceId
+and actuator_message_code = eActuatorCode;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для процедура things.p_delete_tree_leaf
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_tree_leaf`(
@@ -1066,6 +1082,30 @@ eUserDeviceName
 ,eUserDeviceDateFrom
 from user_device ud
 where ud.user_device_id=eUserDeviceId;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_insert_actuator_state
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_insert_actuator_state`(
+eUserDeviceId int
+,eActuatorName varchar(30)
+,eActuatorCode varchar(20)
+)
+begin
+
+insert into user_actuator_state(
+user_device_id
+,actuator_state_name
+,actuator_message_code
+)
+values(
+eUserDeviceId
+,eActuatorName
+,eActuatorCode
+);
 
 end//
 DELIMITER ;
@@ -1544,6 +1584,26 @@ INSERT INTO `users` (`user_id`, `user_log`, `user_pass`, `user_last_activity`, `
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 
+-- Дамп структуры для таблица things.user_actuator_state
+CREATE TABLE IF NOT EXISTS `user_actuator_state` (
+  `user_actuator_state_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_device_id` int(11) NOT NULL,
+  `actuator_state_name` varchar(30) DEFAULT NULL,
+  `actuator_message_code` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`user_actuator_state_id`),
+  KEY `FK_user_actuator_state_user_device` (`user_device_id`),
+  CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+
+-- Дамп данных таблицы things.user_actuator_state: ~0 rows (приблизительно)
+DELETE FROM `user_actuator_state`;
+/*!40000 ALTER TABLE `user_actuator_state` DISABLE KEYS */;
+INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `actuator_state_name`, `actuator_message_code`) VALUES
+	(14, 4, 'hrthtr', 'trhrt'),
+	(15, 3, 'Включено', 'DeviceOn');
+/*!40000 ALTER TABLE `user_actuator_state` ENABLE KEYS */;
+
+
 -- Дамп структуры для таблица things.user_device
 CREATE TABLE IF NOT EXISTS `user_device` (
   `user_device_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1571,15 +1631,15 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_unit` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
   CONSTRAINT `FK_user_device_unit_factor` FOREIGN KEY (`factor_id`) REFERENCES `unit_factor` (`factor_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_device: ~7 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`) VALUES
 	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'не задано', '2017-03-03 18:43:27', 1, '°С', 'k/1/W/', 'k/2/R/', 3, 96, 64, 'UniPing RS-485 xxxxx'),
-	(2, 1, 'HWg-STE', 'Периодическое измерение', 'не задано', '2017-02-28 18:32:52', 1, '°С', 'k/2/W/', 'k/2/R/', 3, 95, 64, 'Это описание устройства HWg-STE. Максимальная длина 200 символов'),
-	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, 'k/3/W/', 'k/3/R/', 3, NULL, NULL, NULL),
+	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежесекундно', '2017-02-28 18:32:52', 1, '°С x 10e2', 'k/2/W/', 'k/2/R/', 3, 95, 66, 'Это описание устройства HWg-STE. Максимальная длина 200 символов'),
+	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, 'k/3/W/', 'k/3/R/', 3, NULL, NULL, 'Logitech HD Webcam C270 максимальная длина 200 символов'),
 	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, 'k/4/W/', 'k/4/R/', 3, NULL, NULL, NULL),
 	(11, 1, 'барометр', NULL, 'не задано', '2017-05-19 13:50:38', 1, 'атм', 'k/11/W/', 'k/11/R/', 3, 94, 64, 'reger'),
 	(16, 1, 'Датчик СО', NULL, 'не задано', '2017-05-19 16:31:42', 1, '%', 'k/16/W/', 'k/16/R/', 3, 97, 64, 'Датчик СО'),

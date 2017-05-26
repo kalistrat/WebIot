@@ -12994,3 +12994,7 @@ div.v-layout.v-horizontal.v-widget {
 	font-size: 14px;
 	color: red;
 }
+
+.mytheme .TableRow {
+	font-size: 12px;
+}

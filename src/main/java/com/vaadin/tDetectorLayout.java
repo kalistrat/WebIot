@@ -128,7 +128,7 @@ public class tDetectorLayout extends VerticalLayout {
         tUsefulFuctions.getUserDetectorData(
                 iUserDeviceId
                 ,DeviceDataLayout
-                ,DeviceDescription
+                //,DeviceDescription
                 ,DeviceUnitsLayout
         );
 

@@ -1,6 +1,7 @@
 package com.vaadin;
 
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -44,7 +45,8 @@ public class tMainView extends CustomComponent implements View {
         //setSizeFull();
 
         VerticalLayout tMainViewContent = new VerticalLayout();
-        LogOutButton.setStyleName(ValoTheme.BUTTON_LINK);
+        LogOutButton.addStyleName(ValoTheme.BUTTON_LINK);
+        LogOutButton.addStyleName(ValoTheme.BUTTON_SMALL);
         LogOutButton.setIcon(FontAwesome.SIGN_OUT);
         HorizontalLayout TopSec = new HorizontalLayout(LogOutButton);
         TopSec.setComponentAlignment(LogOutButton,Alignment.TOP_RIGHT);
@@ -94,12 +96,13 @@ public class tMainView extends CustomComponent implements View {
         Tab3Cont.addComponent(new Label("Здесь будет архив,а может что-то другое"));
 
         t = new TabSheet();
+        //t.addStyleName(ValoTheme.TABSH);
         //t.setHeight("200px");
         //t.setWidth("400px");
 
-        t.addTab(Tab1Cont, "Показания датчиков",FontAwesome.TASKS);
-        t.addTab(Tab2Cont, "Настройка датчиков", FontAwesome.GEARS);
-        t.addTab(Tab3Cont, "Архив показаний", FontAwesome.ARCHIVE);
+        t.addTab(Tab1Cont, "Дерево устройств", VaadinIcons.FILE_TREE);
+        t.addTab(Tab2Cont, "Архив показаний", VaadinIcons.ARCHIVE);
+        t.addTab(Tab3Cont, "Руководство пользователя", FontAwesome.QUESTION_CIRCLE);
         //t.addListener(this);
         t.setSizeFull();
 
