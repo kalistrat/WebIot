@@ -120,7 +120,10 @@ public class tActuatorLayout extends VerticalLayout {
 
         DeviceDescription = new tDescriptionLayout(iUserDeviceId);
         ActuatorStatesLayout = new tActuatorStatesLayout(iUserDeviceId);
-        ActuatorStateConditionLayout = new tActuatorStateConditionLayout(iUserDeviceId);
+        ActuatorStateConditionLayout = new tActuatorStateConditionLayout(
+                iUserDeviceId
+                ,ActuatorStatesLayout
+        );
 
         VerticalLayout ContentLayout = new VerticalLayout(
                 ActuatorDataFormLayout

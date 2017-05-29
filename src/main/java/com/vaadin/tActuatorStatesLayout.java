@@ -14,7 +14,8 @@ import java.sql.*;
 /**
  * Created by kalistrat on 26.05.2017.
  */
-public class tActuatorStatesLayout extends VerticalLayout {
+public class tActuatorStatesLayout extends VerticalLayout
+implements addDeleteListenable {
     Button AddButton;
     Button DeleteButton;
     Button SaveButton;
@@ -22,6 +23,7 @@ public class tActuatorStatesLayout extends VerticalLayout {
     Table StatesTable;
     IndexedContainer StatesContainer;
     int iUserDeviceId;
+    addDeleteListener Listener;
 
 
     public tActuatorStatesLayout(int eUserDeviceId){
@@ -100,6 +102,8 @@ public class tActuatorStatesLayout extends VerticalLayout {
                     DeleteButton.setEnabled(true);
                     AddButton.setEnabled(true);
                     SaveButton.setEnabled(false);
+                    Listener.afterAdd(InputName);
+
                 }
 
             }
@@ -138,6 +142,13 @@ public class tActuatorStatesLayout extends VerticalLayout {
                 SaveButton.setData(AddedItem);
                 SaveButton.setEnabled(true);
                 DeleteButton.setEnabled(false);
+                StatesTable.setPageLength(StatesContainer.size());
+
+//                if (StatesContainer.size()<6) {
+//                    StatesTable.setPageLength(StatesContainer.size());
+//                } else {
+//                    StatesTable.setPageLength(6);
+//                }
 
             }
         });
@@ -162,9 +173,22 @@ public class tActuatorStatesLayout extends VerticalLayout {
                             .getItem(SelectedItemId)
                             .getItemProperty(3)
                             .getValue()).getValue();
+                    String ItemName = (String) ((TextField) StatesContainer
+                            .getItem(SelectedItemId)
+                            .getItemProperty(2)
+                            .getValue()).getValue();
 
                     ActuatorStateDelete(iUserDeviceId,ItemCode);
                     StatesContainerRefresh();
+
+//                    if (StatesContainer.size()<6) {
+//                        StatesTable.setPageLength(StatesContainer.size());
+//                    } else {
+//                        StatesTable.setPageLength(6);
+//                    }
+
+                    Listener.afterDelete(ItemName);
+
 
                     Notification.show("Удаление произведено",
                             null,
@@ -210,12 +234,14 @@ public class tActuatorStatesLayout extends VerticalLayout {
         StatesContainer.addContainerProperty(3, TextField.class, null);
 
         setStatesContainer();
+
         StatesTable.setContainerDataSource(StatesContainer);
-        if (StatesContainer.size()<6) {
-            StatesTable.setPageLength(StatesContainer.size());
-        } else {
-            StatesTable.setPageLength(6);
-        }
+
+
+        StatesTable.setPageLength(StatesContainer.size());
+
+
+
         StatesTable.addStyleName(ValoTheme.TABLE_COMPACT);
         StatesTable.addStyleName(ValoTheme.TABLE_SMALL);
         StatesTable.addStyleName("TableRow");
@@ -322,11 +348,12 @@ public class tActuatorStatesLayout extends VerticalLayout {
     public void StatesContainerRefresh(){
         StatesContainer.removeAllItems();
         setStatesContainer();
-        if (StatesContainer.size()<6) {
-            StatesTable.setPageLength(StatesContainer.size());
-        } else {
-            StatesTable.setPageLength(6);
-        }
+        StatesTable.setPageLength(StatesContainer.size());
+//        if (StatesContainer.size()<6) {
+//            StatesTable.setPageLength(StatesContainer.size());
+//        } else {
+//            StatesTable.setPageLength(6);
+//        }
     }
 
     public boolean isStatesContainerContainsName(String NewItemName){
@@ -426,4 +453,10 @@ public class tActuatorStatesLayout extends VerticalLayout {
         }
 
     }
+
+    public void setListener(addDeleteListener listener){
+        this.Listener = listener;
+    }
+
 }
+

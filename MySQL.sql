@@ -1593,15 +1593,34 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   PRIMARY KEY (`user_actuator_state_id`),
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state: ~0 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state: ~2 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
 /*!40000 ALTER TABLE `user_actuator_state` DISABLE KEYS */;
 INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `actuator_state_name`, `actuator_message_code`) VALUES
 	(14, 4, 'hrthtr', 'trhrt'),
 	(15, 3, 'Включено', 'DeviceOn');
 /*!40000 ALTER TABLE `user_actuator_state` ENABLE KEYS */;
+
+
+-- Дамп структуры для таблица things.user_actuator_state_condition
+CREATE TABLE IF NOT EXISTS `user_actuator_state_condition` (
+  `actuator_state_condition_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_actuator_state_id` int(11) NOT NULL DEFAULT '0',
+  `left_part_expression` varchar(150) DEFAULT NULL,
+  `sign_expression` varchar(2) DEFAULT NULL,
+  `right_part_expression` varchar(150) DEFAULT NULL,
+  `condition_num` int(11) DEFAULT NULL,
+  PRIMARY KEY (`actuator_state_condition_id`),
+  KEY `FK_user_actuator_state_condition_user_actuator_state` (`user_actuator_state_id`),
+  CONSTRAINT `FK_user_actuator_state_condition_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Дамп данных таблицы things.user_actuator_state_condition: ~0 rows (приблизительно)
+DELETE FROM `user_actuator_state_condition`;
+/*!40000 ALTER TABLE `user_actuator_state_condition` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_actuator_state_condition` ENABLE KEYS */;
 
 
 -- Дамп структуры для таблица things.user_device
@@ -1808,6 +1827,25 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 	(107, 1, 11.00, '2017-05-20 19:05:14', '11'),
 	(108, 2, 22.00, '2017-05-20 19:05:14', '22');
 /*!40000 ALTER TABLE `user_device_measures` ENABLE KEYS */;
+
+
+-- Дамп структуры для таблица things.user_state_condition_vars
+CREATE TABLE IF NOT EXISTS `user_state_condition_vars` (
+  `state_condition_vars_id` int(11) NOT NULL,
+  `actuator_state_condition_id` int(11) DEFAULT NULL,
+  `var_code` varchar(20) DEFAULT NULL,
+  `user_device_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`state_condition_vars_id`),
+  KEY `FK_user_state_condition_vars_user_actuator_state_condition` (`actuator_state_condition_id`),
+  KEY `FK_user_state_condition_vars_user_device` (`user_device_id`),
+  CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`),
+  CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Дамп данных таблицы things.user_state_condition_vars: ~0 rows (приблизительно)
+DELETE FROM `user_state_condition_vars`;
+/*!40000 ALTER TABLE `user_state_condition_vars` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_state_condition_vars` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
