@@ -18,7 +18,7 @@ public class tButtonTextFieldLayout extends VerticalLayout {
     VerticalLayout KeyBoardLayout;
     Integer IsHidden;
 
-    public tButtonTextFieldLayout(){
+    public tButtonTextFieldLayout(String sExpresson){
 
         IsHidden = 1;
 
@@ -47,7 +47,7 @@ public class tButtonTextFieldLayout extends VerticalLayout {
         textfield.addStyleName(ValoTheme.TEXTFIELD_TINY);
         textfield.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
         textfield.setEnabled(false);
-        textfield.setValue("");
+        textfield.setValue(sExpresson);
 
         HorizontalLayout TopLayout = new HorizontalLayout(
                 button
