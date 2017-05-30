@@ -17,16 +17,19 @@ public class tButtonTextFieldLayout extends VerticalLayout {
     TextField textfield;
     VerticalLayout KeyBoardLayout;
     Integer IsHidden;
+    boolean IsButtonsEnabled;
 
-    public tButtonTextFieldLayout(String sExpresson){
+    public tButtonTextFieldLayout(String sExpresson,boolean isButtonsEnabled){
 
         IsHidden = 1;
+        IsButtonsEnabled = isButtonsEnabled;
 
         button = new Button();
         button.addStyleName(ValoTheme.BUTTON_SMALL);
         button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
         button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         button.setIcon(VaadinIcons.KEYBOARD);
+        button.setEnabled(IsButtonsEnabled);
 
         button.addClickListener(new Button.ClickListener() {
             @Override
@@ -128,7 +131,7 @@ public class tButtonTextFieldLayout extends VerticalLayout {
             SymButton.setHeight("20px");
             SymButton.addStyleName(ValoTheme.BUTTON_TINY);
             SymButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            //SymButton.setData(iL);
+            SymButton.setEnabled(IsButtonsEnabled);
             SymButton.addClickListener(new Button.ClickListener() {
                 @Override
                 public void buttonClick(Button.ClickEvent clickEvent) {

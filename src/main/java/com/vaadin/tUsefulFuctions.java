@@ -411,4 +411,14 @@ public class tUsefulFuctions {
         return m.matches();
     }
 
+    public static Integer StrToIntValue(String Sval) {
+
+        try {
+            //System.out.println(Sval);
+            return Integer.parseInt(Sval);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
 }

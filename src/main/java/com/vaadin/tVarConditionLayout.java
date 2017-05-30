@@ -3,6 +3,7 @@ package com.vaadin;
 import com.vaadin.data.Item;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -31,12 +32,16 @@ public class tVarConditionLayout extends VerticalLayout {
         getVariableButton.setHeight("20px");
 
         varListLayout = new VerticalLayout();
+        varListLayout.setSpacing(true);
 
         this.addComponent(getVariableButton);
-        this.setConditionVariables(StateConditionId);
-        this.addComponent(varListLayout);
+        if (StateConditionId != 0) {
+            this.setConditionVariables(StateConditionId);
+            this.addComponent(varListLayout);
+        }
         this.setComponentAlignment(getVariableButton,Alignment.MIDDLE_CENTER);
-        //this.setSpacing(true);
+        this.setSpacing(true);
+        this.setMargin(new MarginInfo(false,true,false,true));
         this.setSizeUndefined();
 
     }
@@ -66,9 +71,10 @@ public class tVarConditionLayout extends VerticalLayout {
 
                 Label VarLabel = new Label();
                 VarLabel.setContentMode(ContentMode.HTML);
-                VarLabel.setValue(DataRs.getString(2)+ " " + VaadinIcons.ARROW_RIGHT.getHtml() + " ");
+                VarLabel.setValue(DataRs.getString(1)+ " " + VaadinIcons.ARROW_RIGHT.getHtml());
                 VarLabel.addStyleName(ValoTheme.LABEL_COLORED);
                 VarLabel.addStyleName(ValoTheme.LABEL_SMALL);
+                VarLabel.addStyleName("TopLabel");
 
                 NativeSelect VarSelect = new NativeSelect();
                 VarSelect.setNullSelectionAllowed(false);
@@ -80,6 +86,7 @@ public class tVarConditionLayout extends VerticalLayout {
                         ,VarSelect
                 );
                 VarLayout.setSizeUndefined();
+                VarLayout.setSpacing(true);
                 varListLayout.addComponent(VarLayout);
 
             }

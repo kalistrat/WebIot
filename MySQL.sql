@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win64
--- HeidiSQL Версия:              9.1.0.4867
+-- ОС Сервера:                   Win32
+-- HeidiSQL Версия:              9.3.0.4984
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -94,6 +94,24 @@ set i_mark_max_date = timestampadd(day,1,CONVERT(DATE_FORMAT(eMaxDate,'%Y-%m-%d-
 end if;
 
 return iDateMarks;
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для функция things.f_get_actuator_state_id
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_actuator_state_id`(`eUserDeviceId` int
+, `eStateName` varchar(30)
+) RETURNS int(11)
+begin
+
+return(
+select uas.user_actuator_state_id
+from user_actuator_state uas
+where uas.user_device_id = eUserDeviceId
+and uas.actuator_state_name = eStateName
+);
+
 end//
 DELIMITER ;
 
@@ -432,6 +450,26 @@ begin
 return (select ifnull((select u.user_log
 from users u
 where u.user_mail=e_MailVal),''));
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для функция things.f_get_next_condition_num
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_next_condition_num`(
+eUserDeviceId int
+,eUserStateName varchar(30)
+) RETURNS int(11)
+begin
+
+return(
+select count(*) + 1 
+from user_actuator_state uas
+join user_actuator_state_condition uasc on uasc.user_actuator_state_id=uas.user_actuator_state_id
+where uas.user_device_id = eUserDeviceId
+and uas.actuator_state_name = eUserStateName
+);
 
 end//
 DELIMITER ;
@@ -1593,15 +1631,20 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   PRIMARY KEY (`user_actuator_state_id`),
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state: ~2 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state: ~5 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
 /*!40000 ALTER TABLE `user_actuator_state` DISABLE KEYS */;
 INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `actuator_state_name`, `actuator_message_code`) VALUES
 	(15, 3, 'Включено', 'DeviceOn'),
 	(19, 3, 'Выключено', 'DeviceOff'),
-	(20, 4, 'Включено', 'On');
+	(20, 4, 'Включено', 'On'),
+	(22, 4, 'Выключено', 'Off'),
+	(23, 3, 'Включено на 50%', 'On50'),
+	(24, 4, 'Включено на 50%', 'On50'),
+	(25, 4, 'thrth', 'trhtrh'),
+	(26, 4, 'hrthjtrj', 'trjrtj');
 /*!40000 ALTER TABLE `user_actuator_state` ENABLE KEYS */;
 
 
@@ -1617,11 +1660,13 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state_condition` (
   PRIMARY KEY (`actuator_state_condition_id`),
   KEY `FK_user_actuator_state_condition_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_actuator_state_condition_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state_condition: ~0 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state_condition: ~1 rows (приблизительно)
 DELETE FROM `user_actuator_state_condition`;
 /*!40000 ALTER TABLE `user_actuator_state_condition` DISABLE KEYS */;
+INSERT INTO `user_actuator_state_condition` (`actuator_state_condition_id`, `user_actuator_state_id`, `left_part_expression`, `sign_expression`, `right_part_expression`, `condition_num`, `condition_interval`) VALUES
+	(1, 20, 'a', '>', 'b', 1, 10);
 /*!40000 ALTER TABLE `user_actuator_state_condition` ENABLE KEYS */;
 
 
@@ -1661,7 +1706,7 @@ INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `use
 	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'не задано', '2017-03-03 18:43:27', 1, '°С', 'k/1/W/', 'k/2/R/', 3, 96, 64, 'UniPing RS-485 xxxxx'),
 	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежесекундно', '2017-02-28 18:32:52', 1, '°С x 10e2', 'k/2/W/', 'k/2/R/', 3, 95, 66, 'Это описание устройства HWg-STE. Максимальная длина 200 символов'),
 	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, 'k/3/W/', 'k/3/R/', 3, NULL, NULL, 'Logitech HD Webcam C270 максимальная длина 200 символов'),
-	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, 'k/4/W/', 'k/4/R/', 3, NULL, NULL, NULL),
+	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, 'k/4/W/', 'k/4/R/', 3, NULL, NULL, 'Microsoft LifeCam HD-3000'),
 	(11, 1, 'барометр', NULL, 'не задано', '2017-05-19 13:50:38', 1, 'атм', 'k/11/W/', 'k/11/R/', 3, 94, 64, 'reger'),
 	(16, 1, 'Датчик СО', NULL, 'не задано', '2017-05-19 16:31:42', 1, '%', 'k/16/W/', 'k/16/R/', 3, 97, 64, 'Датчик СО'),
 	(17, 1, 'термометр-1', NULL, 'не задано', '2017-05-22 15:48:43', 1, 'Ед', 'k/17/W/', 'k/17/R/', 3, 96, 64, 'термометр-1');
@@ -1833,20 +1878,23 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 
 -- Дамп структуры для таблица things.user_state_condition_vars
 CREATE TABLE IF NOT EXISTS `user_state_condition_vars` (
-  `state_condition_vars_id` int(11) NOT NULL,
+  `state_condition_vars_id` int(11) NOT NULL AUTO_INCREMENT,
   `actuator_state_condition_id` int(11) DEFAULT NULL,
   `var_code` varchar(20) DEFAULT NULL,
   `user_device_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`state_condition_vars_id`),
   KEY `FK_user_state_condition_vars_user_actuator_state_condition` (`actuator_state_condition_id`),
   KEY `FK_user_state_condition_vars_user_device` (`user_device_id`),
-  CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`),
-  CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`),
+  CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_state_condition_vars: ~0 rows (приблизительно)
+-- Дамп данных таблицы things.user_state_condition_vars: ~2 rows (приблизительно)
 DELETE FROM `user_state_condition_vars`;
 /*!40000 ALTER TABLE `user_state_condition_vars` DISABLE KEYS */;
+INSERT INTO `user_state_condition_vars` (`state_condition_vars_id`, `actuator_state_condition_id`, `var_code`, `user_device_id`) VALUES
+	(1, 1, 'a', 2),
+	(2, 1, 'b', 1);
 /*!40000 ALTER TABLE `user_state_condition_vars` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
