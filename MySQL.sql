@@ -1631,9 +1631,9 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   PRIMARY KEY (`user_actuator_state_id`),
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state: ~5 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state: ~8 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
 /*!40000 ALTER TABLE `user_actuator_state` DISABLE KEYS */;
 INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `actuator_state_name`, `actuator_message_code`) VALUES
@@ -1642,9 +1642,10 @@ INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `
 	(20, 4, 'Включено', 'On'),
 	(22, 4, 'Выключено', 'Off'),
 	(23, 3, 'Включено на 50%', 'On50'),
-	(24, 4, 'Включено на 50%', 'On50'),
-	(25, 4, 'thrth', 'trhtrh'),
-	(26, 4, 'hrthjtrj', 'trjrtj');
+	(27, 4, 'Включено на 50%', 'On50'),
+	(28, 3, 'trhjrt', 'trjrt'),
+	(29, 3, 'trhjr', 'trj'),
+	(30, 4, 'rthtr', 'trhrt');
 /*!40000 ALTER TABLE `user_actuator_state` ENABLE KEYS */;
 
 

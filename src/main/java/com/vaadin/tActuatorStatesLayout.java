@@ -24,11 +24,18 @@ implements addDeleteListenable {
     IndexedContainer StatesContainer;
     int iUserDeviceId;
     addDeleteListener Listener;
+    tTreeContentLayout iParentContentLayout;
+    Integer iCurrentLeafId;
 
 
-    public tActuatorStatesLayout(int eUserDeviceId){
+    public tActuatorStatesLayout(int eUserDeviceId
+            ,tTreeContentLayout eParentContentLayout
+            ,Integer eCurrentLeafId
+    ){
 
         iUserDeviceId = eUserDeviceId;
+        iParentContentLayout = eParentContentLayout;
+        iCurrentLeafId = eCurrentLeafId;
 
         Label Header = new Label();
         Header.setContentMode(ContentMode.HTML);
@@ -223,6 +230,7 @@ implements addDeleteListenable {
         HeaderLayout.setComponentAlignment(HeaderButtons,Alignment.MIDDLE_RIGHT);
 
         StatesTable = new Table();
+        StatesTable.setWidth("100%");
 
         StatesTable.setColumnHeader(1, "№<br/>состояния");
         StatesTable.setColumnHeader(2, "Наименование<br/>состояния");

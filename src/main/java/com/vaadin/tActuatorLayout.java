@@ -119,10 +119,14 @@ public class tActuatorLayout extends VerticalLayout {
         TopLayout.setMargin(new MarginInfo(false, true, false, true));
 
         DeviceDescription = new tDescriptionLayout(iUserDeviceId);
-        ActuatorStatesLayout = new tActuatorStatesLayout(iUserDeviceId);
+        ActuatorStatesLayout = new tActuatorStatesLayout(iUserDeviceId
+                ,tParentContentLayout
+                ,tCurrentLeafId
+        );
         ActuatorStateConditionLayout = new tActuatorStateConditionLayout(
                 iUserDeviceId
                 ,ActuatorStatesLayout
+                ,tCurrentLeafId
         );
 
         VerticalLayout ContentLayout = new VerticalLayout(

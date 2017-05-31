@@ -25,6 +25,8 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
     TreeTable StatesConditionTable;
     HierarchicalContainer StatesConditionContainer;
     int iUserDeviceId;
+    tActuatorStatesLayout iActuatorStatesLayout;
+    Integer iCurrentLeafId;
 
     class ConditionIds{
         Integer ConditionNum;
@@ -55,10 +57,13 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
     }
 
     public tActuatorStateConditionLayout(int eUserDeviceId
-            ,tActuatorStatesLayout ActuatorStatesLayout
+                ,tActuatorStatesLayout ActuatorStatesLayout
+                ,Integer eCurrentLeafId
     ){
 
         iUserDeviceId = eUserDeviceId;
+        iActuatorStatesLayout = ActuatorStatesLayout;
+        iCurrentLeafId = eCurrentLeafId;
 
         Label Header = new Label();
         Header.setContentMode(ContentMode.HTML);
@@ -153,15 +158,18 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
 
 
                         int nit = StatesConditionContainer.size() + 1;
+
                         String SelectedItemName = (String) StatesConditionContainer.getItem(SelectedItemId).getItemProperty(1).getValue();
 
                         int NewConditionNum = getNewConditionNum(iUserDeviceId,SelectedItemName);
                         int iActuatorStateId = getActuatorStateId(iUserDeviceId,SelectedItemName);
 
+                        StatesConditionTable.setChildrenAllowed(SelectedItemId, true);
+
                         Item SubHeaderItem = StatesConditionContainer.addItem(nit);
                         SubHeaderItem.getItemProperty(1).setValue("Условие № " + NewConditionNum);
                         SubHeaderItem.getItemProperty(2).setValue(null);
-                        StatesConditionContainer.setParent(nit, SelectedItemId);
+                        StatesConditionContainer.setParent(nit,SelectedItemId);
 
                         int LeftSideItemId = nit + 1;
                         Item LeftSideItem = StatesConditionContainer.addItem(nit + 1);
@@ -194,6 +202,8 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                                         0
                                         , LeftSideFieldLayout.textfield
                                         , RightSideFieldLayout.textfield
+                                        , iActuatorStatesLayout
+                                        , true
                                 )
                         );
 
@@ -262,13 +272,18 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
         HeaderLayout.setComponentAlignment(HeaderButtons,Alignment.MIDDLE_RIGHT);
 
         StatesConditionTable = new TreeTable();
+        StatesConditionTable.setWidth("100%");
 
         StatesConditionTable.setColumnHeader(1, "Наименование<br/>состояния");
         StatesConditionTable.setColumnHeader(2, "Компоненты условия");
 
         StatesConditionContainer = new HierarchicalContainer();
+
         StatesConditionContainer.addContainerProperty(1, String.class, null);
         StatesConditionContainer.addContainerProperty(2, VerticalLayout.class, null);
+
+        StatesConditionTable.setColumnWidth(1,-1);
+        StatesConditionTable.setColumnWidth(2,-1);
 
         ActuatorStatesLayout.setListener(new addDeleteListener() {
             @Override
@@ -299,10 +314,10 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
         for (Object itemId: StatesConditionTable.getContainerDataSource()
                 .getItemIds()) {
             StatesConditionTable.setCollapsed(itemId, false);
-
             // Also disallow expanding leaves
             if (! StatesConditionTable.hasChildren(itemId))
                 StatesConditionTable.setChildrenAllowed(itemId, false);
+
         }
 
         StatesConditionTable.setPageLength(StatesConditionContainer.size());
@@ -410,6 +425,8 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                                     DataRs.getInt(2)
                                     , LeftSideFieldLayout.textfield
                                     , RightSideFieldLayout.textfield
+                                    , iActuatorStatesLayout
+                                    , false
                             )
                     );
                     StatesConditionContainer.setParent(k - 1, k - 5);
@@ -455,7 +472,6 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                 .getItemIds()) {
             StatesConditionTable.setCollapsed(itemId, false);
 
-            // Also disallow expanding leaves
             if (! StatesConditionTable.hasChildren(itemId))
                 StatesConditionTable.setChildrenAllowed(itemId, false);
         }
@@ -528,4 +544,5 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
             return null;
         }
     }
+
 }

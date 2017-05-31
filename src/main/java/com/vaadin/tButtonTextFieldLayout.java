@@ -61,7 +61,7 @@ public class tButtonTextFieldLayout extends VerticalLayout {
         TopLayout.setMargin(false);
         TopLayout.setSizeUndefined();
 
-        Integer CntRowSym = 12;
+        Integer CntRowSym = 11;
 
         List<String> Syms = new ArrayList<>();
         Syms.add("q");
@@ -108,6 +108,10 @@ public class tButtonTextFieldLayout extends VerticalLayout {
         Syms.add(")");
         Syms.add("^");
         Syms.add(".");
+
+        Syms.add("backspace");
+        //Syms.add("очистить");
+
         int ncol = 0;
         int nrow = 1;
 
@@ -125,27 +129,52 @@ public class tButtonTextFieldLayout extends VerticalLayout {
             } else {
                 ncol = ncol + 1;
             }
+            Button SymButton;
 
-            Button SymButton = new Button(iL);
-            SymButton.setWidth("20px");
-            SymButton.setHeight("20px");
-            SymButton.addStyleName(ValoTheme.BUTTON_TINY);
-            SymButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            SymButton.setEnabled(IsButtonsEnabled);
-            SymButton.addClickListener(new Button.ClickListener() {
-                @Override
-                public void buttonClick(Button.ClickEvent clickEvent) {
-                    //String Sym = clickEvent.getButton().getCaption();
+            if (iL.equals("backspace")) {
 
-                    if (textfield.getValue().length() < 149) {
-                        textfield.setValue(textfield.getValue() + clickEvent.getButton().getCaption());
-                    } else {
-                        Notification.show("Увеличить выражение нельзя:",
-                                "Его длина не должна превышать 150 символов",
-                                Notification.Type.TRAY_NOTIFICATION);
+                SymButton = new Button();
+                SymButton.setIcon(VaadinIcons.BACKSPACE_A);
+                SymButton.setWidth("15px");
+                SymButton.setHeight("15px");
+                SymButton.addStyleName(ValoTheme.BUTTON_TINY);
+                SymButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+                //SymButton.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+                SymButton.setEnabled(IsButtonsEnabled);
+                SymButton.addClickListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent clickEvent) {
+                        //String Sym = clickEvent.getButton().getCaption();
+                        String CurrentValue = textfield.getValue();
+                        if (CurrentValue.length()>0) {
+                            textfield.setValue(CurrentValue.substring(0, CurrentValue.length() - 1));
+                        }
                     }
-                }
-            });
+                });
+
+            } else {
+
+                SymButton = new Button(iL);
+                SymButton.setWidth("15px");
+                SymButton.setHeight("15px");
+                SymButton.addStyleName(ValoTheme.BUTTON_TINY);
+                SymButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+                SymButton.setEnabled(IsButtonsEnabled);
+                SymButton.addClickListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent clickEvent) {
+                        //String Sym = clickEvent.getButton().getCaption();
+
+                        if (textfield.getValue().length() < 149) {
+                            textfield.setValue(textfield.getValue() + clickEvent.getButton().getCaption());
+                        } else {
+                            Notification.show("Увеличить выражение нельзя:",
+                                    "Его длина не должна превышать 150 символов",
+                                    Notification.Type.TRAY_NOTIFICATION);
+                        }
+                    }
+                });
+            }
 
             RowLayout.addComponent(SymButton);
 
