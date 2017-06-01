@@ -475,6 +475,24 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для функция things.f_get_parent_leaf_id
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_parent_leaf_id`(
+eUserDeviceId int
+) RETURNS int(11)
+begin
+
+return(
+select udt.parent_leaf_id
+from user_device ud
+join user_devices_tree udt on udt.user_device_id=ud.user_device_id
+where ud.user_device_id = eUserDeviceId
+);
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для функция things.f_get_period_code_by_id
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_period_code_by_id`(
@@ -1631,9 +1649,9 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   PRIMARY KEY (`user_actuator_state_id`),
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state: ~8 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state: ~9 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
 /*!40000 ALTER TABLE `user_actuator_state` DISABLE KEYS */;
 INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `actuator_state_name`, `actuator_message_code`) VALUES
@@ -1645,7 +1663,8 @@ INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `
 	(27, 4, 'Включено на 50%', 'On50'),
 	(28, 3, 'trhjrt', 'trjrt'),
 	(29, 3, 'trhjr', 'trj'),
-	(30, 4, 'rthtr', 'trhrt');
+	(31, 4, 'Включено на 10%', 'On10'),
+	(32, 3, 'yit', 'yt');
 /*!40000 ALTER TABLE `user_actuator_state` ENABLE KEYS */;
 
 

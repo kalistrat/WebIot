@@ -11,20 +11,7 @@ import java.util.List;
  */
 public class tChildDetectorSelect extends NativeSelect {
 
-    class DeviceIdName{
-        Integer UserDeviceId;
-        String UserDeviceName;
-
-        DeviceIdName(
-                Integer userDeviceId
-                ,String userDeviceName
-        ){
-            UserDeviceId = userDeviceId;
-            UserDeviceName = userDeviceName;
-        }
-    }
-
-    List<DeviceIdName> ChildDetectors;
+    List<tDeviceIdName> ChildDetectors;
 
 
     public tChildDetectorSelect(tActuatorStatesLayout eActuatorStatesLayout){
@@ -51,7 +38,7 @@ public class tChildDetectorSelect extends NativeSelect {
                         .iParentContentLayout
                         .GetLeafNameById(iL);
 
-                ChildDetectors.add(new DeviceIdName(ChildUserDeviceId,ChildUserDeviceName));
+                ChildDetectors.add(new tDeviceIdName(ChildUserDeviceId,ChildUserDeviceName));
                 addItem(ChildUserDeviceName);
             }
         }

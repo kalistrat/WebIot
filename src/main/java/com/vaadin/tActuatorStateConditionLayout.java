@@ -99,6 +99,10 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                         (tTimeConditionLayout) StatesConditionContainer
                                 .getItem(conditionIds.TimeItemId)
                                 .getItemProperty(2).getValue();
+                tVarConditionLayout VarsLayout =
+                        (tVarConditionLayout) StatesConditionContainer
+                                .getItem(conditionIds.VarsItemId)
+                                .getItemProperty(2).getValue();
 
                 Integer iNewConditionNum = conditionIds.ConditionNum;
                 Integer iAddActuatorStateId = conditionIds.ActuatorStateId;
@@ -107,6 +111,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                 String SignExpr = (String) SignLayout.SignValueSelect.getValue();
                 String TimeInterval = TimeLayout.TimeIntervalTextField.getValue();
 
+
                 System.out.println("iNewConditionNum : " + iNewConditionNum);
                 System.out.println("iAddActuatorStateId : " + iAddActuatorStateId);
                 System.out.println("LeftExpr : " + LeftExpr);
@@ -114,11 +119,61 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                 System.out.println("SignExpr : " + SignExpr);
                 System.out.println("TimeInterval : " + TimeInterval);
 
+                String sErrorMessage = "";
 
-                AddButton.setEnabled(true);
-                DeleteButton.setEnabled(true);
-                SaveButton.setEnabled(false);
+                if (LeftExpr == null){
+                    sErrorMessage = "Левая часть выражения не задана\n";
+                }
 
+                if (LeftExpr.equals("")){
+                    sErrorMessage = sErrorMessage + "Левая часть выражения не задана\n";
+                }
+
+                if (LeftExpr.length() > 150){
+                    sErrorMessage = sErrorMessage + "Длина левой части выражения превышает 150 символов\n";
+                }
+
+                if (RightExpr == null){
+                    sErrorMessage = "Правая часть выражения не задана\n";
+                }
+
+                if (RightExpr.equals("")){
+                    sErrorMessage = sErrorMessage + "Правая часть выражения не задана\n";
+                }
+
+                if (RightExpr.length() > 150){
+                    sErrorMessage = sErrorMessage + "Длина правой части выражения превышает 150 символов\n";
+                }
+
+                if (!isCanParseExpression(LeftExpr,VarsLayout.VarList)){
+                    sErrorMessage = sErrorMessage + "Левая часть выражения не распознаётся. Исправьте его и выберите переменные.\n";
+                }
+
+                if (!isCanParseExpression(RightExpr,VarsLayout.VarList)){
+                    sErrorMessage = sErrorMessage + "Правая часть выражения не распознаётся. Исправьте его и выберите переменные.\n";
+                }
+
+                if (tUsefulFuctions.StrToIntValue(TimeInterval) == null) {
+                    sErrorMessage = sErrorMessage + "Не задан интервал реализации условия\n";
+                } else {
+
+                    if ((tUsefulFuctions.StrToIntValue(TimeInterval).intValue() < 5)
+                            || (tUsefulFuctions.StrToIntValue(TimeInterval).intValue() > 3600)) {
+                        sErrorMessage = sErrorMessage + "Не задан интервал реализации условия\n";
+                    }
+                }
+
+                if (!sErrorMessage.equals("")){
+                    Notification.show("Ошибка сохранения:",
+                            sErrorMessage,
+                            Notification.Type.TRAY_NOTIFICATION);
+                } else {
+
+                    DeleteButton.setEnabled(true);
+                    AddButton.setEnabled(true);
+                    SaveButton.setEnabled(false);
+
+                }
 
             }
         });
@@ -542,6 +597,25 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
             //Handle errors for Class.forName
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public boolean isCanParseExpression(String strExpr, List<tVarNativeSelect> varsList){
+        MathParser exprParserAfter = new MathParser();
+
+        for (tVarNativeSelect iVarName : varsList) {
+            exprParserAfter.setVariable(iVarName.VarName,1.0);
+        }
+
+        try {
+            exprParserAfter.Parse(strExpr);
+            exprParserAfter.VarList.clear();
+            exprParserAfter.var.clear();
+            return true;
+        } catch (Exception e) {
+            exprParserAfter.VarList.clear();
+            exprParserAfter.var.clear();
+            return false;
         }
     }
 
