@@ -557,6 +557,44 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для функция things.f_insert_actuator_state_condition
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_insert_actuator_state_condition`(
+eUserActuatorStateId int
+,eLeftPartExpression VARCHAR(150)
+,eSignExpression VARCHAR(2)
+,eRightPartExpression VARCHAR(150)
+,eConditionNum int
+,eConditionInterval int
+) RETURNS int(11)
+begin
+declare i_state_condition_id int;
+
+insert into user_actuator_state_condition(
+user_actuator_state_id
+,left_part_expression
+,sign_expression
+,right_part_expression
+,condition_num
+,condition_interval
+)
+values(
+eUserActuatorStateId
+,eLeftPartExpression
+,eSignExpression
+,eRightPartExpression
+,eConditionNum
+,eConditionInterval
+);
+
+select LAST_INSERT_ID() into i_state_condition_id;
+
+return i_state_condition_id;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для функция things.f_is_user_exists
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_is_user_exists`(eUserLog varchar(50),ePassWord varchar(50)) RETURNS int(11)
@@ -1167,6 +1205,63 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для процедура things.p_insert_actuator_state_condition
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_insert_actuator_state_condition`(
+eUserActuatorStateId int
+,eLeftPartExpression VARCHAR(150)
+,eSignExpression VARCHAR(2)
+,eRightPartExpression VARCHAR(150)
+,eConditionNum int
+,eConditionInterval int
+)
+begin
+
+insert into user_actuator_state_condition(
+user_actuator_state_id
+,left_part_expression
+,sign_expression
+,right_part_expression
+,condition_num
+,condition_interval
+)
+values(
+eUserActuatorStateId
+,eLeftPartExpression
+,eSignExpression
+,eRightPartExpression
+,eConditionNum
+,eConditionInterval
+);
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_insert_condition_vars
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_insert_condition_vars`(
+eActuatorStateConditionId int
+,eVarCode VARCHAR(20)
+,eUserDeviceId int
+)
+begin
+
+insert into user_state_condition_vars(
+actuator_state_condition_id
+,var_code
+,user_device_id
+)
+values(
+eActuatorStateConditionId
+,eVarCode
+,eUserDeviceId
+);
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для процедура things.p_make_date_marks
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_make_date_marks`(IN `eUserDeviceId` int
@@ -1649,9 +1744,9 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   PRIMARY KEY (`user_actuator_state_id`),
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state: ~9 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state: ~11 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
 /*!40000 ALTER TABLE `user_actuator_state` DISABLE KEYS */;
 INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `actuator_state_name`, `actuator_message_code`) VALUES
@@ -1664,7 +1759,8 @@ INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `
 	(28, 3, 'trhjrt', 'trjrt'),
 	(29, 3, 'trhjr', 'trj'),
 	(31, 4, 'Включено на 10%', 'On10'),
-	(32, 3, 'yit', 'yt');
+	(32, 3, 'yit', 'yt'),
+	(33, 19, 'Включена', 'DeviceOn');
 /*!40000 ALTER TABLE `user_actuator_state` ENABLE KEYS */;
 
 
@@ -1680,13 +1776,15 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state_condition` (
   PRIMARY KEY (`actuator_state_condition_id`),
   KEY `FK_user_actuator_state_condition_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_actuator_state_condition_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state_condition: ~1 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state_condition: ~2 rows (приблизительно)
 DELETE FROM `user_actuator_state_condition`;
 /*!40000 ALTER TABLE `user_actuator_state_condition` DISABLE KEYS */;
 INSERT INTO `user_actuator_state_condition` (`actuator_state_condition_id`, `user_actuator_state_id`, `left_part_expression`, `sign_expression`, `right_part_expression`, `condition_num`, `condition_interval`) VALUES
-	(1, 20, 'a', '>', 'b', 1, 10);
+	(1, 20, 'a', '>', 'b', 1, 10),
+	(3, 33, 'p', '>', 'h+900', 1, 10),
+	(4, 20, 'm', '=', 'n', 2, 7);
 /*!40000 ALTER TABLE `user_actuator_state_condition` ENABLE KEYS */;
 
 
@@ -1717,9 +1815,9 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_unit` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
   CONSTRAINT `FK_user_device_unit_factor` FOREIGN KEY (`factor_id`) REFERENCES `unit_factor` (`factor_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device: ~7 rows (приблизительно)
+-- Дамп данных таблицы things.user_device: ~8 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`) VALUES
@@ -1729,7 +1827,8 @@ INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `use
 	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, 'k/4/W/', 'k/4/R/', 3, NULL, NULL, 'Microsoft LifeCam HD-3000'),
 	(11, 1, 'барометр', NULL, 'не задано', '2017-05-19 13:50:38', 1, 'атм', 'k/11/W/', 'k/11/R/', 3, 94, 64, 'reger'),
 	(16, 1, 'Датчик СО', NULL, 'не задано', '2017-05-19 16:31:42', 1, '%', 'k/16/W/', 'k/16/R/', 3, 97, 64, 'Датчик СО'),
-	(17, 1, 'термометр-1', NULL, 'не задано', '2017-05-22 15:48:43', 1, 'Ед', 'k/17/W/', 'k/17/R/', 3, 96, 64, 'термометр-1');
+	(17, 1, 'термометр-1', NULL, 'не задано', '2017-05-22 15:48:43', 1, 'Ед', 'k/17/W/', 'k/17/R/', 3, 96, 64, 'термометр-1'),
+	(19, 1, 'Помпа', NULL, 'не задано', '2017-06-02 13:23:27', 2, 'Ед', 'k/19/W/', 'k/19/R/', 3, 96, 64, 'Помпа');
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -1746,9 +1845,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=149 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~14 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~15 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -1765,7 +1864,8 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(133, 11, 1, NULL, 'Подсобка', 1),
 	(134, 12, 1, NULL, 'Бассейн', 1),
 	(135, 13, 7, 17, 'термометр-1', 1),
-	(146, 1, NULL, NULL, 'Устройства', 2);
+	(146, 1, NULL, NULL, 'Устройства', 2),
+	(148, 14, 7, 19, 'Помпа', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 
@@ -1907,14 +2007,18 @@ CREATE TABLE IF NOT EXISTS `user_state_condition_vars` (
   KEY `FK_user_state_condition_vars_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_state_condition_vars: ~2 rows (приблизительно)
 DELETE FROM `user_state_condition_vars`;
 /*!40000 ALTER TABLE `user_state_condition_vars` DISABLE KEYS */;
 INSERT INTO `user_state_condition_vars` (`state_condition_vars_id`, `actuator_state_condition_id`, `var_code`, `user_device_id`) VALUES
 	(1, 1, 'a', 2),
-	(2, 1, 'b', 1);
+	(2, 1, 'b', 1),
+	(5, 3, 'p', 11),
+	(6, 3, 'h', 11),
+	(7, 4, 'm', 2),
+	(8, 4, 'n', 2);
 /*!40000 ALTER TABLE `user_state_condition_vars` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

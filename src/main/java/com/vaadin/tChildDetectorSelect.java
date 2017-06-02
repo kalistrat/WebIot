@@ -45,4 +45,14 @@ public class tChildDetectorSelect extends NativeSelect {
 
     }
 
+    public Integer getUserDeviceIdByName(String qUserDeviceName){
+        Integer sUserDeviceId = null;
+        for (tDeviceIdName iL : ChildDetectors){
+            if (iL.UserDeviceName.equals(qUserDeviceName)) {
+                sUserDeviceId = iL.UserDeviceId;
+            }
+        }
+        return sUserDeviceId;
+    }
+
 }

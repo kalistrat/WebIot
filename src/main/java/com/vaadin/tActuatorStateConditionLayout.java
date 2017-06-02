@@ -3,6 +3,7 @@ package com.vaadin;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -11,6 +12,7 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -111,14 +113,6 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                 String SignExpr = (String) SignLayout.SignValueSelect.getValue();
                 String TimeInterval = TimeLayout.TimeIntervalTextField.getValue();
 
-
-                System.out.println("iNewConditionNum : " + iNewConditionNum);
-                System.out.println("iAddActuatorStateId : " + iAddActuatorStateId);
-                System.out.println("LeftExpr : " + LeftExpr);
-                System.out.println("RightExpr : " + RightExpr);
-                System.out.println("SignExpr : " + SignExpr);
-                System.out.println("TimeInterval : " + TimeInterval);
-
                 String sErrorMessage = "";
 
                 if (LeftExpr == null){
@@ -169,6 +163,28 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
 
+                    Integer iStateConditionId = insertActuatorStateCondition(
+                    iAddActuatorStateId
+                    ,LeftExpr
+                    , SignExpr
+                    , RightExpr
+                    , iNewConditionNum
+                    , Integer.parseInt(TimeInterval)
+                    );
+
+                    for (tVarNativeSelect iLi : VarsLayout.VarList) {
+
+                        insertConditionVars(
+                        iStateConditionId
+                        , iLi.VarName
+                        , iLi.VarSelect.getUserDeviceIdByName((String) iLi.VarSelect.getValue())
+                        );
+                    }
+
+                    Notification.show("Условие добавлено",
+                            null,
+                            Notification.Type.TRAY_NOTIFICATION);
+                    StateConditionTableRefresh();
                     DeleteButton.setEnabled(true);
                     AddButton.setEnabled(true);
                     SaveButton.setEnabled(false);
@@ -308,6 +324,59 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
         DeleteButton.setIcon(VaadinIcons.CLOSE_CIRCLE);
         DeleteButton.addStyleName(ValoTheme.BUTTON_SMALL);
         DeleteButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+
+        DeleteButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                int DeletedItemId = 0;
+                for (int i=0; i<StatesConditionContainer.size();i++){
+                    if (StatesConditionTable.isSelected(i+1)) {
+                        DeletedItemId = i+1;
+                    }
+                }
+
+                if (DeletedItemId != 0) {
+
+                    Integer parentActuatorStateItemId = (Integer) StatesConditionContainer
+                            .getParent(DeletedItemId);
+
+                    Collection<?> deletedChildLeafs = StatesConditionContainer
+                            .getChildren(DeletedItemId);
+
+                    if (deletedChildLeafs == null) {
+                        System.out.println("deletedChildLeafs is null and its generate NPE");
+                    }
+
+                    if (deletedChildLeafs != null &&
+                            parentActuatorStateItemId != null) {
+
+                        String parentStateName = (String) StatesConditionContainer
+                                .getItem(parentActuatorStateItemId).getItemProperty(1).getValue();
+                        System.out.println("parentStateName : " + parentStateName);
+
+                        String deletedConditionName = (String) StatesConditionContainer
+                                .getItem(DeletedItemId).getItemProperty(1).getValue();
+                        System.out.println("deletedConditionName : " + deletedConditionName);
+                        int deletedConditionNum = Integer.parseInt(deletedConditionName.replace("Условие №","").trim());
+                        System.out.println("deletedConditionNum : " + deletedConditionNum);
+
+                        Notification.show("Удаление произведено",
+                                null,
+                                Notification.Type.TRAY_NOTIFICATION);
+                    } else {
+                        Notification.show("Удаление невозможно",
+                                "Необходимо выбрать условие,\n а не состояние или компонент условия",
+                                Notification.Type.TRAY_NOTIFICATION);
+                    }
+
+                } else {
+                    Notification.show("Удаление невозможно:",
+                            "Не выбрано ни одной строки",
+                            Notification.Type.TRAY_NOTIFICATION);
+                }
+
+            }
+        });
 
         HorizontalLayout HeaderButtons = new HorizontalLayout(
                 DeleteButton
@@ -616,6 +685,77 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
             exprParserAfter.VarList.clear();
             exprParserAfter.var.clear();
             return false;
+        }
+    }
+
+    public Integer insertActuatorStateCondition(
+         int qUserActuatorStateId
+        ,String qLeftPartExpression
+        , String qSignExpression
+        , String qRightPartExpression
+        , int qConditionNum
+        , int qConditionInterval
+    ){
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement dataStmt = Con.prepareCall("{? = call f_insert_actuator_state_condition(?, ?, ?, ?, ?, ?)}");
+            dataStmt.registerOutParameter(1, Types.INTEGER);
+            dataStmt.setInt(2, qUserActuatorStateId);
+            dataStmt.setString(3, qLeftPartExpression);
+            dataStmt.setString(4, qSignExpression);
+            dataStmt.setString(5, qRightPartExpression);
+            dataStmt.setInt(6, qConditionNum);
+            dataStmt.setInt(7, qConditionInterval);
+            dataStmt.execute();
+            Integer iActuatorStateConditionId = dataStmt.getInt(1);
+            Con.close();
+            return iActuatorStateConditionId;
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+            return null;
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void insertConditionVars(
+            int qActuatorStateConditionId
+            , String qVarCode
+            , int qUserDeviceId
+    ){
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement dataStmt = Con.prepareCall("{call p_insert_condition_vars(?, ?, ?)}");
+            dataStmt.setInt(1, qActuatorStateConditionId);
+            dataStmt.setString(2, qVarCode);
+            dataStmt.setInt(3, qUserDeviceId);
+            dataStmt.execute();
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
         }
     }
 

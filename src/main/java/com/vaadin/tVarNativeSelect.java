@@ -12,4 +12,5 @@ public class tVarNativeSelect {
         VarName = varName;
         VarSelect = varSelect;
     }
+
 }
