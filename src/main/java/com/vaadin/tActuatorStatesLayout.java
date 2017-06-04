@@ -8,8 +8,12 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.sql.*;
+import java.util.List;
 
 /**
  * Created by kalistrat on 26.05.2017.
@@ -106,6 +110,7 @@ implements addDeleteListenable {
                     ((TextField) ThatItem.getItemProperty(2).getValue()).setEnabled(false);
                     ((TextField) ThatItem.getItemProperty(3).getValue()).setEnabled(false);
                     newActuatorStateInsert(iUserDeviceId,InputName,InputCode);
+                    StatesContainerRefresh();
                     DeleteButton.setEnabled(true);
                     AddButton.setEnabled(true);
                     SaveButton.setEnabled(false);
@@ -134,28 +139,27 @@ implements addDeleteListenable {
 
                 TextField AddedNameTF = new TextField();
                 AddedNameTF.setValue("");
-                //AddedNameTF.setEnabled(false);
                 AddedNameTF.addStyleName(ValoTheme.TEXTFIELD_TINY);
                 AddedNameTF.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
                 AddedItem.getItemProperty(2).setValue(AddedNameTF);
 
                 TextField AddedCodeTF = new TextField();
                 AddedCodeTF.setValue("");
-                //AddedCodeTF.setEnabled(false);
                 AddedCodeTF.addStyleName(ValoTheme.TEXTFIELD_TINY);
                 AddedCodeTF.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
                 AddedItem.getItemProperty(3).setValue(AddedCodeTF);
+
+                Button mqttCommitButton = new Button();
+                mqttCommitButton.addStyleName(ValoTheme.BUTTON_SMALL);
+                mqttCommitButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+                mqttCommitButton.setIcon(VaadinIcons.PLAY_CIRCLE);
+
+                AddedItem.getItemProperty(4).setValue(mqttCommitButton);
 
                 SaveButton.setData(AddedItem);
                 SaveButton.setEnabled(true);
                 DeleteButton.setEnabled(false);
                 StatesTable.setPageLength(StatesContainer.size());
-
-//                if (StatesContainer.size()<6) {
-//                    StatesTable.setPageLength(StatesContainer.size());
-//                } else {
-//                    StatesTable.setPageLength(6);
-//                }
 
             }
         });
@@ -223,11 +227,13 @@ implements addDeleteListenable {
         StatesTable.setColumnHeader(1, "№<br/>состояния");
         StatesTable.setColumnHeader(2, "Наименование<br/>состояния");
         StatesTable.setColumnHeader(3, "Код<br/>сообщения");
+        StatesTable.setColumnHeader(4, "Выполнить");
 
         StatesContainer = new IndexedContainer();
         StatesContainer.addContainerProperty(1, Integer.class, null);
         StatesContainer.addContainerProperty(2, TextField.class, null);
         StatesContainer.addContainerProperty(3, TextField.class, null);
+        StatesContainer.addContainerProperty(4, Button.class, null);
 
         setStatesContainer();
 
@@ -242,12 +248,7 @@ implements addDeleteListenable {
         StatesTable.addStyleName(ValoTheme.TABLE_SMALL);
         StatesTable.addStyleName("TableRow");
 
-//        StatesTable.setCellStyleGenerator(new Table.CellStyleGenerator() {
-//            @Override
-//            public String getStyle(Table components, Object itemId, Object columnId) {
-//                return "mytabletext";
-//            }
-//        });
+
         StatesTable.setSelectable(true);
 
 
@@ -270,7 +271,6 @@ implements addDeleteListenable {
         StatesTableLayout.setWidth("100%");
         StatesTableLayout.setHeightUndefined();
         StatesTableLayout.setComponentAlignment(StatesTable,Alignment.MIDDLE_CENTER);
-        //StatesTableLayout.addStyleName(ValoTheme.LAYOUT_WELL);
 
         VerticalLayout ContentLayout = new VerticalLayout(
                 HeaderLayout
@@ -297,7 +297,11 @@ implements addDeleteListenable {
             String DataSql = "select @num1:=@num1+1 num\n" +
                     ",uas.actuator_state_name\n" +
                     ",uas.actuator_message_code\n" +
+                    ",ud.mqtt_topic_read\n" +
+                    ",concat(concat(ser.server_ip,':'),ser.server_port) mqtt_server_host\n" +
                     "from user_actuator_state uas\n" +
+                    "join user_device ud on ud.user_device_id=uas.user_device_id\n" +
+                    "join mqtt_servers ser on ser.server_id=ud.mqqt_server_id\n" +
                     "join (select @num1:=0) t1\n" +
                     "where uas.user_device_id = ?";
 
@@ -322,9 +326,31 @@ implements addDeleteListenable {
                 CodeTF.addStyleName(ValoTheme.TEXTFIELD_TINY);
                 CodeTF.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 
+                Button mqttCommitButton = new Button();
+                mqttCommitButton.addStyleName(ValoTheme.BUTTON_SMALL);
+                mqttCommitButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+                mqttCommitButton.setIcon(VaadinIcons.PLAY_CIRCLE);
+                mqttCommitButton.setData(DataRs.getString(3)
+                        +"|" + DataRs.getString(4)
+                        +"|" + DataRs.getString(5) + "|"
+                );
+                mqttCommitButton.addClickListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent clickEvent) {
+                        String mqttStrAttr = (String) clickEvent.getButton().getData();
+                        List<String> mqttAttrs = tUsefulFuctions.GetListFromString(mqttStrAttr,"|");
+                        commitActuatorMessageCode(
+                                mqttAttrs.get(0)
+                                ,mqttAttrs.get(1)
+                                ,mqttAttrs.get(2)
+                        );
+                    }
+                });
+
                 newItem.getItemProperty(1).setValue(DataRs.getInt(1));
                 newItem.getItemProperty(2).setValue(NameTF);
                 newItem.getItemProperty(3).setValue(CodeTF);
+                newItem.getItemProperty(4).setValue(mqttCommitButton);
 
             }
 
@@ -345,11 +371,7 @@ implements addDeleteListenable {
         StatesContainer.removeAllItems();
         setStatesContainer();
         StatesTable.setPageLength(StatesContainer.size());
-//        if (StatesContainer.size()<6) {
-//            StatesTable.setPageLength(StatesContainer.size());
-//        } else {
-//            StatesTable.setPageLength(6);
-//        }
+
     }
 
     public boolean isStatesContainerContainsName(String NewItemName){
@@ -422,6 +444,24 @@ implements addDeleteListenable {
 
     public void setListener(addDeleteListener listener){
         this.Listener = listener;
+    }
+
+    public void commitActuatorMessageCode(String MessCode
+            ,String topicName
+            ,String mqttServerHost
+    ){
+        try {
+            MqttClient client = new MqttClient("tcp://" + mqttServerHost, topicName, null);
+            MqttMessage message = new MqttMessage(MessCode.getBytes());
+            client.connect();
+            client.publish(topicName, message);
+            client.disconnect();
+        } catch(MqttException me) {
+            Notification.show("Ошибка подключения:",
+                    "Не удается подключиться к серверу " + mqttServerHost,
+                    Notification.Type.TRAY_NOTIFICATION);
+            me.printStackTrace();
+        }
     }
 
 }

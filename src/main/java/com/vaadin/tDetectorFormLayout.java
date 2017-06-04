@@ -25,6 +25,9 @@ public class tDetectorFormLayout extends VerticalLayout {
     NativeSelect MqttServerSelect;
     int iUserDeviceId;
 
+    TextField DeviceLoginTextField;
+    TextField DevicePassWordTextField;
+
     public tDetectorFormLayout(int eUserDeviceId){
 
         iUserDeviceId = eUserDeviceId;
@@ -38,10 +41,56 @@ public class tDetectorFormLayout extends VerticalLayout {
         SaveButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                SaveButton.setEnabled(false);
-                EditButton.setEnabled(true);
-                PeriodMeasureSelect.setEnabled(false);
-                updateDetectorMeasurePeriod();
+                String sErrorMessage = "";
+                String sDeviceLog = DeviceLoginTextField.getValue();
+                String sDevicePass = DevicePassWordTextField.getValue();
+
+                if (sDeviceLog == null){
+                    sErrorMessage = "Логин устройства не задан\n";
+                }
+
+                if (sDeviceLog.equals("")){
+                    sErrorMessage = sErrorMessage + "Логин устройства не задан\n";
+                }
+
+                if (sDeviceLog.length() > 25){
+                    sErrorMessage = sErrorMessage + "Длина логина превышает 25 символов\n";
+                }
+
+                if (sDevicePass == null){
+                    sErrorMessage = "Пароль устройства не задан\n";
+                }
+
+                if (sDevicePass.equals("")){
+                    sErrorMessage = sErrorMessage + "Пароль устройства не задан\n";
+                }
+
+                if (sDevicePass.length() > 25){
+                    sErrorMessage = sErrorMessage + "Длина пароля превышает 25 символов\n";
+                }
+
+                if (!tUsefulFuctions.IsLatinAndDigits(sDeviceLog)){
+                    sErrorMessage = sErrorMessage + "Указанный логин недопустим. Он должен состоять из букв латиницы и цифр\n";
+                }
+
+                if (!tUsefulFuctions.IsLatinAndDigits(sDevicePass)){
+                    sErrorMessage = sErrorMessage + "Указанный пароль недопустим. Он должен состоять из букв латиницы и цифр\n";
+                }
+
+                if (!sErrorMessage.equals("")){
+                    Notification.show("Ошибка сохранения:",
+                            sErrorMessage,
+                            Notification.Type.TRAY_NOTIFICATION);
+                } else {
+                    tUsefulFuctions.updateActuatorLoginPassWord(iUserDeviceId,sDeviceLog,sDevicePass);
+                    updateDetectorMeasurePeriod();
+                    SaveButton.setEnabled(false);
+                    EditButton.setEnabled(true);
+                    DeviceLoginTextField.setEnabled(false);
+                    DevicePassWordTextField.setEnabled(false);
+                    PeriodMeasureSelect.setEnabled(false);
+                }
+
             }
         });
 
@@ -57,6 +106,8 @@ public class tDetectorFormLayout extends VerticalLayout {
                 EditButton.setEnabled(false);
                 //UnitsTextField.setEnabled(true);
                 PeriodMeasureSelect.setEnabled(true);
+                DeviceLoginTextField.setEnabled(true);
+                DevicePassWordTextField.setEnabled(true);
             }
         });
 
@@ -86,6 +137,11 @@ public class tDetectorFormLayout extends VerticalLayout {
         MqttServerSelect.setNullSelectionAllowed(false);
         MqttServerSelect.setEnabled(false);
 
+        DeviceLoginTextField = new TextField("Логин устройства :");
+        DevicePassWordTextField = new TextField("Пароль устройства :");
+
+        DeviceLoginTextField.setEnabled(false);
+        DevicePassWordTextField.setEnabled(false);
 
         tUsefulFuctions.getMqttServerData(MqttServerSelect);
 
@@ -97,6 +153,8 @@ public class tDetectorFormLayout extends VerticalLayout {
                 ,DetectorAddDate
                 ,InTopicNameField
                 ,MqttServerSelect
+                ,DeviceLoginTextField
+                ,DevicePassWordTextField
         );
         dform.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
         dform.addStyleName("FormFont");

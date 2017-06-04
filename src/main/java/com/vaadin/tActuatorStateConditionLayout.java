@@ -147,6 +147,12 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                     sErrorMessage = sErrorMessage + "Правая часть выражения не распознаётся. Исправьте его и выберите переменные.\n";
                 }
 
+                for (tVarNativeSelect jLi : VarsLayout.VarList) {
+                    if (jLi.VarName.length() > 5) {
+                        sErrorMessage = sErrorMessage + "Код переменной " + jLi.VarName + " слишком длинный" + "\n";
+                    }
+                }
+
                 if (tUsefulFuctions.StrToIntValue(TimeInterval) == null) {
                     sErrorMessage = sErrorMessage + "Не задан интервал реализации условия\n";
                 } else {
@@ -442,12 +448,6 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
 
         StatesConditionTable.setPageLength(StatesConditionContainer.size());
 
-//        if (StatesConditionContainer.size()<6) {
-//            StatesConditionTable.setPageLength(StatesConditionContainer.size());
-//        } else {
-//            StatesConditionTable.setPageLength(6);
-//        }
-
         StatesConditionTable.addStyleName(ValoTheme.TREETABLE_SMALL);
         StatesConditionTable.addStyleName(ValoTheme.TREETABLE_COMPACT);
         StatesConditionTable.addStyleName("TableRow");
@@ -462,7 +462,6 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
         TableLayout.setWidth("100%");
         TableLayout.setHeightUndefined();
         TableLayout.setComponentAlignment(StatesConditionTable,Alignment.MIDDLE_CENTER);
-        //StatesTableLayout.addStyleName(ValoTheme.LAYOUT_WELL);
 
         VerticalLayout ContentLayout = new VerticalLayout(
                 HeaderLayout

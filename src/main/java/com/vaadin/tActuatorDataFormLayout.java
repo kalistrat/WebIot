@@ -25,6 +25,9 @@ public class tActuatorDataFormLayout extends VerticalLayout {
     TextField OutTopicNameField;
     NativeSelect MqttServerSelect;
 
+    TextField DeviceLoginTextField;
+    TextField DevicePassWordTextField;
+
     public tActuatorDataFormLayout(int eUserDeviceId) {
 
         iUserDeviceId = eUserDeviceId;
@@ -45,9 +48,54 @@ public class tActuatorDataFormLayout extends VerticalLayout {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
 
-                SaveButton.setEnabled(false);
-                EditButton.setEnabled(true);
+                String sErrorMessage = "";
+                String sDeviceLog = DeviceLoginTextField.getValue();
+                String sDevicePass = DevicePassWordTextField.getValue();
 
+                if (sDeviceLog == null){
+                    sErrorMessage = "Логин устройства не задан\n";
+                }
+
+                if (sDeviceLog.equals("")){
+                    sErrorMessage = sErrorMessage + "Логин устройства не задан\n";
+                }
+
+                if (sDeviceLog.length() > 25){
+                    sErrorMessage = sErrorMessage + "Длина логина превышает 25 символов\n";
+                }
+
+                if (sDevicePass == null){
+                    sErrorMessage = "Пароль устройства не задан\n";
+                }
+
+                if (sDevicePass.equals("")){
+                    sErrorMessage = sErrorMessage + "Пароль устройства не задан\n";
+                }
+
+                if (sDevicePass.length() > 25){
+                    sErrorMessage = sErrorMessage + "Длина пароля превышает 25 символов\n";
+                }
+
+                if (!tUsefulFuctions.IsLatinAndDigits(sDeviceLog)){
+                    sErrorMessage = sErrorMessage + "Указанный логин недопустим. Он должен состоять из букв латиницы и цифр\n";
+                }
+
+                if (!tUsefulFuctions.IsLatinAndDigits(sDevicePass)){
+                    sErrorMessage = sErrorMessage + "Указанный пароль недопустим. Он должен состоять из букв латиницы и цифр\n";
+                }
+
+                if (!sErrorMessage.equals("")){
+                    Notification.show("Ошибка сохранения:",
+                            sErrorMessage,
+                            Notification.Type.TRAY_NOTIFICATION);
+                } else {
+                    tUsefulFuctions.updateActuatorLoginPassWord(iUserDeviceId,sDeviceLog,sDevicePass);
+                    SaveButton.setEnabled(false);
+                    EditButton.setEnabled(true);
+                    DeviceLoginTextField.setEnabled(false);
+                    DevicePassWordTextField.setEnabled(false);
+
+                }
             }
         });
 
@@ -61,7 +109,8 @@ public class tActuatorDataFormLayout extends VerticalLayout {
             public void buttonClick(Button.ClickEvent clickEvent) {
                 SaveButton.setEnabled(true);
                 EditButton.setEnabled(false);
-
+                DeviceLoginTextField.setEnabled(true);
+                DevicePassWordTextField.setEnabled(true);
             }
         });
 
@@ -94,6 +143,12 @@ public class tActuatorDataFormLayout extends VerticalLayout {
         MqttServerSelect.setNullSelectionAllowed(false);
         MqttServerSelect.setEnabled(false);
         tUsefulFuctions.getMqttServerData(MqttServerSelect);
+
+        DeviceLoginTextField = new TextField("Логин устройства :");
+        DevicePassWordTextField = new TextField("Пароль устройства :");
+        DeviceLoginTextField.setEnabled(false);
+        DevicePassWordTextField.setEnabled(false);
+
         setActuatorParameters();
 
 
@@ -103,6 +158,8 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                 , InTopicNameField
                 , OutTopicNameField
                 , MqttServerSelect
+                , DeviceLoginTextField
+                , DevicePassWordTextField
         );
 
         ActuatorForm.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
@@ -144,6 +201,8 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                     ",ud.mqtt_topic_write\n" +
                     ",ud.mqtt_topic_read\n" +
                     ",concat(concat(ser.server_ip,':'),ser.server_port) mqqtt\n" +
+                    ",ifnull(ud.device_log,'')\n" +
+                    ",ifnull(ud.device_pass,'')\n" +
                     "from user_device ud\n" +
                     "join mqtt_servers ser on ser.server_id=ud.mqqt_server_id\n" +
                     "where ud.user_device_id = ?";
@@ -163,6 +222,8 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                 InTopicNameField.setValue(DataRs.getString(3));
                 OutTopicNameField.setValue(DataRs.getString(4));
                 MqttServerSelect.select(DataRs.getString(5));
+                DeviceLoginTextField.setValue(DataRs.getString(6));
+                DevicePassWordTextField.setValue(DataRs.getString(7));
 
             }
 
@@ -177,4 +238,5 @@ public class tActuatorDataFormLayout extends VerticalLayout {
             e13.printStackTrace();
         }
     }
+
 }
