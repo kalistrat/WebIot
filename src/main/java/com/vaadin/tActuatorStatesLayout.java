@@ -164,6 +164,7 @@ implements addDeleteListenable {
         DeleteButton.setIcon(VaadinIcons.CLOSE_CIRCLE);
         DeleteButton.addStyleName(ValoTheme.BUTTON_SMALL);
         DeleteButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        DeleteButton.setData(this);
 
         DeleteButton.addClickListener(new Button.ClickListener() {
             @Override
@@ -176,30 +177,17 @@ implements addDeleteListenable {
                 }
 
                 if (SelectedItemId>0) {
-                    String ItemCode = (String) ((TextField) StatesContainer
-                            .getItem(SelectedItemId)
-                            .getItemProperty(3)
-                            .getValue()).getValue();
+
                     String ItemName = (String) ((TextField) StatesContainer
                             .getItem(SelectedItemId)
                             .getItemProperty(2)
                             .getValue()).getValue();
 
-                    ActuatorStateDelete(iUserDeviceId,ItemCode);
-                    StatesContainerRefresh();
+                    UI.getCurrent().addWindow(new tActuatorStateDeleteWindow(
+                          ItemName
+                            , (tActuatorStatesLayout) clickEvent.getButton().getData()
+                    ));
 
-//                    if (StatesContainer.size()<6) {
-//                        StatesTable.setPageLength(StatesContainer.size());
-//                    } else {
-//                        StatesTable.setPageLength(6);
-//                    }
-
-                    Listener.afterDelete(ItemName);
-
-
-                    Notification.show("Удаление произведено",
-                            null,
-                            Notification.Type.TRAY_NOTIFICATION);
                 } else {
                     Notification.show("Удаление невозможно:",
                             "Не выбрано ни одной строки",
@@ -431,36 +419,6 @@ implements addDeleteListenable {
 
     }
 
-    public void ActuatorStateDelete(
-            int qUserDeviceId
-            ,String qStateCode
-    ){
-        try {
-
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            CallableStatement Stmt = Con.prepareCall("{call p_delete_actuator_state(?, ?)}");
-            Stmt.setInt(1, qUserDeviceId);
-            Stmt.setString(2, qStateCode);
-
-            Stmt.execute();
-
-            Con.close();
-
-        }catch(SQLException se){
-            //Handle errors for JDBC
-            se.printStackTrace();
-        }catch(Exception e) {
-            //Handle errors for Class.forName
-            e.printStackTrace();
-        }
-
-    }
 
     public void setListener(addDeleteListener listener){
         this.Listener = listener;

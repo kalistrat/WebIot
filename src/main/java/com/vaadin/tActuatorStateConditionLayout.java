@@ -324,6 +324,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
         DeleteButton.setIcon(VaadinIcons.CLOSE_CIRCLE);
         DeleteButton.addStyleName(ValoTheme.BUTTON_SMALL);
         DeleteButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        DeleteButton.setData(this);
 
         DeleteButton.addClickListener(new Button.ClickListener() {
             @Override
@@ -343,26 +344,21 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                     Collection<?> deletedChildLeafs = StatesConditionContainer
                             .getChildren(DeletedItemId);
 
-                    if (deletedChildLeafs == null) {
-                        System.out.println("deletedChildLeafs is null and its generate NPE");
-                    }
-
                     if (deletedChildLeafs != null &&
                             parentActuatorStateItemId != null) {
 
                         String parentStateName = (String) StatesConditionContainer
                                 .getItem(parentActuatorStateItemId).getItemProperty(1).getValue();
-                        System.out.println("parentStateName : " + parentStateName);
-
                         String deletedConditionName = (String) StatesConditionContainer
                                 .getItem(DeletedItemId).getItemProperty(1).getValue();
-                        System.out.println("deletedConditionName : " + deletedConditionName);
                         int deletedConditionNum = Integer.parseInt(deletedConditionName.replace("Условие №","").trim());
-                        System.out.println("deletedConditionNum : " + deletedConditionNum);
 
-                        Notification.show("Удаление произведено",
-                                null,
-                                Notification.Type.TRAY_NOTIFICATION);
+                        UI.getCurrent().addWindow(new tStateConditionDeleteWindow(iUserDeviceId
+                        ,parentStateName
+                        ,deletedConditionNum
+                        ,(tActuatorStateConditionLayout) clickEvent.getButton().getData()
+                        ));
+
                     } else {
                         Notification.show("Удаление невозможно",
                                 "Необходимо выбрать условие,\n а не состояние или компонент условия",

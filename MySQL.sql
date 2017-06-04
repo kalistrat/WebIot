@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win32
--- HeidiSQL Версия:              9.3.0.4984
+-- ОС Сервера:                   Win64
+-- HeidiSQL Версия:              9.1.0.4867
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -874,15 +874,59 @@ DELIMITER ;
 
 -- Дамп структуры для процедура things.p_delete_actuator_state
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_actuator_state`(
-eUserDeviceId int
-,eActuatorCode varchar(20)
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_actuator_state`(IN `eUserDeviceId` int
+, IN `eActuatorName` VARCHAR(30)
 )
 begin
+declare i_condition_id int;
+declare i_actuator_state_id int;
+
+select uas.user_actuator_state_id
+into i_actuator_state_id
+from user_actuator_state uas
+where uas.user_device_id = eUserDeviceId
+and uas.actuator_state_name = eActuatorName;
+
+select uasc.actuator_state_condition_id into i_condition_id
+from user_actuator_state_condition uasc
+where uasc.user_actuator_state_id = i_actuator_state_id;
+
+delete from user_state_condition_vars
+where actuator_state_condition_id = i_condition_id;
+
+delete from user_actuator_state_condition
+where actuator_state_condition_id = i_condition_id;
 
 delete from user_actuator_state
-where user_device_id = eUserDeviceId
-and actuator_message_code = eActuatorCode;
+where user_actuator_state_id = i_actuator_state_id;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_delete_state_condition
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_state_condition`(
+eUserDeviceId int
+,eStateName varchar(30)
+,eConditionNum int
+)
+begin
+declare i_condition_id int;
+
+select uasc.actuator_state_condition_id into i_condition_id
+from user_device ud
+join user_actuator_state uas on uas.user_device_id=ud.user_device_id
+join user_actuator_state_condition uasc on uasc.user_actuator_state_id=uas.user_actuator_state_id
+where ud.user_device_id = eUserDeviceId
+and uas.actuator_state_name = eStateName
+and uasc.condition_num = eConditionNum;
+
+delete from user_state_condition_vars
+where actuator_state_condition_id = i_condition_id;
+
+delete from user_actuator_state_condition
+where actuator_state_condition_id = i_condition_id;
 
 end//
 DELIMITER ;
@@ -1743,6 +1787,7 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   `actuator_message_code` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`user_actuator_state_id`),
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
+  KEY `INDX_DEVICEID_STATENAME` (`user_device_id`,`actuator_state_name`) USING BTREE,
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
 
@@ -1756,10 +1801,7 @@ INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `
 	(22, 4, 'Выключено', 'Off'),
 	(23, 3, 'Включено на 50%', 'On50'),
 	(27, 4, 'Включено на 50%', 'On50'),
-	(28, 3, 'trhjrt', 'trjrt'),
-	(29, 3, 'trhjr', 'trj'),
 	(31, 4, 'Включено на 10%', 'On10'),
-	(32, 3, 'yit', 'yt'),
 	(33, 19, 'Включена', 'DeviceOn');
 /*!40000 ALTER TABLE `user_actuator_state` ENABLE KEYS */;
 
@@ -1776,9 +1818,9 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state_condition` (
   PRIMARY KEY (`actuator_state_condition_id`),
   KEY `FK_user_actuator_state_condition_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_actuator_state_condition_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state_condition: ~2 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state_condition: ~3 rows (приблизительно)
 DELETE FROM `user_actuator_state_condition`;
 /*!40000 ALTER TABLE `user_actuator_state_condition` DISABLE KEYS */;
 INSERT INTO `user_actuator_state_condition` (`actuator_state_condition_id`, `user_actuator_state_id`, `left_part_expression`, `sign_expression`, `right_part_expression`, `condition_num`, `condition_interval`) VALUES
@@ -2007,9 +2049,9 @@ CREATE TABLE IF NOT EXISTS `user_state_condition_vars` (
   KEY `FK_user_state_condition_vars_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_state_condition_vars: ~2 rows (приблизительно)
+-- Дамп данных таблицы things.user_state_condition_vars: ~6 rows (приблизительно)
 DELETE FROM `user_state_condition_vars`;
 /*!40000 ALTER TABLE `user_state_condition_vars` DISABLE KEYS */;
 INSERT INTO `user_state_condition_vars` (`state_condition_vars_id`, `actuator_state_condition_id`, `var_code`, `user_device_id`) VALUES
