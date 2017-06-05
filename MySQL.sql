@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win64
--- HeidiSQL Версия:              9.1.0.4867
+-- ОС Сервера:                   Win32
+-- HeidiSQL Версия:              9.3.0.4984
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -521,6 +521,28 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для функция things.f_get_user_account_type
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_user_account_type`(
+eUserLog varchar(50)
+) RETURNS varchar(50) CHARSET utf8
+begin
+return(
+select 
+ifnull((
+select min(uac.account_type)
+from user_accounts uac
+where uac.user_id=u.user_id
+and uac.date_from<=sysdate()
+and uac.date_till>=sysdate()
+),'REGULAR') account_type
+from users u
+where u.user_log = eUserLog
+);
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для функция things.f_get_user_device
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_user_device`(`eLeafId` int
@@ -675,15 +697,15 @@ CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_user_device_insert`(`eDeviceN
 , `eUserId` int
 , `eUserLog` varchar(50)
 , `eActionTypeId` int
-, `eMqttServerName` varchar(30)
+, `eMqttServerType` varchar(30)
 ) RETURNS int(11)
 begin
 declare i_server_id int;
 declare i_user_device_id int;
 
-select ms.server_id into i_server_id
-from mqtt_servers ms
-where concat(concat(ms.server_ip,':'),ms.server_port)=eMqttServerName;
+select max(ser.server_id) into i_server_id
+from mqtt_servers ser
+where upper(ser.server_type) = upper(eMqttServerType);
 
 insert into user_device(
 user_id
@@ -750,16 +772,20 @@ CREATE TABLE IF NOT EXISTS `mqtt_servers` (
   `server_port` varchar(8) DEFAULT NULL,
   `is_busy` int(11) DEFAULT NULL,
   `name` varchar(50) DEFAULT NULL,
+  `server_type` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`server_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.mqtt_servers: ~3 rows (приблизительно)
 DELETE FROM `mqtt_servers`;
 /*!40000 ALTER TABLE `mqtt_servers` DISABLE KEYS */;
-INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`) VALUES
-	(1, '192.168.1.64', '1883', 0, 'HOME'),
-	(2, '172.16.98.95', '1883', 0, 'NOTEBOOK'),
-	(3, 'localhost', '1883', 0, 'LOCALHOST');
+INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`, `server_type`) VALUES
+	(1, '192.168.1.64', '1883', 0, 'HOME', 'общий незащищённый'),
+	(2, '172.16.98.95', '1883', 0, 'NOTEBOOK', 'общий незащищённый'),
+	(3, 'localhost', '1883', 0, 'LOCALHOST', 'общий незащищённый'),
+	(4, 'localhost', '1883', 0, 'LOCALHOST', 'общий защищённый'),
+	(5, 'localhost', '1883', 0, 'LOCALHOST', 'отдельный незащищённый'),
+	(6, 'localhost', '1883', 0, 'LOCALHOST', 'отдельный защищённый');
 /*!40000 ALTER TABLE `mqtt_servers` ENABLE KEYS */;
 
 
@@ -808,16 +834,15 @@ DELIMITER ;
 
 -- Дамп структуры для процедура things.p_add_user_device
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_user_device`(
-eParentLeafId int
-,eDeviceName varchar(30)
-,eUserLog varchar(50)
-,eActionTypeName varchar(100)
-,eMqttServerName varchar(30)
-,out oTreeId int
-,out oNewLeafId int
-,out oIconCode varchar(100)
-,out oUserDeviceId int
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_user_device`(IN `eParentLeafId` int
+, IN `eDeviceName` varchar(30)
+, IN `eUserLog` varchar(50)
+, IN `eActionTypeName` varchar(100)
+, IN `eMqttServerType` varchar(30)
+, OUT `oTreeId` int
+, OUT `oNewLeafId` int
+, OUT `oIconCode` varchar(100)
+, OUT `oUserDeviceId` int
 )
 begin
 declare i_action_type_id int;
@@ -846,7 +871,7 @@ eDeviceName
 ,i_user_id
 ,eUserLog
 ,i_action_type_id
-,eMqttServerName
+,eMqttServerType
 );
 
 insert into user_devices_tree(
@@ -867,6 +892,42 @@ i_leaf_id
 select LAST_INSERT_ID() into oTreeId;
 set oNewLeafId = i_leaf_id;
 set oUserDeviceId = i_user_device_id;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_delete_actuator_data
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_actuator_data`(IN `eUserDeviceId` int
+)
+begin
+declare i_user_device_id int;
+declare i_actuator_state_name varchar(30);
+declare i int default 0;
+declare row_cnt int;
+
+declare cur1 cursor for 
+select uas.user_device_id
+,uas.actuator_state_name
+from user_actuator_state uas
+where uas.user_device_id = eUserDeviceId;
+
+select count(*) into row_cnt
+from user_actuator_state uas
+where uas.user_device_id = eUserDeviceId;
+
+open cur1;
+
+	while i<row_cnt do
+	
+		fetch cur1 into i_user_device_id,i_actuator_state_name;
+		call p_delete_actuator_state(i_user_device_id,i_actuator_state_name);
+		set i = i + 1;
+	
+	end while;
+
+close cur1;
 
 end//
 DELIMITER ;
@@ -1001,6 +1062,8 @@ where user_devices_tree_id = i_tree_id;
 
 delete from user_device_measures
 where user_device_id = i_user_device_id;
+
+call p_delete_actuator_data(i_user_device_id);
 
 delete from user_device
 where user_device_id = i_user_device_id;
@@ -1819,6 +1882,26 @@ INSERT INTO `users` (`user_id`, `user_log`, `user_pass`, `user_last_activity`, `
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 
+-- Дамп структуры для таблица things.user_accounts
+CREATE TABLE IF NOT EXISTS `user_accounts` (
+  `account_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `account_type` varchar(50) DEFAULT NULL,
+  `date_from` datetime DEFAULT NULL,
+  `date_till` datetime DEFAULT NULL,
+  PRIMARY KEY (`account_id`),
+  KEY `FK_user_accounts_users` (`user_id`),
+  CONSTRAINT `FK_user_accounts_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- Дамп данных таблицы things.user_accounts: ~1 rows (приблизительно)
+DELETE FROM `user_accounts`;
+/*!40000 ALTER TABLE `user_accounts` DISABLE KEYS */;
+INSERT INTO `user_accounts` (`account_id`, `user_id`, `account_type`, `date_from`, `date_till`) VALUES
+	(1, 1, 'PRIVILEGED', '2017-01-05 17:36:23', '2019-06-05 17:36:29');
+/*!40000 ALTER TABLE `user_accounts` ENABLE KEYS */;
+
+
 -- Дамп структуры для таблица things.user_actuator_state
 CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   `user_actuator_state_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1829,7 +1912,7 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   KEY `INDX_DEVICEID_STATENAME` (`user_device_id`,`actuator_state_name`) USING BTREE,
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_actuator_state: ~11 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
@@ -1861,7 +1944,7 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state_condition` (
   PRIMARY KEY (`actuator_state_condition_id`),
   KEY `FK_user_actuator_state_condition_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_actuator_state_condition_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_actuator_state_condition: ~4 rows (приблизительно)
 DELETE FROM `user_actuator_state_condition`;
@@ -1903,9 +1986,9 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_unit` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
   CONSTRAINT `FK_user_device_unit_factor` FOREIGN KEY (`factor_id`) REFERENCES `unit_factor` (`factor_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device: ~8 rows (приблизительно)
+-- Дамп данных таблицы things.user_device: ~10 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`, `device_log`, `device_pass`) VALUES
@@ -1916,7 +1999,11 @@ INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `use
 	(11, 1, 'барометр', NULL, 'не задано', '2017-05-19 13:50:38', 1, 'атм', 'k/11/W/', 'k/11/R/', 3, 94, 64, 'reger', NULL, NULL),
 	(16, 1, 'Датчик СО', NULL, 'не задано', '2017-05-19 16:31:42', 1, '%', 'k/16/W/', 'k/16/R/', 3, 97, 64, 'Датчик СО', NULL, NULL),
 	(17, 1, 'термометр-1', NULL, 'не задано', '2017-05-22 15:48:43', 1, 'Ед', 'k/17/W/', 'k/17/R/', 3, 96, 64, 'термометр-1', NULL, NULL),
-	(19, 1, 'Помпа', NULL, 'не задано', '2017-06-02 13:23:27', 2, 'Ед', 'k/19/W/', 'k/19/R/', 3, 96, 64, 'Помпа', NULL, NULL);
+	(19, 1, 'Помпа', NULL, 'не задано', '2017-06-02 13:23:27', 2, 'Ед', 'k/19/W/', 'k/19/R/', 3, 96, 64, 'Помпа', NULL, NULL),
+	(22, 1, 'Датчик СО2', NULL, 'не задано', '2017-06-05 15:46:14', 1, 'Ед', 'k/22/W/', 'k/22/R/', 3, 96, 64, 'Датчик СО2', NULL, NULL),
+	(24, 1, 'Косяк на косяке', NULL, 'не задано', '2017-06-05 16:54:23', 2, 'Ед', 'k/24/W/', 'k/24/R/', 3, 96, 64, '', NULL, NULL),
+	(30, 1, 'Testovich', NULL, 'не задано', '2017-06-05 19:51:59', 1, 'Ед', 'k/30/W/', 'k/30/R/', 3, 96, 64, 'Testovich', NULL, NULL),
+	(31, 1, '345345', NULL, 'не задано', '2017-06-05 19:56:11', 1, 'Ед', 'k/31/W/', 'k/31/R/', 3, 96, 64, '345345', NULL, NULL);
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -1933,9 +2020,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~15 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~17 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -1953,7 +2040,11 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(134, 12, 1, NULL, 'Бассейн', 1),
 	(135, 13, 7, 17, 'термометр-1', 1),
 	(146, 1, NULL, NULL, 'Устройства', 2),
-	(148, 14, 7, 19, 'Помпа', 1);
+	(148, 14, 7, 19, 'Помпа', 1),
+	(151, 15, 9, 22, 'Датчик СО2', 1),
+	(153, 16, 9, 24, 'Косяк на косяке', 1),
+	(159, 17, 9, 30, 'Testovich', 1),
+	(160, 18, 9, 31, '345345', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 
@@ -2095,7 +2186,7 @@ CREATE TABLE IF NOT EXISTS `user_state_condition_vars` (
   KEY `FK_user_state_condition_vars_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_state_condition_vars: ~7 rows (приблизительно)
 DELETE FROM `user_state_condition_vars`;

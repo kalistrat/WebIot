@@ -28,7 +28,7 @@ public class tAddDeviceWindow extends Window {
     NativeSelect DeviceActionType;
     String LastActionTypeValue;
     NativeSelect MqttSelect;
-    String LastMqttServerValue;
+    //String LastMqttServerValue;
 
     public tAddDeviceWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
@@ -52,10 +52,10 @@ public class tAddDeviceWindow extends Window {
         DeviceActionType.select(LastActionTypeValue);
         DeviceActionType.addStyleName("SelectFont");
 
-        MqttSelect = new NativeSelect("Свободный mqtt-сервер :");
-        getMqttData();
+        MqttSelect = new NativeSelect("Доступный mqtt-сервер :");
+        getMqttData(iTreeContentLayout.iUserLog);
         MqttSelect.setNullSelectionAllowed(false);
-        MqttSelect.select(LastMqttServerValue);
+        MqttSelect.select("общий незащищённый");
         MqttSelect.addStyleName("SelectFont");
 
         SaveButton = new Button("Сохранить");
@@ -75,46 +75,20 @@ public class tAddDeviceWindow extends Window {
                 }
 
                 if (sFieldValue.equals("")){
-                    sErrorMessage = "Наименование устройства не задано\n";
+                    sErrorMessage = sErrorMessage + "Наименование устройства не задано\n";
                 }
 
                 if (sFieldValue.length() > 30){
-                    sErrorMessage = "Длина наименования превышает 30 символов\n";
+                    sErrorMessage = sErrorMessage + "Длина наименования превышает 30 символов\n";
                 }
 
                 if (tUsefulFuctions.fIsLeafNameBusy(iTreeContentLayout.iUserLog,sFieldValue) > 0){
-                    sErrorMessage = "Указанное наименование уже используется. Введите другое.\n";
+                    sErrorMessage = sErrorMessage + "Указанное наименование уже используется. Введите другое.\n";
                 }
 
-                String ErrAddIntoDB = addUserDevice(
-                        iLeafId//int qParentLeafId
-                        , sFieldValue//String qDeviceName
-                        , iTreeContentLayout.iUserLog//String qUserLog
-                        , (String) DeviceActionType.getValue() //String qActionTypeName
-                        , (String) MqttSelect.getValue() //String qMqttServerName
-                );
+                if (!tUsefulFuctions.isSubscriberExists()) {
 
-                if (!ErrAddIntoDB.equals("")) {
-                    sErrorMessage = sErrorMessage + ErrAddIntoDB + ";";
-                } else {
-
-                    String ErrAddIntoSC = tUsefulFuctions.updateDeviceMqttLogger(
-                            iNewUserDeviceId
-                            ,iTreeContentLayout.iUserLog
-                            ,"add"
-                    );
-
-                    if (!ErrAddIntoSC.equals("")) {
-
-                        sErrorMessage = sErrorMessage + ErrAddIntoSC;
-                        tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,iNewLeafId);
-                        iTreeContentLayout.reloadTreeContainer();
-                        for (Object id : iTreeContentLayout.itTree.rootItemIds()) {
-                            iTreeContentLayout.itTree.expandItemsRecursively(id);
-                        }
-
-                        iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId,0);
-                    }
+                    sErrorMessage = sErrorMessage + "Сервер подписки недоступен\n";
 
                 }
 
@@ -123,6 +97,21 @@ public class tAddDeviceWindow extends Window {
                             sErrorMessage,
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
+
+
+                       addUserDevice(
+                                iLeafId//int qParentLeafId
+                                , sFieldValue//String qDeviceName
+                                , iTreeContentLayout.iUserLog//String qUserLog
+                                , (String) DeviceActionType.getValue() //String qActionTypeName
+                                , (String) MqttSelect.getValue() //String qMqttServerName
+                        );
+
+                        String addSubsribeRes = tUsefulFuctions.updateDeviceMqttLogger(
+                                iNewUserDeviceId
+                                , iTreeContentLayout.iUserLog
+                                , "add"
+                        );
 
                         Item newItem = iTreeContentLayout.itTree.TreeContainer.addItem(iNewLeafId);
                         newItem.getItemProperty(1).setValue(iNewTreeId);
@@ -148,12 +137,20 @@ public class tAddDeviceWindow extends Window {
                         iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId, 0);
                         iTreeContentLayout.itTree.expandItem(iLeafId);
 
-                        Notification.show("Устройство добавлено!",
-                                null,
-                                Notification.Type.TRAY_NOTIFICATION);
-                        UI.getCurrent().removeWindow((tAddDeviceWindow) clickEvent.getButton().getData());
+                        if (!addSubsribeRes.equals("")) {
+                            Notification.show("Устройство добавлено c ошибкой",
+                                    addSubsribeRes,
+                                    Notification.Type.TRAY_NOTIFICATION);
+                            UI.getCurrent().removeWindow((tAddDeviceWindow) clickEvent.getButton().getData());
+                        } else {
 
-                }
+                            Notification.show("Устройство добавлено!",
+                                    null,
+                                    Notification.Type.TRAY_NOTIFICATION);
+                            UI.getCurrent().removeWindow((tAddDeviceWindow) clickEvent.getButton().getData());
+
+                        }
+                    }
 
 
             }
@@ -246,7 +243,43 @@ public class tAddDeviceWindow extends Window {
         }
     }
 
-    public void getMqttData(){
+//    public void getMqttData(){
+//
+//        try {
+//            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+//            Connection Con = DriverManager.getConnection(
+//                    tUsefulFuctions.DB_URL
+//                    , tUsefulFuctions.USER
+//                    , tUsefulFuctions.PASS
+//            );
+//
+//            String DataSql = "select concat(concat(s.server_ip,':'),s.server_port)\n" +
+//                    "from mqtt_servers s";
+//
+//            PreparedStatement MqttDataStmt = Con.prepareStatement(DataSql);
+//
+//            ResultSet MqttDataRs = MqttDataStmt.executeQuery();
+//
+//            while (MqttDataRs.next()) {
+//                LastMqttServerValue = MqttDataRs.getString(1);
+//                MqttSelect.addItem(MqttDataRs.getString(1));
+//            }
+//
+//
+//            Con.close();
+//
+//        } catch (SQLException se3) {
+//            //Handle errors for JDBC
+//            se3.printStackTrace();
+//        } catch (Exception e13) {
+//            //Handle errors for Class.forName
+//            e13.printStackTrace();
+//        }
+//    }
+
+        public void getMqttData(String qUserLog){
+
+            MqttSelect.addItem("общий незащищённый");
 
         try {
             Class.forName(tUsefulFuctions.JDBC_DRIVER);
@@ -256,16 +289,16 @@ public class tAddDeviceWindow extends Window {
                     , tUsefulFuctions.PASS
             );
 
-            String DataSql = "select concat(concat(s.server_ip,':'),s.server_port)\n" +
-                    "from mqtt_servers s";
+            CallableStatement MqttDataStmt = Con.prepareCall("{? = call f_get_user_account_type(?)}");
+            MqttDataStmt.registerOutParameter(1,Types.VARCHAR);
+            MqttDataStmt.setString(2,qUserLog);
+            MqttDataStmt.execute();
+            String UserAccountType  = MqttDataStmt.getString(1);
 
-            PreparedStatement MqttDataStmt = Con.prepareStatement(DataSql);
-
-            ResultSet MqttDataRs = MqttDataStmt.executeQuery();
-
-            while (MqttDataRs.next()) {
-                LastMqttServerValue = MqttDataRs.getString(1);
-                MqttSelect.addItem(MqttDataRs.getString(1));
+            if (UserAccountType.equals("PRIVILEGED")) {
+                MqttSelect.addItem("общий защищённый");
+                MqttSelect.addItem("отдельный незащищённый");
+                MqttSelect.addItem("отдельный защищённый");
             }
 
 
@@ -280,12 +313,12 @@ public class tAddDeviceWindow extends Window {
         }
     }
 
-    public String addUserDevice(
+    public void addUserDevice(
         int qParentLeafId
         , String qDeviceName
         , String qUserLog
         , String qActionTypeName
-        , String qMqttServerName
+        , String qMqttServerType
     ){
         try {
 
@@ -301,7 +334,7 @@ public class tAddDeviceWindow extends Window {
             addDeviceStmt.setString(2, qDeviceName);
             addDeviceStmt.setString(3, qUserLog);
             addDeviceStmt.setString(4, qActionTypeName);
-            addDeviceStmt.setString(5, qMqttServerName);
+            addDeviceStmt.setString(5, qMqttServerType);
             addDeviceStmt.registerOutParameter(6, Types.INTEGER);
             addDeviceStmt.registerOutParameter(7, Types.INTEGER);
             addDeviceStmt.registerOutParameter(8, Types.VARCHAR);
@@ -315,16 +348,16 @@ public class tAddDeviceWindow extends Window {
             iNewUserDeviceId = addDeviceStmt.getInt(9);
 
             Con.close();
-            return "";
+
 
         }catch(SQLException se){
             //Handle errors for JDBC
             se.printStackTrace();
-            return "Ошибка JDBC";
+            //return "Ошибка JDBC";
         }catch(Exception e) {
             //Handle errors for Class.forName
             e.printStackTrace();
-            return "Ошибка Class.forName";
+            //return "Ошибка Class.forName";
         }
 
     }

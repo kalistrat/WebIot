@@ -22,11 +22,13 @@ public class tDetectorFormLayout extends VerticalLayout {
     NativeSelect PeriodMeasureSelect;
     TextField DetectorAddDate;
     TextField InTopicNameField;
-    NativeSelect MqttServerSelect;
+    //NativeSelect MqttServerSelect;
+
     int iUserDeviceId;
 
     TextField DeviceLoginTextField;
     TextField DevicePassWordTextField;
+    TextField MqttServerTextField;
 
     public tDetectorFormLayout(int eUserDeviceId){
 
@@ -133,17 +135,20 @@ public class tDetectorFormLayout extends VerticalLayout {
         DetectorAddDate.setEnabled(false);
         InTopicNameField = new TextField("mqtt-топик для записи :");
         InTopicNameField.setEnabled(false);
-        MqttServerSelect = new NativeSelect("mqtt-сервер :");
-        MqttServerSelect.setNullSelectionAllowed(false);
-        MqttServerSelect.setEnabled(false);
+
+//        MqttServerSelect = new NativeSelect("mqtt-сервер :");
+//        MqttServerSelect.setNullSelectionAllowed(false);
+//        MqttServerSelect.setEnabled(false);
 
         DeviceLoginTextField = new TextField("Логин устройства :");
         DevicePassWordTextField = new TextField("Пароль устройства :");
+        MqttServerTextField = new TextField("mqtt-сервер :");
 
         DeviceLoginTextField.setEnabled(false);
         DevicePassWordTextField.setEnabled(false);
+        MqttServerTextField.setEnabled(false);
 
-        tUsefulFuctions.getMqttServerData(MqttServerSelect);
+        //tUsefulFuctions.getMqttServerData(MqttServerSelect);
 
 
         FormLayout dform = new FormLayout(
@@ -152,7 +157,8 @@ public class tDetectorFormLayout extends VerticalLayout {
                 ,PeriodMeasureSelect
                 ,DetectorAddDate
                 ,InTopicNameField
-                ,MqttServerSelect
+                //,MqttServerSelect
+                ,MqttServerTextField
                 ,DeviceLoginTextField
                 ,DevicePassWordTextField
         );

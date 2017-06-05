@@ -23,7 +23,8 @@ public class tActuatorDataFormLayout extends VerticalLayout {
     TextField DetectorAddDate;
     TextField InTopicNameField;
     TextField OutTopicNameField;
-    NativeSelect MqttServerSelect;
+    //NativeSelect MqttServerSelect;
+    TextField MqttServerTextField;
 
     TextField DeviceLoginTextField;
     TextField DevicePassWordTextField;
@@ -139,15 +140,18 @@ public class tActuatorDataFormLayout extends VerticalLayout {
         InTopicNameField.setEnabled(false);
         OutTopicNameField = new TextField("mqtt-топик для чтения :");
         OutTopicNameField.setEnabled(false);
-        MqttServerSelect = new NativeSelect("mqtt-сервер :");
-        MqttServerSelect.setNullSelectionAllowed(false);
-        MqttServerSelect.setEnabled(false);
-        tUsefulFuctions.getMqttServerData(MqttServerSelect);
+
+//        MqttServerSelect = new NativeSelect("mqtt-сервер :");
+//        MqttServerSelect.setNullSelectionAllowed(false);
+//        MqttServerSelect.setEnabled(false);
+//        tUsefulFuctions.getMqttServerData(MqttServerSelect);
 
         DeviceLoginTextField = new TextField("Логин устройства :");
         DevicePassWordTextField = new TextField("Пароль устройства :");
+        MqttServerTextField = new TextField("mqtt-сервер :");
         DeviceLoginTextField.setEnabled(false);
         DevicePassWordTextField.setEnabled(false);
+        MqttServerTextField.setEnabled(false);
 
         setActuatorParameters();
 
@@ -157,7 +161,8 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                 , DetectorAddDate
                 , InTopicNameField
                 , OutTopicNameField
-                , MqttServerSelect
+                //, MqttServerSelect
+                , MqttServerTextField
                 , DeviceLoginTextField
                 , DevicePassWordTextField
         );
@@ -221,7 +226,8 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                 }
                 InTopicNameField.setValue(DataRs.getString(3));
                 OutTopicNameField.setValue(DataRs.getString(4));
-                MqttServerSelect.select(DataRs.getString(5));
+                //MqttServerSelect.select(DataRs.getString(5));
+                MqttServerTextField.setValue("tcp://" + DataRs.getString(5));
                 DeviceLoginTextField.setValue(DataRs.getString(6));
                 DevicePassWordTextField.setValue(DataRs.getString(7));
 

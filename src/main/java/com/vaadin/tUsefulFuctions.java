@@ -269,7 +269,10 @@ public class tUsefulFuctions {
                 }
                 qUnitsForm.UnitTextField.setValue(DetectorDataRs.getString(4));
                 qParamsForm.InTopicNameField.setValue(DetectorDataRs.getString(5));
-                qParamsForm.MqttServerSelect.select(DetectorDataRs.getString(6));
+
+                //qParamsForm.MqttServerSelect.select(DetectorDataRs.getString(6));
+
+                qParamsForm.MqttServerTextField.setValue("tcp://" + DetectorDataRs.getString(6));
                 qUnitsForm.UnitSymbolSelect.select(DetectorDataRs.getString(8));
                 qUnitsForm.UnitFactorSelect.select(DetectorDataRs.getString(9));
                 qParamsForm.DeviceLoginTextField.setValue(DetectorDataRs.getString(10));
@@ -353,6 +356,29 @@ public class tUsefulFuctions {
         }
         catch(IOException e) {
             return "Ошибка подключения к серверу подписки";
+        }
+    }
+
+    public static boolean isSubscriberExists(){
+        try {
+
+            Socket s = new Socket("localhost", 3128);
+            s.getOutputStream().write("test".getBytes());
+            byte buf[] = new byte[256 * 1024];
+            int r = s.getInputStream().read(buf);
+            String outSubscriberMessage = new String(buf, 0, r);
+            s.close();
+//            System.out.println(outSubscriberMessage);
+
+            if (outSubscriberMessage != null) {
+                return true;
+            } else {
+                return false;
+            }
+
+        }
+        catch(IOException e) {
+            return false;
         }
     }
 
