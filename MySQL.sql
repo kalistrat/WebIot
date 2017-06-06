@@ -698,6 +698,8 @@ CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_user_device_insert`(`eDeviceN
 , `eUserLog` varchar(50)
 , `eActionTypeId` int
 , `eMqttServerType` varchar(30)
+, `eDeviceLog` VARCHAR(30)
+, `eDevicePass` VARCHAR(30)
 ) RETURNS int(11)
 begin
 declare i_server_id int;
@@ -718,6 +720,8 @@ user_id
 ,factor_id
 ,description
 ,user_device_measure_period
+,device_log
+,device_pass
 )
 values(
 eUserId
@@ -730,6 +734,8 @@ eUserId
 ,64
 ,eDeviceName
 ,'не задано'
+,eDeviceLog
+,eDevicePass
 );
 
 select LAST_INSERT_ID() into i_user_device_id;
@@ -776,7 +782,7 @@ CREATE TABLE IF NOT EXISTS `mqtt_servers` (
   PRIMARY KEY (`server_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.mqtt_servers: ~3 rows (приблизительно)
+-- Дамп данных таблицы things.mqtt_servers: ~6 rows (приблизительно)
 DELETE FROM `mqtt_servers`;
 /*!40000 ALTER TABLE `mqtt_servers` DISABLE KEYS */;
 INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`, `server_type`) VALUES
@@ -843,7 +849,7 @@ CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_add_user_device`(IN `eParent
 , OUT `oNewLeafId` int
 , OUT `oIconCode` varchar(100)
 , OUT `oUserDeviceId` int
-)
+, IN `eDeviceLog` VARCHAR(30), IN `eDevicePass` VARCHAR(30))
 begin
 declare i_action_type_id int;
 declare i_user_id int;
@@ -872,6 +878,8 @@ eDeviceName
 ,eUserLog
 ,i_action_type_id
 ,eMqttServerType
+,eDeviceLog
+,eDevicePass
 );
 
 insert into user_devices_tree(
@@ -1912,7 +1920,7 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   KEY `INDX_DEVICEID_STATENAME` (`user_device_id`,`actuator_state_name`) USING BTREE,
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_actuator_state: ~11 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
@@ -1944,7 +1952,7 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state_condition` (
   PRIMARY KEY (`actuator_state_condition_id`),
   KEY `FK_user_actuator_state_condition_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_actuator_state_condition_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_actuator_state_condition: ~4 rows (приблизительно)
 DELETE FROM `user_actuator_state_condition`;
@@ -1988,7 +1996,7 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device: ~10 rows (приблизительно)
+-- Дамп данных таблицы things.user_device: ~12 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`, `device_log`, `device_pass`) VALUES
@@ -2003,7 +2011,8 @@ INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `use
 	(22, 1, 'Датчик СО2', NULL, 'не задано', '2017-06-05 15:46:14', 1, 'Ед', 'k/22/W/', 'k/22/R/', 3, 96, 64, 'Датчик СО2', NULL, NULL),
 	(24, 1, 'Косяк на косяке', NULL, 'не задано', '2017-06-05 16:54:23', 2, 'Ед', 'k/24/W/', 'k/24/R/', 3, 96, 64, '', NULL, NULL),
 	(30, 1, 'Testovich', NULL, 'не задано', '2017-06-05 19:51:59', 1, 'Ед', 'k/30/W/', 'k/30/R/', 3, 96, 64, 'Testovich', NULL, NULL),
-	(31, 1, '345345', NULL, 'не задано', '2017-06-05 19:56:11', 1, 'Ед', 'k/31/W/', 'k/31/R/', 3, 96, 64, '345345', NULL, NULL);
+	(31, 1, '345345', NULL, 'не задано', '2017-06-05 19:56:11', 1, 'Ед', 'k/31/W/', 'k/31/R/', 3, 96, 64, '345345', NULL, NULL),
+	(32, 1, '1234', NULL, 'не задано', '2017-06-06 19:10:08', 2, 'Ед', 'k/32/W/', 'k/32/R/', 3, 96, 64, '1234', 'q123', 'q123');
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -2022,7 +2031,7 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~17 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~19 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
@@ -2044,7 +2053,8 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(151, 15, 9, 22, 'Датчик СО2', 1),
 	(153, 16, 9, 24, 'Косяк на косяке', 1),
 	(159, 17, 9, 30, 'Testovich', 1),
-	(160, 18, 9, 31, '345345', 1);
+	(160, 18, 9, 31, '345345', 1),
+	(161, 19, 11, 32, '1234', 1);
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 
@@ -2186,7 +2196,7 @@ CREATE TABLE IF NOT EXISTS `user_state_condition_vars` (
   KEY `FK_user_state_condition_vars_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_state_condition_vars: ~7 rows (приблизительно)
 DELETE FROM `user_state_condition_vars`;

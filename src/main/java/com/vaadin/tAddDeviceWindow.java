@@ -28,6 +28,10 @@ public class tAddDeviceWindow extends Window {
     NativeSelect DeviceActionType;
     String LastActionTypeValue;
     NativeSelect MqttSelect;
+
+    TextField DeviceLogTextField;
+    TextField DevicePassTextField;
+
     //String LastMqttServerValue;
 
     public tAddDeviceWindow(int eLeafId
@@ -58,6 +62,11 @@ public class tAddDeviceWindow extends Window {
         MqttSelect.select("общий незащищённый");
         MqttSelect.addStyleName("SelectFont");
 
+        DeviceLogTextField = new TextField("Логин устройства :");
+        DeviceLogTextField.setValue("");
+        DevicePassTextField = new TextField("Пароль устройства :");
+        DevicePassTextField.setValue("");
+
         SaveButton = new Button("Сохранить");
 
         SaveButton.setData(this);
@@ -69,6 +78,9 @@ public class tAddDeviceWindow extends Window {
 
                 String sErrorMessage = "";
                 String sFieldValue = EditTextField.getValue();
+                String sLogValue = DeviceLogTextField.getValue();
+                String sPassValue = DevicePassTextField.getValue();
+
 
                 if (sFieldValue == null){
                     sErrorMessage = "Наименование устройства не задано\n";
@@ -76,6 +88,30 @@ public class tAddDeviceWindow extends Window {
 
                 if (sFieldValue.equals("")){
                     sErrorMessage = sErrorMessage + "Наименование устройства не задано\n";
+                }
+
+                if (sLogValue.equals("")){
+                    sErrorMessage = sErrorMessage + "Логин устройства не задан\n";
+                }
+
+                if (sPassValue.equals("")){
+                    sErrorMessage = sErrorMessage + "Пароль устройства не задан\n";
+                }
+
+                if (sLogValue.length() > 30){
+                    sErrorMessage = sErrorMessage + "Длина логина превышает допустимую (30 символов)\n";
+                }
+
+                if (sPassValue.length() > 30){
+                    sErrorMessage = sErrorMessage + "Длина пароля превышает допустимую (30 символов)\n";
+                }
+
+                if (!tUsefulFuctions.IsLatinAndDigits(sLogValue)){
+                    sErrorMessage = sErrorMessage + "Указанный логин недопустим. Он должен состоять из букв латиницы и цифр\n";
+                }
+
+                if (!tUsefulFuctions.IsLatinAndDigits(sPassValue)){
+                    sErrorMessage = sErrorMessage + "Указанный пароль недопустим. Он должен состоять из букв латиницы и цифр\n";
                 }
 
                 if (sFieldValue.length() > 30){
@@ -105,6 +141,8 @@ public class tAddDeviceWindow extends Window {
                                 , iTreeContentLayout.iUserLog//String qUserLog
                                 , (String) DeviceActionType.getValue() //String qActionTypeName
                                 , (String) MqttSelect.getValue() //String qMqttServerName
+                                , sLogValue
+                                , sPassValue
                         );
 
                         String addSubsribeRes = tUsefulFuctions.updateDeviceMqttLogger(
@@ -179,6 +217,8 @@ public class tAddDeviceWindow extends Window {
                 EditTextField
                 ,DeviceActionType
                 ,MqttSelect
+                ,DeviceLogTextField
+                ,DevicePassTextField
         );
         IniDevParamLayout.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
         IniDevParamLayout.setSizeUndefined();
@@ -319,6 +359,8 @@ public class tAddDeviceWindow extends Window {
         , String qUserLog
         , String qActionTypeName
         , String qMqttServerType
+        , String qDeviceLog
+        , String qDevicePass
     ){
         try {
 
@@ -329,7 +371,7 @@ public class tAddDeviceWindow extends Window {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement addDeviceStmt = Con.prepareCall("{call p_add_user_device(?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+            CallableStatement addDeviceStmt = Con.prepareCall("{call p_add_user_device(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
             addDeviceStmt.setInt(1, qParentLeafId);
             addDeviceStmt.setString(2, qDeviceName);
             addDeviceStmt.setString(3, qUserLog);
@@ -339,6 +381,8 @@ public class tAddDeviceWindow extends Window {
             addDeviceStmt.registerOutParameter(7, Types.INTEGER);
             addDeviceStmt.registerOutParameter(8, Types.VARCHAR);
             addDeviceStmt.registerOutParameter(9, Types.INTEGER);
+            addDeviceStmt.setString(10, qDeviceLog);
+            addDeviceStmt.setString(11, qDevicePass);
 
             addDeviceStmt.execute();
 
