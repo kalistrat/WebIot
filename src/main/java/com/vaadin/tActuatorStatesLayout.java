@@ -460,7 +460,7 @@ implements addDeleteListenable {
             Notification.show("Ошибка подключения:",
                     "Не удается подключиться к серверу " + mqttServerHost,
                     Notification.Type.TRAY_NOTIFICATION);
-            me.printStackTrace();
+            //me.printStackTrace();
         }
     }
 

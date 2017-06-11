@@ -81,7 +81,7 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
                  ContentLayout.setComponentAlignment(GraphDrawNew,Alignment.MIDDLE_CENTER);
                  GraphDraw = GraphDrawNew;
 
-                 if (XYList.size() == 0){
+                 if (XYList.size() < 2){
                          Notification.show("За выбранный период данные отсутствуют",
                          Notification.Type.TRAY_NOTIFICATION);
                  }
@@ -189,9 +189,9 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
         String SqlContent = "";
 
         if (iAxeName.equals("x")){
-            SqlContent = "{call p_make_date_marks(?,?,?,?,?)}";
+            SqlContent = "{call p_make_date_marks1(?,?,?,?,?)}";
         } else {
-            SqlContent = "{call p_make_double_marks(?,?,?,?,?)}";
+            SqlContent = "{call p_make_double_marks1(?,?,?,?,?)}";
         }
 
         try {
@@ -241,26 +241,21 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
                     , tUsefulFuctions.PASS
             );
 
-            String GraphSql = "select TIMESTAMPDIFF(second,f_get_graph_min_date_mark(?,?),udm.measure_date) x\n" +
+            String GraphSql = "select distinct TIMESTAMPDIFF(second,f_get_min_period_date1(?),udm.measure_date) x\n" +
                     ",round(udm.measure_value) y\n" +
                     "from user_device_measures udm\n" +
                     "where udm.measure_date <= (\n" +
-                    "select max(uu.measure_date)\n" +
-                    "from user_device_measures uu\n" +
-                    "where uu.user_device_id=?\n" +
+                    "select now()\n" +
                     ")\n" +
-                    "and udm.measure_date >= f_get_graph_min_date(?,?)\n" +
+                    "and udm.measure_date >= f_get_min_period_date1(?)\n" +
                     "and udm.user_device_id=?\n" +
                     "order by udm.measure_date";
 
             PreparedStatement GraphSqlStmt = Con.prepareStatement(GraphSql);
 
-            GraphSqlStmt.setInt(1, iUserDeviceId);
+            GraphSqlStmt.setString(1, iPeriodCode);
             GraphSqlStmt.setString(2, iPeriodCode);
             GraphSqlStmt.setInt(3, iUserDeviceId);
-            GraphSqlStmt.setInt(4, iUserDeviceId);
-            GraphSqlStmt.setString(5, iPeriodCode);
-            GraphSqlStmt.setInt(6, iUserDeviceId);
 
             ResultSet GraphSqlRs = GraphSqlStmt.executeQuery();
 
