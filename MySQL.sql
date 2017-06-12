@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
 -- Версия сервера:               5.5.23 - MySQL Community Server (GPL)
--- ОС Сервера:                   Win32
--- HeidiSQL Версия:              9.3.0.4984
+-- ОС Сервера:                   Win64
+-- HeidiSQL Версия:              9.1.0.4867
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -455,6 +455,45 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для функция things.f_get_min_period_date1
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_min_period_date1`(
+ePeriodCode varchar(50)
+) RETURNS datetime
+begin
+
+declare i_min_date datetime;
+
+if (ePeriodCode = 'год') then
+	select now()-interval 1 year into i_min_date;
+end if;
+
+if (ePeriodCode = 'месяц') then
+	select now()-interval 1 month into i_min_date;
+end if;
+
+if (ePeriodCode = 'неделя') then
+	select now()-interval 1 week into i_min_date;
+end if;
+
+if (ePeriodCode = 'день') then
+	select now()-interval 1 day into i_min_date;
+end if;
+
+if (ePeriodCode = 'час') then
+	select now()-interval 1 hour into i_min_date;
+end if;
+
+if (ePeriodCode = 'минута') then
+	select now()-interval 1 minute into i_min_date;
+end if;
+
+return i_min_date;
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для функция things.f_get_next_condition_num
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_next_condition_num`(
@@ -613,6 +652,25 @@ select LAST_INSERT_ID() into i_state_condition_id;
 
 return i_state_condition_id;
 
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для функция things.f_is_exists_period_measures
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_is_exists_period_measures`(`ePeriodCode` varchar(50)
+, `eUserDeviceId` INT) RETURNS int(11)
+begin
+return (
+select case when count(*)>0 then 1 else 0 end
+from user_device_measures udm
+where udm.measure_date <= (
+select now()
+)
+and udm.measure_date >= (f_get_min_period_date1(ePeriodCode))
+and udm.user_device_id=eUserDeviceId
+order by udm.measure_date
+);
 end//
 DELIMITER ;
 
@@ -1476,14 +1534,84 @@ else
 		select now()
 		,now()-interval 1 minute into i_max_date,i_min_date;
 	end if;
-	
-	if (ePeriodCode = 'минута') then
-		select now()
-		,now()-interval 1 minute into i_max_date,i_min_date;
-	end if;
 
 end if;
 
+
+call p_get_int_bounds_for_date(i_min_date,i_max_date
+,eCountMarks,ePeriodCode
+,i_min_mark_int,i_max_mark_int
+,i_min_mark_date,i_max_mark_date,i_interval_int);
+
+
+set i_date_mark = i_min_mark_date;
+set ix = i_min_mark_int;
+set i_mark_list = concat(i_min_mark_date,'#',ix);
+
+while (k < eCountMarks)  do
+	set i_date_mark = i_date_mark + interval i_interval_int second;
+	set ix = ix + i_interval_int;
+	set i_mark_list = concat(i_mark_list,'/',concat(i_date_mark,'#',ix));
+	set k = k + 1;
+end while;
+
+set i_mark_list = concat(i_mark_list,'/');
+set i_delta = i_interval_int;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_make_date_marks1
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_make_date_marks1`(IN eUserDeviceId int
+, IN ePeriodCode varchar(50)
+, IN eCountMarks int
+, OUT i_mark_list varchar(1000)
+, OUT i_delta INT)
+begin
+
+declare i_min_date datetime;
+declare i_max_date datetime;
+declare i_min_mark_int int;
+declare i_max_mark_int int;
+declare i_min_mark_date datetime;
+declare i_max_mark_date datetime;
+declare i_interval_int int;
+declare i_date_mark datetime;
+declare k int default 0;
+declare ix int;
+
+
+if (ePeriodCode = 'год') then
+	select now()
+	,now()-interval 1 year into i_max_date,i_min_date;
+end if;
+
+if (ePeriodCode = 'месяц') then
+	select now()
+	,now()-interval 1 month into i_max_date,i_min_date;
+end if;
+
+if (ePeriodCode = 'неделя') then
+	select now()
+	,now()-interval 1 week into i_max_date,i_min_date;
+end if;
+
+if (ePeriodCode = 'день') then
+	select now()
+	,now()-interval 1 day into i_max_date,i_min_date;
+end if;
+
+if (ePeriodCode = 'час') then
+	select now()
+	,now()-interval 1 hour into i_max_date,i_min_date;
+end if;
+
+if (ePeriodCode = 'минута') then
+	select now()
+	,now()-interval 1 minute into i_max_date,i_min_date;
+end if;
 
 call p_get_int_bounds_for_date(i_min_date,i_max_date
 ,eCountMarks,ePeriodCode
@@ -1557,6 +1685,89 @@ else
 
 set i_min_double = 0;
 set i_max_double = 10;
+
+end if;
+
+
+set i_min_int = floor(i_min_double)-1;
+set i_max_int = ceil(i_max_double)+1;
+
+call p_get_int_bounds_for_double(i_min_int
+,i_max_int
+,eCountMarks
+,1
+,eMinValIntMark
+,eMaxValIntMark
+,eDelta);
+
+
+set i_int_mark = eMinValIntMark;
+set ix = 0;
+set i_mark_list = concat(eMinValIntMark,'#',ix);
+
+while (k < eCountMarks)  do
+	set i_int_mark = i_int_mark + eDelta;
+	set ix = ix + eDelta;
+	set i_mark_list = concat(i_mark_list,'/',concat(i_int_mark,'#',ix));
+	set k = k + 1;
+end while;
+
+set eMarkList = concat(i_mark_list,'/');
+set iDelta = eDelta;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_make_double_marks1
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_make_double_marks1`(IN `eUserDeviceId` int
+, IN `ePeriodCode` varchar(50)
+, IN `eCountMarks` int
+, OUT `eMarkList` varchar(1000)
+, OUT `iDelta` INT
+)
+begin
+
+declare i_min_date datetime;
+declare i_max_date datetime;
+declare i_min_double double(10,2);
+declare i_max_double double(10,2);
+declare i_min_int int;
+declare i_max_int int;
+declare eMinValIntMark int;
+declare eMaxValIntMark int;
+declare eDelta int;
+declare i_int_mark int;
+declare ix int;
+declare i_mark_list varchar(1000);
+declare k int default 0;
+
+if (f_is_exists_period_measures(ePeriodCode,eUserDeviceId)!=0) then
+
+	select now() into i_max_date;
+   set i_min_date = f_get_min_period_date1(ePeriodCode);
+	
+	select min(uu.measure_value) into i_min_double
+	from user_device_measures uu
+	where uu.user_device_id=eUserDeviceId
+	and uu.measure_date>=i_min_date
+	and uu.measure_date<=i_max_date;
+	
+	select max(uu.measure_value) into i_max_double
+	from user_device_measures uu
+	where uu.user_device_id=eUserDeviceId
+	and uu.measure_date>=i_min_date
+	and uu.measure_date<=i_max_date;
+	
+	#select ePeriodCode;
+
+else 
+
+set i_min_double = 0;
+set i_max_double = 10;
+ 
+ #select ePeriodCode;
 
 end if;
 
@@ -2000,7 +2211,7 @@ CREATE TABLE IF NOT EXISTS `user_device` (
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`, `device_log`, `device_pass`) VALUES
-	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'ежеминутно', '2017-03-03 18:43:27', 1, '°С', 'k/1/W/', 'k/2/R/', 3, 96, 64, 'UniPing RS-485 xxxxx', '56', '56'),
+	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'ежеминутно', '2017-03-03 18:43:27', 1, '°С', 'k/1/W/', 'k/1/R/', 3, 96, 64, 'UniPing RS-485 xxxxx', '56', '56'),
 	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежесекундно', '2017-02-28 18:32:52', 1, '°С x 10e2', 'k/2/W/', 'k/2/R/', 3, 95, 66, 'Это описание устройства HWg-STE. Максимальная длина 200 символов', '56rty', '56try'),
 	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, 'k/3/W/', 'k/3/R/', 3, NULL, NULL, 'Logitech HD Webcam C270 максимальная длина 200 символов', '123567', '123567j'),
 	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, 'k/4/W/', 'k/4/R/', 3, NULL, NULL, 'Microsoft LifeCam HD-3000', 'jyjey', 'yje'),
@@ -2068,9 +2279,9 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   PRIMARY KEY (`user_device_measure_id`),
   KEY `FK_user_device_measures_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_measures: ~108 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_measures: ~204 rows (приблизительно)
 DELETE FROM `user_device_measures`;
 /*!40000 ALTER TABLE `user_device_measures` DISABLE KEYS */;
 INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`, `measure_mess`) VALUES
@@ -2181,7 +2392,103 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 	(105, 1, 11.00, '2017-05-20 19:05:13', '11'),
 	(106, 2, 22.00, '2017-05-20 19:05:13', '22'),
 	(107, 1, 11.00, '2017-05-20 19:05:14', '11'),
-	(108, 2, 22.00, '2017-05-20 19:05:14', '22');
+	(108, 2, 22.00, '2017-05-20 19:05:14', '22'),
+	(109, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(110, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(111, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(112, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(113, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(114, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(115, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(116, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(117, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(118, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(119, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(120, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(121, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(122, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(123, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(124, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(125, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(126, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(127, 1, 11.00, '2017-06-07 23:22:38', '11'),
+	(128, 2, 22.00, '2017-06-07 23:22:38', '22'),
+	(129, 1, 11.00, '2017-06-07 23:25:46', '11'),
+	(130, 2, 22.00, '2017-06-07 23:25:46', '22'),
+	(131, 1, 11.00, '2017-06-07 23:25:46', '11'),
+	(132, 2, 22.00, '2017-06-07 23:25:46', '22'),
+	(133, 1, 11.00, '2017-06-07 23:25:46', '11'),
+	(134, 2, 22.00, '2017-06-07 23:25:47', '22'),
+	(135, 1, 11.00, '2017-06-07 23:25:47', '11'),
+	(136, 2, 22.00, '2017-06-07 23:25:47', '22'),
+	(137, 1, 11.00, '2017-06-07 23:25:47', '11'),
+	(138, 2, 22.00, '2017-06-07 23:25:47', '22'),
+	(139, 1, 11.00, '2017-06-07 23:25:47', '11'),
+	(140, 2, 22.00, '2017-06-07 23:25:47', '22'),
+	(141, 1, 11.00, '2017-06-07 23:25:47', '11'),
+	(142, 2, 22.00, '2017-06-07 23:25:47', '22'),
+	(143, 1, 11.00, '2017-06-07 23:25:47', '11'),
+	(144, 2, 22.00, '2017-06-07 23:25:47', '22'),
+	(145, 1, 11.00, '2017-06-07 23:25:47', '11'),
+	(146, 2, 22.00, '2017-06-07 23:25:47', '22'),
+	(147, 1, 11.00, '2017-06-07 23:25:47', '11'),
+	(148, 2, 22.00, '2017-06-07 23:25:47', '22'),
+	(149, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(150, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(151, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(152, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(153, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(154, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(155, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(156, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(157, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(158, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(159, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(160, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(161, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(162, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(163, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(164, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(165, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(166, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(167, 1, 11.00, '2017-06-07 23:33:35', '11'),
+	(168, 2, 22.00, '2017-06-07 23:33:35', '22'),
+	(169, 1, 11.00, '2017-06-07 23:37:31', '11'),
+	(170, 2, 22.00, '2017-06-07 23:37:31', '22'),
+	(171, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(172, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(173, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(174, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(175, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(176, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(177, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(178, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(179, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(180, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(181, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(182, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(183, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(184, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(185, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(186, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(187, 1, 11.00, '2017-06-07 23:37:32', '11'),
+	(188, 2, 22.00, '2017-06-07 23:37:32', '22'),
+	(189, 1, 11.00, '2017-06-07 23:39:13', '11'),
+	(190, 2, 22.00, '2017-06-07 23:39:13', '22'),
+	(191, 2, 22.00, '2017-06-07 23:43:04', '22'),
+	(192, 1, 11.00, '2017-06-07 23:43:04', '11'),
+	(193, 1, 11.00, '2017-06-07 23:45:11', '11'),
+	(194, 2, 22.00, '2017-06-07 23:45:11', '22'),
+	(195, 1, 11.00, '2017-06-08 00:22:16', '11'),
+	(196, 2, 22.00, '2017-06-08 00:22:16', '22'),
+	(197, 2, 22.00, '2017-06-09 00:25:32', '22'),
+	(198, 1, 11.00, '2017-06-09 00:25:32', '11'),
+	(199, 1, 11.00, '2017-06-09 00:31:20', '11'),
+	(200, 2, 22.00, '2017-06-09 00:31:20', '22'),
+	(201, 1, 0.00, '2017-06-11 20:42:44', '0'),
+	(202, 2, 4.00, '2017-06-11 20:43:11', '4'),
+	(203, 1, 4.00, '2017-06-11 20:43:45', '4'),
+	(204, 1, 2.00, '2017-06-11 20:45:59', '2');
 /*!40000 ALTER TABLE `user_device_measures` ENABLE KEYS */;
 
 
