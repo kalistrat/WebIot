@@ -241,7 +241,7 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
                     , tUsefulFuctions.PASS
             );
 
-            String GraphSql = "select distinct TIMESTAMPDIFF(second,f_get_min_period_date1(?),udm.measure_date) x\n" +
+            String GraphSql = "select TIMESTAMPDIFF(second,f_get_min_period_date1(?),udm.measure_date) x\n" +
                     ",round(udm.measure_value) y\n" +
                     "from user_device_measures udm\n" +
                     "where udm.measure_date <= (\n" +
