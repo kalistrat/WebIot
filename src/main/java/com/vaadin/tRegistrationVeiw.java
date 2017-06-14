@@ -56,7 +56,7 @@ public class tRegistrationVeiw extends CustomComponent implements View {
         ContentPanel.setMaxSplitPosition(70, Unit.PIXELS);
         ContentPanel.setMinSplitPosition(70,Unit.PIXELS);
 
-        ContentPanel.setHeight("500px");
+        ContentPanel.setHeight("800px");
 
         VerticalLayout tRegistrationVeiwContent = new VerticalLayout(
                 ContentPanel

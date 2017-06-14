@@ -1,10 +1,17 @@
 package com.vaadin;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.util.converter.Converter;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.calendar.CalendarClientRpc;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by kalistrat on 24.05.2017.
@@ -12,13 +19,30 @@ import com.vaadin.ui.themes.ValoTheme;
 public class tRegistrationFormLayout extends VerticalLayout {
 
     TextField LoginField;
-    TextField NameTextField;
+    //TextField NameTextField;
     PasswordField PassWordField;
     PasswordField ConfirmPassWordField;
     TextField PhoneTextField;
     TextField MailTextField;
+    TextField PostCodeField;
     Button SendMailButton;
     Button ClearFormButton;
+    NativeSelect SubjectTypeSelect;
+
+    //For physical persons
+    TextField FirstNameTextField;
+    TextField SecondNameTextField;
+    TextField MiddleNameTextField;
+    DateField BirthDateField;
+
+    //For juridical persons
+    TextField SubjectNameTextField;
+    TextField SubjectAddressTextField;
+    TextField SubjectInnTextField;
+    TextField SubjectKppField;
+
+    FormLayout PersonalForm;
+
 
     public tRegistrationFormLayout() {
 
@@ -44,7 +68,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 LoginField.setValue(null);
-                NameTextField.setValue(null);
+                //NameTextField.setValue(null);
                 PassWordField.setValue("");
                 ConfirmPassWordField.setValue("");
                 PhoneTextField.setValue(null);
@@ -59,6 +83,89 @@ public class tRegistrationFormLayout extends VerticalLayout {
         FormHeaderButtons.setSpacing(true);
         FormHeaderButtons.setSizeUndefined();
 
+        SubjectTypeSelect = new NativeSelect("Тип субъекта :");
+        SubjectTypeSelect.addItem("физическое лицо");
+        SubjectTypeSelect.addItem("юридическое лицо");
+        SubjectTypeSelect.setNullSelectionAllowed(false);
+        SubjectTypeSelect.select("физическое лицо");
+
+        SubjectTypeSelect.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                String SelectedValue = (String) valueChangeEvent.getProperty().getValue();
+                //System.out.println("SubjectTypeSelect SelectedValue : " + SelectedValue);
+
+                if (SelectedValue.equals("юридическое лицо")) {
+
+                    PersonalForm.removeComponent(FirstNameTextField);
+                    PersonalForm.removeComponent(SecondNameTextField);
+                    PersonalForm.removeComponent(MiddleNameTextField);
+                    PersonalForm.removeComponent(BirthDateField);
+
+                    SubjectNameTextField = new TextField("Наименование организации :");
+                    SubjectNameTextField.setNullRepresentation("");
+                    SubjectNameTextField.setInputPrompt("От 5 до 150 символов (ООО Контакт)");
+
+                    SubjectAddressTextField = new TextField("Адрес организации :");
+                    SubjectAddressTextField.setNullRepresentation("");
+                    SubjectAddressTextField.setInputPrompt("От 5 до 150 символов (г. Москва ул. Косыгина д.19)");
+
+                    SubjectInnTextField = new TextField("Инн организации :");
+                    SubjectInnTextField.setNullRepresentation("");
+                    SubjectInnTextField.setInputPrompt("Строго 10 цифр (7714698320)");
+
+                    SubjectKppField = new TextField("Кпп организации :");
+                    SubjectKppField.setNullRepresentation("");
+                    SubjectKppField.setInputPrompt("Строго 9 цифр (773301001)");
+
+                    PersonalForm.addComponent(SubjectNameTextField);
+                    PersonalForm.addComponent(SubjectAddressTextField);
+                    PersonalForm.addComponent(SubjectInnTextField);
+                    PersonalForm.addComponent(SubjectKppField);
+
+                } else {
+
+                    PersonalForm.removeComponent(SubjectNameTextField);
+                    PersonalForm.removeComponent(SubjectAddressTextField);
+                    PersonalForm.removeComponent(SubjectInnTextField);
+                    PersonalForm.removeComponent(SubjectKppField);
+
+                    PersonalForm.removeComponent(FirstNameTextField);
+                    PersonalForm.removeComponent(SecondNameTextField);
+                    PersonalForm.removeComponent(MiddleNameTextField);
+                    PersonalForm.removeComponent(BirthDateField);
+
+                    FirstNameTextField = new TextField("Имя :");
+                    FirstNameTextField.setNullRepresentation("");
+                    FirstNameTextField.setInputPrompt("Виктор");
+
+                    SecondNameTextField = new TextField("Фамилия :");
+                    SecondNameTextField.setNullRepresentation("");
+                    SecondNameTextField.setInputPrompt("Глушков");
+
+                    MiddleNameTextField = new TextField("Отчество :");
+                    MiddleNameTextField.setNullRepresentation("");
+                    MiddleNameTextField.setInputPrompt("Михайлович");
+
+                    BirthDateField = new DateField("Дата рождения: "){
+                        @Override
+                        protected Date handleUnparsableDateString(String dateString)
+                                throws Converter.ConversionException {
+                            throw new Converter.ConversionException("Формат даты неверен. Используйте dd.MM.yyyy");
+                        }
+                    };
+                    BirthDateField.setResolution(Resolution.DAY);
+                    BirthDateField.setDateFormat("dd.MM.yyyy");
+                    BirthDateField.setImmediate(true);
+
+                    PersonalForm.addComponent(FirstNameTextField);
+                    PersonalForm.addComponent(SecondNameTextField);
+                    PersonalForm.addComponent(MiddleNameTextField);
+                    PersonalForm.addComponent(BirthDateField);
+
+                }
+            }
+        });
 
         HorizontalLayout FormHeaderLayout = new HorizontalLayout(
                 Header
@@ -75,10 +182,10 @@ public class tRegistrationFormLayout extends VerticalLayout {
         LoginField.setNullRepresentation("");
         LoginField.setInputPrompt("Мнемоническое имя, содержащее латиницу и цифры от 7 до 50 символов (GlushkovVM1923)");
 
-        NameTextField = new TextField("Имя пользователя:");
-        NameTextField.setIcon(VaadinIcons.CLIPBOARD_USER);
-        NameTextField.setNullRepresentation("");
-        NameTextField.setInputPrompt("ФИО от 5 до 150 символов (Глушков Виктор Михайлович)");
+        //NameTextField = new TextField("Имя пользователя:");
+        //NameTextField.setIcon(VaadinIcons.CLIPBOARD_USER);
+        //NameTextField.setNullRepresentation("");
+        //NameTextField.setInputPrompt("ФИО от 5 до 150 символов (Глушков Виктор Михайлович)");
 
         PassWordField = new PasswordField("Пароль :");
         PassWordField.setIcon(VaadinIcons.KEY);
@@ -95,28 +202,68 @@ public class tRegistrationFormLayout extends VerticalLayout {
         MailTextField.setNullRepresentation("");
         MailTextField.setInputPrompt("Имя почтового ящика с доменом до 150 символов (GlushkovVM@ussras.ru)");
 
-        FormLayout Form = new FormLayout(
+        PostCodeField = new TextField("Почтовый индекс :");
+        //PostCodeField.setIcon(VaadinIcons.ENVELOPE);
+        PostCodeField.setNullRepresentation("");
+        PostCodeField.setInputPrompt("6 цифр (119334)");
+
+//        TextField FirstNameTextField;
+//        TextField SecondNameTextField;
+//        TextField MiddleNameTextField;
+//        DateField BirthDateField;
+
+        FirstNameTextField = new TextField("Имя :");
+        FirstNameTextField.setNullRepresentation("");
+        FirstNameTextField.setInputPrompt("Виктор");
+
+        SecondNameTextField = new TextField("Фамилия :");
+        SecondNameTextField.setNullRepresentation("");
+        SecondNameTextField.setInputPrompt("Глушков");
+
+        MiddleNameTextField = new TextField("Отчество :");
+        MiddleNameTextField.setNullRepresentation("");
+        MiddleNameTextField.setInputPrompt("Михайлович");
+
+        BirthDateField = new DateField("Дата рождения: "){
+            @Override
+            protected Date handleUnparsableDateString(String dateString)
+                    throws Converter.ConversionException {
+                throw new Converter.ConversionException("Формат даты неверен. Используйте dd.MM.yyyy");
+            }
+        };
+        BirthDateField.setResolution(Resolution.DAY);
+        BirthDateField.setImmediate(true);
+        BirthDateField.setDateFormat("dd.MM.yyyy");
+
+
+        PersonalForm = new FormLayout(
                 LoginField
-                , NameTextField
                 , PassWordField
                 , ConfirmPassWordField
                 , PhoneTextField
                 , MailTextField
+                , PostCodeField
+                , SubjectTypeSelect
+                , FirstNameTextField
+                , SecondNameTextField
+                , MiddleNameTextField
+                , BirthDateField
         );
 
-        Form.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
-        Form.addStyleName("FormFont");
-        Form.setMargin(false);
-        Form.setWidth("100%");
-        Form.setHeightUndefined();
+        PersonalForm.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
+        PersonalForm.addStyleName("FormFont");
+        PersonalForm.setMargin(false);
+        PersonalForm.setWidth("100%");
+        PersonalForm.setHeightUndefined();
 
         VerticalLayout FormLayout = new VerticalLayout(
-                Form
+                PersonalForm
+                ,new tCaptchaLayout()
         );
         FormLayout.addStyleName(ValoTheme.LAYOUT_CARD);
         FormLayout.setWidth("900px");
         FormLayout.setHeightUndefined();
-        FormLayout.setComponentAlignment(Form,Alignment.MIDDLE_CENTER);
+        FormLayout.setComponentAlignment(PersonalForm,Alignment.MIDDLE_CENTER);
 
 
         VerticalLayout ContentLayout = new VerticalLayout(
