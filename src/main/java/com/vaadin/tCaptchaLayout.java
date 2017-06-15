@@ -1,6 +1,10 @@
 package com.vaadin;
 
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 import org.vaadin.hezamu.canvas.Canvas;
 
 import java.util.Random;
@@ -11,6 +15,8 @@ import java.util.Random;
 public class tCaptchaLayout extends VerticalLayout {
 
     Canvas canvas;
+    TextField ResultTextField;
+    int captchaRes;
 
     public tCaptchaLayout(){
 
@@ -34,46 +40,45 @@ public class tCaptchaLayout extends VerticalLayout {
         canvas.stroke();
         canvas.closePath();
 
-        int ca = genRandInt(1,99);
-        int cb = genRandInt(1,99);
-        String csign = genSign();
+        int ca = tUsefulFuctions.genRandInt(1,99);
+        int cb = tUsefulFuctions.genRandInt(1,99);
+        String csign = tUsefulFuctions.genSign();
+        String genExpr = String.valueOf(ca) + "  " + csign + "  " + String.valueOf(cb);
+
+
+        if (csign.equals("+")) {
+            captchaRes = ca + cb;
+        }
+        else if (csign.equals("-")) {
+            captchaRes = ca - cb;
+        }
+        else if (csign.equals("*")) {
+            captchaRes = ca * cb;
+        }
+        else {
+            captchaRes = ca + cb;
+        }
+        //System.out.println("captchaRes : " + String.valueOf(captchaRes));
 
         canvas.setFont("italic bold 25px sans-serif");
         canvas.setFillStyle("red");
-        canvas.fillText(String.valueOf(ca),15,Math.round(0.5*capHeight) + 10,100);
-        canvas.fillText(csign,45,Math.round(0.5*capHeight) + 10,100);
-        canvas.fillText(String.valueOf(cb),60,Math.round(0.5*capHeight) + 10,100);
+        canvas.fillText(genExpr,15,Math.round(0.5*capHeight) + 10,100);
 
-
-
-        this.addComponent(canvas);
+        ResultTextField = new TextField();
+        ResultTextField.setNullRepresentation("");
+        ResultTextField.setInputPrompt("Введите результат арифметического выражения, расположенного слева от поля");
+        ResultTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        ResultTextField.addStyleName("TopLabel");
+        ResultTextField.setWidth("570px");
+        HorizontalLayout ContentLayout = new HorizontalLayout(
+                canvas
+                ,ResultTextField
+        );
+        ContentLayout.setSpacing(true);
+        ContentLayout.setSizeUndefined();
+        this.addComponent(ContentLayout);
         this.setSizeUndefined();
 
     }
 
-    public int genRandInt(int mii,int mai){
-        Random rnd = new Random(System.currentTimeMillis());
-        int number = mii + rnd.nextInt(mai - mii + 1);
-        rnd = null;
-        System.gc();
-
-        return  number;
-    }
-
-    public String genSign() {
-        Random rnds = new Random(System.currentTimeMillis());
-        int SignNum = 1 + rnds.nextInt(3);
-        rnds = null;
-        System.gc();
-        System.out.println("SignNum : " + SignNum);
-
-        switch (SignNum) {
-            case 1 : return "+";
-            case 2 : return "-";
-            case 3 : return "*";
-            //case 4 : return ":";
-            default: return  "+";
-        }
-
-    }
 }

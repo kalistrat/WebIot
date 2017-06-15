@@ -3,6 +3,8 @@ package com.vaadin;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.StreamResource;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.calendar.CalendarClientRpc;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -12,6 +14,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 /**
  * Created by kalistrat on 24.05.2017.
@@ -59,6 +62,73 @@ public class tRegistrationFormLayout extends VerticalLayout {
         SendMailButton.addStyleName(ValoTheme.BUTTON_SMALL);
         SendMailButton.setIcon(VaadinIcons.PAPERPLANE);
 
+        SendMailButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+
+                String sErrorMessage = "";
+
+                String sLog = LoginField.getValue();
+
+                String sPswd = PassWordField.getValue();
+                String scPswd = ConfirmPassWordField.getValue();
+                String sPhone = PhoneTextField.getValue();
+                String sMail = MailTextField.getValue();
+                String sPost = PostCodeField.getValue();
+                String sSubjType = (String) SubjectTypeSelect.getValue();
+
+                //For physical persons
+                String sFirName = FirstNameTextField.getValue();
+                String sSecName = SecondNameTextField.getValue();
+                String sMidName = MiddleNameTextField.getValue();
+                Date dBirthdate = BirthDateField.getValue();
+
+                //For juridical persons
+                String sSubjName = SubjectNameTextField.getValue();
+                String sSubjAddr = SubjectAddressTextField.getValue();
+                String sSubjInn = SubjectInnTextField.getValue();
+                String sSubjKpp = SubjectKppField.getValue();
+
+                if (sLog == null){
+                    sErrorMessage = "Логин не задан\n";
+                }
+
+                if (sLog.equals("")){
+                    sErrorMessage = sErrorMessage + "Логин не задан\n";
+                }
+
+                if (sLog.length() > 50){
+                    sErrorMessage = sErrorMessage + "Длина логина превышает 50 символов\n";
+                }
+
+                if (sPswd == null){
+                    sErrorMessage = "Пароль не задан\n";
+                }
+
+                if (sPswd.equals("")){
+                    sErrorMessage = sErrorMessage + "Пароль не задан\n";
+                }
+
+                if (sPswd.length() > 150){
+                    sErrorMessage = sErrorMessage + "Длина пароля превышает 150 символов\n";
+                }
+
+                if (!sPswd.equals(scPswd)){
+                    sErrorMessage = sErrorMessage + "Пароли  и его подтверждение не совпадают\n";
+                }
+
+                if (!sErrorMessage.equals("")){
+                    Notification.show("Ошибка сохранения:",
+                            sErrorMessage,
+                            Notification.Type.TRAY_NOTIFICATION);
+                } else {
+                    Notification.show("Сохранение произведено:",
+                            null,
+                            Notification.Type.TRAY_NOTIFICATION);
+                }
+            }
+        });
+
         ClearFormButton = new Button("Очистить форму");
         ClearFormButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         ClearFormButton.addStyleName(ValoTheme.BUTTON_SMALL);
@@ -68,11 +138,20 @@ public class tRegistrationFormLayout extends VerticalLayout {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 LoginField.setValue(null);
-                //NameTextField.setValue(null);
                 PassWordField.setValue("");
                 ConfirmPassWordField.setValue("");
                 PhoneTextField.setValue(null);
                 MailTextField.setValue(null);
+
+                SubjectNameTextField.setValue(null);
+                SubjectAddressTextField.setValue(null);
+                SubjectInnTextField.setValue(null);
+                SubjectKppField.setValue(null);
+                FirstNameTextField.setValue(null);
+                SecondNameTextField.setValue(null);
+                MiddleNameTextField.setValue(null);
+                BirthDateField.setValue(null);
+
             }
         });
 
@@ -123,6 +202,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
                     PersonalForm.addComponent(SubjectInnTextField);
                     PersonalForm.addComponent(SubjectKppField);
 
+
                 } else {
 
                     PersonalForm.removeComponent(SubjectNameTextField);
@@ -135,33 +215,11 @@ public class tRegistrationFormLayout extends VerticalLayout {
                     PersonalForm.removeComponent(MiddleNameTextField);
                     PersonalForm.removeComponent(BirthDateField);
 
-                    FirstNameTextField = new TextField("Имя :");
-                    FirstNameTextField.setNullRepresentation("");
-                    FirstNameTextField.setInputPrompt("Виктор");
-
-                    SecondNameTextField = new TextField("Фамилия :");
-                    SecondNameTextField.setNullRepresentation("");
-                    SecondNameTextField.setInputPrompt("Глушков");
-
-                    MiddleNameTextField = new TextField("Отчество :");
-                    MiddleNameTextField.setNullRepresentation("");
-                    MiddleNameTextField.setInputPrompt("Михайлович");
-
-                    BirthDateField = new DateField("Дата рождения: "){
-                        @Override
-                        protected Date handleUnparsableDateString(String dateString)
-                                throws Converter.ConversionException {
-                            throw new Converter.ConversionException("Формат даты неверен. Используйте dd.MM.yyyy");
-                        }
-                    };
-                    BirthDateField.setResolution(Resolution.DAY);
-                    BirthDateField.setDateFormat("dd.MM.yyyy");
-                    BirthDateField.setImmediate(true);
-
                     PersonalForm.addComponent(FirstNameTextField);
                     PersonalForm.addComponent(SecondNameTextField);
                     PersonalForm.addComponent(MiddleNameTextField);
                     PersonalForm.addComponent(BirthDateField);
+
 
                 }
             }
@@ -248,6 +306,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
                 , SecondNameTextField
                 , MiddleNameTextField
                 , BirthDateField
+
         );
 
         PersonalForm.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
@@ -256,16 +315,24 @@ public class tRegistrationFormLayout extends VerticalLayout {
         PersonalForm.setWidth("100%");
         PersonalForm.setHeightUndefined();
 
+//        Image cImage = new Image(null,new StreamResource(new tCaptchaImage(), String.valueOf(tUsefulFuctions.genRandInt(1,1000)) + ".png"));
+//
+//        VerticalLayout CaptImageLayout = new VerticalLayout(
+//                cImage
+//        );
+        tCaptchaLayout captchaLayout = new tCaptchaLayout();
+
         VerticalLayout FormLayout = new VerticalLayout(
                 PersonalForm
-                ,new tCaptchaLayout()
+                ,captchaLayout
         );
         FormLayout.addStyleName(ValoTheme.LAYOUT_CARD);
         FormLayout.setWidth("900px");
         FormLayout.setHeightUndefined();
         FormLayout.setComponentAlignment(PersonalForm,Alignment.MIDDLE_CENTER);
-
-
+        FormLayout.setComponentAlignment(captchaLayout,Alignment.MIDDLE_CENTER);
+        FormLayout.setSpacing(true);
+        FormLayout.setMargin(new MarginInfo(false,false,true,false));
         VerticalLayout ContentLayout = new VerticalLayout(
                 FormHeaderLayout
                 , FormLayout
@@ -276,4 +343,5 @@ public class tRegistrationFormLayout extends VerticalLayout {
 
         this.addComponent(ContentLayout);
     }
+
 }

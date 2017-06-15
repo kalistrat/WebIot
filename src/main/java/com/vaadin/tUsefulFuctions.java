@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -481,6 +482,30 @@ public class tUsefulFuctions {
         }catch(Exception e) {
             //Handle errors for Class.forName
             e.printStackTrace();
+        }
+
+    }
+
+    public static int genRandInt(int mii,int mai){
+        Random rnd = new Random(System.currentTimeMillis());
+        int number = mii + rnd.nextInt(mai - mii + 1);
+        rnd = null;
+        System.gc();
+
+        return  number;
+    }
+
+    public static String genSign() {
+        Random rnds = new Random(System.currentTimeMillis());
+        int SignNum = 1 + rnds.nextInt(3);
+        rnds = null;
+        System.gc();
+
+        switch (SignNum) {
+            case 1 : return "+";
+            case 2 : return "-";
+            case 3 : return "*";
+            default: return  "+";
         }
 
     }
