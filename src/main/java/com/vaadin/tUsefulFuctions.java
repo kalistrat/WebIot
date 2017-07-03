@@ -435,12 +435,30 @@ public class tUsefulFuctions {
     }
 
     public static boolean IsLatinAndDigits(String stringCode){
-        Pattern p = Pattern.compile("^[a-zA-Z0-9]+$");
-        Matcher m = p.matcher(stringCode);
+        Pattern p1 = Pattern.compile("^[a-zA-Z0-9]+$");
+        Matcher m1 = p1.matcher(stringCode);
         //System.out.println("m.matches() :" + m.matches());
         //System.out.println("Matcher m :" + m);
 
-        return m.matches();
+        return m1.matches();
+    }
+
+    public static boolean IsDigits(String stringCode){
+        Pattern p2 = Pattern.compile("^[0-9]+$");
+        Matcher m2 = p2.matcher(stringCode);
+        //System.out.println("m.matches() :" + m.matches());
+        //System.out.println("Matcher m :" + m);
+
+        return m2.matches();
+    }
+
+    public static boolean IsEmailName(String stringCode){
+        Pattern p3 = Pattern.compile("^[-\\w.]+@([A-z0-9][-A-z0-9]+\\.)+[A-z]{2,4}$");
+        Matcher m3 = p3.matcher(stringCode);
+        //System.out.println("m.matches() :" + m.matches());
+        //System.out.println("Matcher m :" + m);
+
+        return m3.matches();
     }
 
     public static Integer StrToIntValue(String Sval) {
