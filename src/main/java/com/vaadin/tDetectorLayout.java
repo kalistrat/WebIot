@@ -132,19 +132,58 @@ public class tDetectorLayout extends VerticalLayout {
                 ,DeviceUnitsLayout
         );
 
-        VerticalLayout ContentLayout = new VerticalLayout(
+        VerticalLayout ContentPrefLayout = new VerticalLayout(
                 DeviceDataLayout
                 ,DeviceUnitsLayout
                 ,DeviceDescription
-                ,DeviceLastMeasure
+        );
+
+        VerticalLayout ContentMeasureLayout = new VerticalLayout(
+                DeviceLastMeasure
                 ,DeviceMeasuresLayout
         );
 
+        ContentPrefLayout.setMargin(true);
+        ContentPrefLayout.setSpacing(true);
+        ContentPrefLayout.setWidth("100%");
+        ContentPrefLayout.setHeightUndefined();
 
-        ContentLayout.setMargin(true);
+        ContentMeasureLayout.setMargin(true);
+        ContentMeasureLayout.setSpacing(true);
+        ContentMeasureLayout.setWidth("100%");
+        ContentMeasureLayout.setHeightUndefined();
+
+        TabSheet DetectorTabSheet = new TabSheet();
+        DetectorTabSheet.addTab(ContentMeasureLayout, "Показания датчика", VaadinIcons.CHART,0);
+        DetectorTabSheet.addTab(ContentPrefLayout, "Настройки датчика", VaadinIcons.COGS,1);
+        DetectorTabSheet.addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
+        DetectorTabSheet.addStyleName(ValoTheme.TABSHEET_FRAMED);
+        DetectorTabSheet.setSizeFull();
+        DetectorTabSheet.addStyleName("TabSheetSmall");
+
+        DetectorTabSheet.addSelectedTabChangeListener(new TabSheet.SelectedTabChangeListener() {
+            @Override
+            public void selectedTabChange(TabSheet.SelectedTabChangeEvent selectedTabChangeEvent) {
+                Component c = DetectorTabSheet.getSelectedTab();
+                TabSheet.Tab tb = DetectorTabSheet.getTab(c);
+                String capt = tb.getCaption();
+                //System.out.println("Selected TabCaption :" + capt);
+                if (capt.equals("Показания датчика")) {
+                    DeviceMeasuresLayout.reDrawGraphByPeriod((String) DeviceMeasuresLayout.tPeriodCB.getValue());
+                }
+
+            }
+        });
+
+        VerticalLayout ContentLayout = new VerticalLayout(
+                DetectorTabSheet
+        );
+
+        ContentLayout.setMargin(false);
         ContentLayout.setSpacing(true);
-        ContentLayout.setWidth("100%");
-        ContentLayout.setHeightUndefined();
+        ContentLayout.setSizeFull();
+        //ContentLayout.setHeightUndefined();
+        //ContentLayout.addStyleName(ValoTheme.LAYOUT_CARD);
 
         VerticalSplitPanel SplPanel = new VerticalSplitPanel();
         SplPanel.setFirstComponent(TopLayout);
@@ -153,7 +192,7 @@ public class tDetectorLayout extends VerticalLayout {
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);
 
-        SplPanel.setHeight("1300px");
+        SplPanel.setHeight("800px");
         //SplPanel.setWidth("1000px");
 
         this.addComponent(SplPanel);

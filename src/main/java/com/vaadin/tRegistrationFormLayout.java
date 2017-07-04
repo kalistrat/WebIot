@@ -80,13 +80,13 @@ public class tRegistrationFormLayout extends VerticalLayout {
                 String sSubjType = (String) SubjectTypeSelect.getValue();
 
 
-                String sSubjName = null;
-                String sSubjAddr = null;
-                String sSubjInn = null;
-                String sSubjKpp = null;
-                String sFirName = null;
-                String sSecName = null;
-                String sMidName = null;
+                String sSubjName = "";
+                String sSubjAddr = "";
+                String sSubjInn = "";
+                String sSubjKpp = "";
+                String sFirName = "";
+                String sSecName = "";
+                String sMidName = "";
                 Date dBirthdate = null;
 
 
@@ -105,13 +105,9 @@ public class tRegistrationFormLayout extends VerticalLayout {
                     dBirthdate = BirthDateField.getValue();
                 }
 
-                if (sLog == null){
+                if (sLog.equals("")){
                     sErrorMessage = "Логин не задан\n";
                 } else {
-
-                    if (sLog.equals("")) {
-                        sErrorMessage = sErrorMessage + "Логин не задан\n";
-                    }
 
                     if (sLog.length() > 50) {
                         sErrorMessage = sErrorMessage + "Длина логина превышает 50 символов\n";
@@ -119,20 +115,18 @@ public class tRegistrationFormLayout extends VerticalLayout {
 
                     if (sLog.length() < 8) {
                         sErrorMessage = sErrorMessage + "Длина логина менее 8 символов\n";
+                        System.out.println("Здесь должна быть проверка логина на длину");
                     }
 
                     if (!tUsefulFuctions.IsLatinAndDigits(sLog)) {
                         sErrorMessage = sErrorMessage + "Логин должен состоять из латиницы и цифр\n";
                     }
+
                 }
 
-                if (sPswd == null){
-                    sErrorMessage = "Пароль не задан\n";
+                if (sPswd.equals("")){
+                    sErrorMessage = sErrorMessage + "Пароль не задан\n";
                 } else {
-
-                    if (sPswd.equals("")) {
-                        sErrorMessage = sErrorMessage + "Пароль не задан\n";
-                    } else {
 
                         if (sPswd.length() > 150) {
                             sErrorMessage = sErrorMessage + "Длина пароля превышает 150 символов\n";
@@ -149,10 +143,10 @@ public class tRegistrationFormLayout extends VerticalLayout {
                         if (!sPswd.equals(scPswd)) {
                             sErrorMessage = sErrorMessage + "Пароль и его подтверждение не совпадают\n";
                         }
-                    }
+
                 }
 
-                if (sPhone == null) {
+                if (sPhone.equals("")) {
                     sErrorMessage = sErrorMessage + "Номер телефона не задан\n";
                 } else {
 
@@ -166,7 +160,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
                 }
 
 
-                if (sMail == null) {
+                if (sMail.equals("")) {
                     sErrorMessage = sErrorMessage + "Адрес электронной почты не задан\n";
                 } else {
                     if (!tUsefulFuctions.IsEmailName(sMail)) {
@@ -174,7 +168,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
                     }
                 }
 
-                if (sPost == null) {
+                if (sPost.equals("")) {
                     sErrorMessage = sErrorMessage + "Почтовый индекс не задан\n";
                 } else {
                     if (sPost.length() != 6) {
@@ -188,13 +182,9 @@ public class tRegistrationFormLayout extends VerticalLayout {
                 if (!sSubjType.equals("физическое лицо")) {
                     //For juridical persons
 
-                    if (sSubjName == null){
+                    if (sSubjName.equals("")){
                         sErrorMessage = sErrorMessage + "Наименование организации не задано\n";
                     } else {
-
-                        if (sSubjName.equals("")) {
-                            sErrorMessage = sErrorMessage + "Наименование организации не задано\n";
-                        }
 
                         if (sSubjName.length() > 150) {
                             sErrorMessage = sErrorMessage + "Длина наименования организации превышает 150 символов\n";
@@ -202,26 +192,18 @@ public class tRegistrationFormLayout extends VerticalLayout {
                     }
 
 
-                    if (sSubjAddr == null){
+                    if (sSubjAddr.equals("")){
                         sErrorMessage = sErrorMessage + "Адрес организации не задан\n";
                     } else {
-
-                        if (sSubjAddr.equals("")) {
-                            sErrorMessage = sErrorMessage + "Адрес организации не задан\n";
-                        }
 
                         if (sSubjAddr.length() > 150) {
                             sErrorMessage = sErrorMessage + "Адрес организации превышает 150 символов\n";
                         }
                     }
 
-                    if (sSubjInn == null){
+                    if (sSubjInn.equals("")){
                         sErrorMessage = sErrorMessage + "ИНН организации не задан\n";
                     } else {
-
-                        if (sSubjInn.equals("")) {
-                            sErrorMessage = sErrorMessage + "ИНН организации не задан\n";
-                        }
 
                         if (sSubjInn.length() != 10) {
                             sErrorMessage = sErrorMessage + "Длина ИНН не соответствует 10 символам\n";
@@ -232,13 +214,9 @@ public class tRegistrationFormLayout extends VerticalLayout {
                         }
                     }
 
-                    if (sSubjKpp == null){
+                    if (sSubjKpp.equals("")){
                         sErrorMessage = sErrorMessage + "КПП организации не задан\n";
                     } else {
-
-                        if (sSubjKpp.equals("")) {
-                            sErrorMessage = sErrorMessage + "КПП организации не задан\n";
-                        }
 
                         if (sSubjKpp.length() != 9) {
                             sErrorMessage = sErrorMessage + "Длина КПП не соответствует 9 символам\n";
@@ -252,39 +230,27 @@ public class tRegistrationFormLayout extends VerticalLayout {
                 } else {
                     //For physical persons
 
-                    if (sFirName == null){
+                    if (sFirName.equals("")){
                         sErrorMessage = sErrorMessage + "Имя физического лица не задано\n";
                     } else {
-
-                        if (sFirName.equals("")) {
-                            sErrorMessage = sErrorMessage + "Имя физического лица не задано\n";
-                        }
 
                         if (sFirName.length() > 50) {
                             sErrorMessage = sErrorMessage + "Длина имени физического лица превышает 50 символов\n";
                         }
                     }
 
-                    if (sSecName == null){
+                    if (sSecName.equals("")){
                         sErrorMessage = sErrorMessage + "Фамилия физического лица не задана\n";
                     } else {
-
-                        if (sSecName.equals("")) {
-                            sErrorMessage = sErrorMessage + "Фамилия физического лица не задана\n";
-                        }
 
                         if (sSecName.length() > 50) {
                             sErrorMessage = sErrorMessage + "Длина фамилии физического лица превышает 50 символов\n";
                         }
                     }
 
-                    if (sMidName == null){
+                    if (sMidName.equals("")){
                         sErrorMessage = sErrorMessage + "Отчество физического лица не задано\n";
                     } else {
-
-                        if (sMidName.equals("")) {
-                            sErrorMessage = sErrorMessage + "Отчество физического лица не задано\n";
-                        }
 
                         if (sMidName.length() > 50) {
                             sErrorMessage = sErrorMessage + "Длина отчества физического лица превышает 50 символов\n";
@@ -327,22 +293,23 @@ public class tRegistrationFormLayout extends VerticalLayout {
         ClearFormButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                LoginField.setValue(null);
+                LoginField.setValue("");
                 PassWordField.setValue("");
                 ConfirmPassWordField.setValue("");
-                PhoneTextField.setValue(null);
-                MailTextField.setValue(null);
-                PostCodeField.setValue(null);
+                PhoneTextField.setValue("");
+                MailTextField.setValue("");
+                PostCodeField.setValue("");
+                captchaLayout.ResultTextField.setValue("");
 
                 if (SubjectTypeSelect.getValue().equals("юридическое лицо")) {
-                    SubjectNameTextField.setValue(null);
-                    SubjectAddressTextField.setValue(null);
-                    SubjectInnTextField.setValue(null);
-                    SubjectKppField.setValue(null);
+                    SubjectNameTextField.setValue("");
+                    SubjectAddressTextField.setValue("");
+                    SubjectInnTextField.setValue("");
+                    SubjectKppField.setValue("");
                 } else {
-                    FirstNameTextField.setValue(null);
-                    SecondNameTextField.setValue(null);
-                    MiddleNameTextField.setValue(null);
+                    FirstNameTextField.setValue("");
+                    SecondNameTextField.setValue("");
+                    MiddleNameTextField.setValue("");
                     BirthDateField.setValue(null);
                 }
 
@@ -433,7 +400,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
         LoginField.setIcon(VaadinIcons.USER);
         LoginField.setNullRepresentation("");
         LoginField.setInputPrompt("Мнемоническое имя, содержащее латиницу и цифры от 7 до 50 символов (GlushkovVM1923)");
-        //LoginField.setValue(null);
+
 
         //NameTextField = new TextField("Имя пользователя:");
         //NameTextField.setIcon(VaadinIcons.CLIPBOARD_USER);

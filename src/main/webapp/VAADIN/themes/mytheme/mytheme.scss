@@ -110,6 +110,23 @@ $v-component-group-spacing: 6px;
     font-size: $v-font-size--tiny;
   }
 
+  .v-tabsheet-TabSheetSmall{
+    .v-tabsheet-tabitemcell{
+      .v-caption {
+        //padding:10px;
+        //background-color: #1c1d22;
+        //color: #fff;
+        //font-weight:bold;
+        font-size: 14px;
+      }
+      .v-tabsheet-tabitem-selected .v-caption.v-caption {
+        //border-bottom-color: #ff751a;
+        //color: #ff751a;
+        font-size: 14px;
+      }
+    }
+  }
+
 
 
   //.ThinBorder{

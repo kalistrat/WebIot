@@ -148,6 +148,34 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
 
     }
 
+    public void reDrawGraphByPeriod(String SelectedPeriod){
+
+        MarkXList.removeAll(MarkXList);
+        MarkYList.removeAll(MarkYList);
+        XYList.removeAll(XYList);
+
+        setListXYMarks(tUserDeviceId,SelectedPeriod,10,"x");
+        setListXYMarks(tUserDeviceId,SelectedPeriod,5,"y");
+        GetGraphData(tUserDeviceId,SelectedPeriod);
+        tGraphLayout GraphDrawNew  = new tGraphLayout(
+                MarkXList
+                ,MarkYList
+                ,XYList
+                ,GetMeasureUnits(tUserDeviceId)
+        );
+        GraphDrawNew.setMargin(false);
+        GraphDrawNew.setSizeUndefined();
+
+        ContentLayout.replaceComponent(GraphDraw,GraphDrawNew);
+        ContentLayout.setComponentAlignment(GraphDrawNew,Alignment.MIDDLE_CENTER);
+        GraphDraw = GraphDrawNew;
+
+        if (XYList.size() < 2){
+            Notification.show("За выбранный период данные отсутствуют",
+                    Notification.Type.TRAY_NOTIFICATION);
+        }
+    }
+
     public void setComboBoxData(){
 
         try {

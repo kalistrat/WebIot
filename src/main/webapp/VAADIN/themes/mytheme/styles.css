@@ -13002,3 +13002,11 @@ div.v-layout.v-horizontal.v-widget {
 .mytheme .TableRow {
 	font-size: 12px;
 }
+
+.mytheme .v-tabsheet-TabSheetSmall .v-tabsheet-tabitemcell .v-caption {
+	font-size: 14px;
+}
+
+.mytheme .v-tabsheet-TabSheetSmall .v-tabsheet-tabitemcell .v-tabsheet-tabitem-selected .v-caption.v-caption {
+	font-size: 14px;
+}
