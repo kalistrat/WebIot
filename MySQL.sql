@@ -1926,6 +1926,58 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для таблица things.timezones
+CREATE TABLE IF NOT EXISTS `timezones` (
+  `timezone_id` int(11) NOT NULL AUTO_INCREMENT,
+  `timezone_value` varchar(15) DEFAULT NULL,
+  PRIMARY KEY (`timezone_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
+
+-- Дамп данных таблицы things.timezones: ~38 rows (приблизительно)
+DELETE FROM `timezones`;
+/*!40000 ALTER TABLE `timezones` DISABLE KEYS */;
+INSERT INTO `timezones` (`timezone_id`, `timezone_value`) VALUES
+	(1, 'UTC−12'),
+	(2, 'UTC−11'),
+	(3, 'UTC−10'),
+	(4, 'UTC−9'),
+	(5, 'UTC−8'),
+	(6, 'UTC−7'),
+	(7, 'UTC−6'),
+	(8, 'UTC−5'),
+	(9, 'UTC−4'),
+	(10, 'UTC−3:30'),
+	(11, 'UTC−3'),
+	(12, 'UTC−2'),
+	(13, 'UTC−1'),
+	(14, 'UTC+0'),
+	(15, 'UTC+1'),
+	(16, 'UTC+2'),
+	(17, 'UTC+3'),
+	(18, 'UTC+3:30'),
+	(19, 'UTC+4'),
+	(20, 'UTC+4:30'),
+	(21, 'UTC+5'),
+	(22, 'UTC+5:30'),
+	(23, 'UTC+5:45'),
+	(24, 'UTC+6'),
+	(25, 'UTC+6:30'),
+	(26, 'UTC+7'),
+	(27, 'UTC+8'),
+	(28, 'UTC+8:30'),
+	(29, 'UTC+8:45'),
+	(30, 'UTC+9'),
+	(31, 'UTC+9:30'),
+	(32, 'UTC+10'),
+	(33, 'UTC+10:30'),
+	(34, 'UTC+11'),
+	(35, 'UTC+12'),
+	(36, 'UTC+12:45'),
+	(37, 'UTC+13'),
+	(38, 'UTC+14');
+/*!40000 ALTER TABLE `timezones` ENABLE KEYS */;
+
+
 -- Дамп структуры для таблица things.unit
 CREATE TABLE IF NOT EXISTS `unit` (
   `unit_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2221,7 +2273,7 @@ DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`, `device_log`, `device_pass`) VALUES
 	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'ежеминутно', '2017-03-03 18:43:27', 1, '°С', 'k/1/W/', 'k/1/R/', 3, 96, 64, 'UniPing RS-485 xxxxx', '56', '56'),
-	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежесекундно', '2017-02-28 18:32:52', 1, '°С x 10e2', 'k/2/W/', 'k/2/R/', 3, 95, 66, 'Это описание устройства HWg-STE. Максимальная длина 200 символов', '56rty', '56try'),
+	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежесекундно', '2017-02-28 18:32:52', 1, '°С x 10e2', 'k/2/W/', 'k/2/R/', 3, 95, 66, 'Это описание устройства HWg-STE. Максимальная длина 200 символов fdfdf', '56rty', '56try'),
 	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, 'k/3/W/', 'k/3/R/', 3, NULL, NULL, 'Logitech HD Webcam C270 максимальная длина 200 символов', '123567', '123567j'),
 	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, 'k/4/W/', 'k/4/R/', 3, NULL, NULL, 'Microsoft LifeCam HD-3000', 'jyjey', 'yje'),
 	(11, 1, 'барометр', NULL, 'не задано', '2017-05-19 13:50:38', 1, 'атм', 'k/11/W/', 'k/11/R/', 3, 94, 64, 'reger', NULL, NULL),
@@ -2244,9 +2296,19 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   `user_device_id` int(11) DEFAULT NULL,
   `leaf_name` varchar(30) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `timezone_id` int(11) NOT NULL,
+  `mqtt_server_id` int(11) NOT NULL,
+  `time_topic` varchar(150) NOT NULL,
+  `sync_interval` int(11) NOT NULL,
+  `control_log` varchar(50) NOT NULL,
+  `control_pass` varchar(255) NOT NULL,
   PRIMARY KEY (`user_devices_tree_id`),
   KEY `FK_user_devices_tree_user_device` (`user_device_id`),
   KEY `FK_user_devices_tree_users` (`user_id`),
+  KEY `FK_user_devices_tree_timezones` (`timezone_id`),
+  KEY `FK_user_devices_tree_mqtt_servers` (`mqtt_server_id`),
+  CONSTRAINT `FK_user_devices_tree_mqtt_servers` FOREIGN KEY (`mqtt_server_id`) REFERENCES `mqtt_servers` (`server_id`),
+  CONSTRAINT `FK_user_devices_tree_timezones` FOREIGN KEY (`timezone_id`) REFERENCES `timezones` (`timezone_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8;
@@ -2254,27 +2316,27 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
 -- Дамп данных таблицы things.user_devices_tree: ~20 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
-INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`) VALUES
-	(1, 1, NULL, NULL, 'Устройства', 1),
-	(5, 2, 1, NULL, 'Кухня', 1),
-	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1),
-	(7, 4, 2, 2, 'HWg-STE', 1),
-	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1),
-	(41, 6, 2, 1, 'UniPing RS-485', 1),
-	(107, 7, 1, NULL, 'Санитарный блок', 1),
-	(125, 8, 7, 11, 'барометр', 1),
-	(131, 9, 1, NULL, 'Гараж', 1),
-	(132, 10, 9, 16, 'Датчик СО', 1),
-	(133, 11, 1, NULL, 'Подсобка', 1),
-	(134, 12, 1, NULL, 'Бассейн', 1),
-	(135, 13, 7, 17, 'термометр-1', 1),
-	(146, 1, NULL, NULL, 'Устройства', 2),
-	(148, 14, 7, 19, 'Помпа', 1),
-	(151, 15, 9, 22, 'Датчик СО2', 1),
-	(153, 16, 9, 24, 'Косяк на косяке', 1),
-	(159, 17, 9, 30, 'Testovich', 1),
-	(160, 18, 9, 31, '345345', 1),
-	(161, 19, 11, 32, '1234', 1);
+INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`) VALUES
+	(1, 1, NULL, NULL, 'Устройства', 1, 17, 3, '', 0, '', ''),
+	(5, 2, 1, NULL, 'Кухня', 1, 17, 3, '', 0, '', ''),
+	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '', 0, '', ''),
+	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '', 0, '', ''),
+	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1, 17, 3, '', 0, '', ''),
+	(41, 6, 2, 1, 'UniPing RS-485', 1, 17, 3, '', 0, '', ''),
+	(107, 7, 1, NULL, 'Санитарный блок', 1, 17, 3, '', 0, '', ''),
+	(125, 8, 7, 11, 'барометр', 1, 17, 3, '', 0, '', ''),
+	(131, 9, 1, NULL, 'Гараж', 1, 17, 3, '', 0, '', ''),
+	(132, 10, 9, 16, 'Датчик СО', 1, 17, 3, '', 0, '', ''),
+	(133, 11, 1, NULL, 'Подсобка', 1, 17, 3, '', 0, '', ''),
+	(134, 12, 1, NULL, 'Бассейн', 1, 17, 3, '', 0, '', ''),
+	(135, 13, 7, 17, 'термометр-1', 1, 17, 3, '', 0, '', ''),
+	(146, 1, NULL, NULL, 'Устройства', 2, 17, 3, '', 0, '', ''),
+	(148, 14, 7, 19, 'Помпа', 1, 17, 3, '', 0, '', ''),
+	(151, 15, 9, 22, 'Датчик СО2', 1, 17, 3, '', 0, '', ''),
+	(153, 16, 9, 24, 'Косяк на косяке', 1, 17, 3, '', 0, '', ''),
+	(159, 17, 9, 30, 'Testovich', 1, 17, 3, '', 0, '', ''),
+	(160, 18, 9, 31, '345345', 1, 17, 3, '', 0, '', ''),
+	(161, 19, 11, 32, '1234', 1, 17, 3, '', 0, '', '');
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

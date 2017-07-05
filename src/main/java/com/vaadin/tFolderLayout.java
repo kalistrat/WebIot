@@ -294,13 +294,34 @@ public class tFolderLayout extends VerticalLayout {
         TopLayout.setMargin(new MarginInfo(false, true, false, true));
         FolderContentLayout.setMargin(true);
 
+        VerticalLayout FolderPrefLayout = new VerticalLayout(
+                new Label("Настройки контроллера")
+        );
+
+
+        TabSheet FolderTabSheet = new TabSheet();
+        FolderTabSheet.addTab(FolderContentLayout, "Дочерние устройства", VaadinIcons.CLUSTER,0);
+        FolderTabSheet.addTab(FolderPrefLayout, "Настройки контроллера", VaadinIcons.COGS,1);
+        FolderTabSheet.addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
+        FolderTabSheet.addStyleName(ValoTheme.TABSHEET_FRAMED);
+        FolderTabSheet.setSizeFull();
+        FolderTabSheet.addStyleName("TabSheetSmall");
+
+        VerticalLayout ContentLayout = new VerticalLayout(
+                FolderTabSheet
+        );
+
+        ContentLayout.setMargin(false);
+        ContentLayout.setSpacing(true);
+        ContentLayout.setSizeFull();
+
         VerticalSplitPanel SplPanel = new VerticalSplitPanel();
         SplPanel.setFirstComponent(TopLayout);
-        SplPanel.setSecondComponent(FolderContentLayout);
+        SplPanel.setSecondComponent(ContentLayout);
         SplPanel.setSplitPosition(40, Unit.PIXELS);
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);
-        SplPanel.setHeight("1000px");
+        SplPanel.setHeight("800px");
         //SplPanel.setWidth("100%");
 
         this.addComponent(SplPanel);
