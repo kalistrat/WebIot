@@ -17,21 +17,23 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
 
     Button SaveButton;
     Button EditButton;
-    int iUserDeviceId;
+    int iLeafId;
+    String iUserLog;
 
     TextField NameTextField;
-    TextField DetectorAddDate;
-    TextField InTopicNameField;
     TextField OutTopicNameField;
-    //NativeSelect MqttServerSelect;
     TextField MqttServerTextField;
 
     TextField DeviceLoginTextField;
     TextField DevicePassWordTextField;
+    NativeSelect TimeZoneSelect;
+    TextField TimeSyncInterval;
+    CheckBox SLLCheck;
 
-    public tFolderPrefsFormLayout(int eUserDeviceId) {
+    public tFolderPrefsFormLayout(int eLeafId, String eUserLog) {
 
-        iUserDeviceId = eUserDeviceId;
+        iLeafId = eLeafId;
+        iUserLog = eUserLog;
 
         Label Header = new Label();
         Header.setContentMode(ContentMode.HTML);
@@ -90,19 +92,37 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
         DeviceLoginTextField = new TextField("Логин контроллера :");
         DevicePassWordTextField = new TextField("Пароль контроллера :");
         MqttServerTextField = new TextField("mqtt-сервер :");
+
+        TimeZoneSelect = new NativeSelect("Часовой пояс контроллера :");
+        TimeZoneSelect.setNullSelectionAllowed(false);
+        setTimeZoneList();
+
+        TimeSyncInterval = new TextField("Интервал синхронизации времени (в сутках) :");
+
+        SLLCheck = new CheckBox("шифрование трафика (SSL)");
+        SLLCheck.addStyleName(ValoTheme.CHECKBOX_SMALL);
+        SLLCheck.setValue(false);
+
+
         DeviceLoginTextField.setEnabled(false);
         DevicePassWordTextField.setEnabled(false);
         MqttServerTextField.setEnabled(false);
+        TimeZoneSelect.setEnabled(false);
+        TimeSyncInterval.setEnabled(false);
+        SLLCheck.setEnabled(false);
 
         setControlerParameters();
 
 
         FormLayout ControlerForm = new FormLayout(
                 NameTextField
-                , OutTopicNameField
                 , MqttServerTextField
                 , DeviceLoginTextField
                 , DevicePassWordTextField
+                , OutTopicNameField
+                , TimeZoneSelect
+                , TimeSyncInterval
+                , SLLCheck
         );
 
         ControlerForm.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
@@ -137,20 +157,69 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
                     , tUsefulFuctions.PASS
             );
 
-            String DataSql = "";
+            String DataSql = "select udt.leaf_name\n" +
+                    ",udt.time_topic\n" +
+                    ",concat(concat(ser.server_ip,':'),ser.server_port) mqqtt\n" +
+                    ",udt.control_log\n" +
+                    ",udt.control_pass\n" +
+                    ",tz.timezone_value\n" +
+                    ",if(udt.sync_interval,0,1) sync_interval\n" +
+                    "from user_devices_tree udt\n" +
+                    "join users u on u.user_id=udt.user_id\n" +
+                    "join mqtt_servers ser on ser.server_id=udt.mqtt_server_id\n" +
+                    "join timezones tz on tz.timezone_id=udt.timezone_id\n" +
+                    "where udt.leaf_id = ?\n" +
+                    "and u.user_log = ?";
 
             PreparedStatement DataStmt = Con.prepareStatement(DataSql);
-            DataStmt.setInt(1,iUserDeviceId);
+            DataStmt.setInt(1,iLeafId);
+            DataStmt.setString(2,iUserLog);
 
             ResultSet DataRs = DataStmt.executeQuery();
 
             while (DataRs.next()) {
-                NameTextField.setValue(DataRs.getString(1));
-                OutTopicNameField.setValue(DataRs.getString(4));
-                MqttServerTextField.setValue("tcp://" + DataRs.getString(5));
-                DeviceLoginTextField.setValue(DataRs.getString(6));
-                DevicePassWordTextField.setValue(DataRs.getString(7));
 
+                NameTextField.setValue(DataRs.getString(1));
+                OutTopicNameField.setValue(DataRs.getString(2));
+                MqttServerTextField.setValue("tcp://" + DataRs.getString(3));
+                DeviceLoginTextField.setValue(DataRs.getString(4));
+                DevicePassWordTextField.setValue(DataRs.getString(5));
+                TimeZoneSelect.select(DataRs.getString(6));
+                TimeSyncInterval.setValue(DataRs.getString(7));
+
+            }
+
+
+            Con.close();
+
+        } catch (SQLException se3) {
+            //Handle errors for JDBC
+            se3.printStackTrace();
+        } catch (Exception e13) {
+            //Handle errors for Class.forName
+            e13.printStackTrace();
+        }
+    }
+
+    public void setTimeZoneList(){
+
+        try {
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            String DataSql = "select tz.timezone_value\n" +
+                    "from timezones tz";
+
+            PreparedStatement DataStmt = Con.prepareStatement(DataSql);
+
+            ResultSet DataRs = DataStmt.executeQuery();
+
+            while (DataRs.next()) {
+                TimeZoneSelect.addItem(DataRs.getString(1));
             }
 
 

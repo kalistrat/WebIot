@@ -259,7 +259,13 @@ public class tRegistrationFormLayout extends VerticalLayout {
 
                     if (dBirthdate == null){
                         sErrorMessage = sErrorMessage + "Дата рождения физического лица не задана\n";
+                    } else {
+
+                        if (tUsefulFuctions.calculateAge(new java.sql.Date(dBirthdate.getTime())) < 18) {
+                            sErrorMessage = sErrorMessage + "Число полных лет не превышает 18\n";
+                        }
                     }
+
 
                 }
 
@@ -278,7 +284,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
                             sErrorMessage,
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
-                    Notification.show("Сохранение произведено:",
+                    Notification.show("Письмо для подтверждения отправлено",
                             null,
                             Notification.Type.TRAY_NOTIFICATION);
                 }

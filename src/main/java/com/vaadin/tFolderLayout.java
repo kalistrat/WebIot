@@ -294,22 +294,27 @@ public class tFolderLayout extends VerticalLayout {
         TopLayout.setMargin(new MarginInfo(false, true, false, true));
         FolderContentLayout.setMargin(true);
 
-        VerticalLayout FolderPrefLayout = new VerticalLayout(
-                new Label("Настройки контроллера")
-        );
+
+        VerticalLayout ContentLayout = new VerticalLayout();
 
 
-        TabSheet FolderTabSheet = new TabSheet();
-        FolderTabSheet.addTab(FolderContentLayout, "Дочерние устройства", VaadinIcons.CLUSTER,0);
-        FolderTabSheet.addTab(FolderPrefLayout, "Настройки контроллера", VaadinIcons.COGS,1);
-        FolderTabSheet.addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
-        FolderTabSheet.addStyleName(ValoTheme.TABSHEET_FRAMED);
-        FolderTabSheet.setSizeFull();
-        FolderTabSheet.addStyleName("TabSheetSmall");
+        if (tParentContentLayout.GetParentLeafById(tCurrentLeafId)!=0) {
+            tFolderPrefsFormLayout FolderPrefLayout = new tFolderPrefsFormLayout(tCurrentLeafId, tParentContentLayout.iUserLog);
+            FolderPrefLayout.setMargin(true);
+            FolderPrefLayout.setSizeFull();
 
-        VerticalLayout ContentLayout = new VerticalLayout(
-                FolderTabSheet
-        );
+            TabSheet FolderTabSheet = new TabSheet();
+            FolderTabSheet.addTab(FolderContentLayout, "Дочерние устройства", VaadinIcons.CLUSTER,0);
+            FolderTabSheet.addTab(FolderPrefLayout, "Настройки контроллера", VaadinIcons.COGS,1);
+            FolderTabSheet.addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
+            FolderTabSheet.addStyleName(ValoTheme.TABSHEET_FRAMED);
+            FolderTabSheet.setSizeFull();
+            FolderTabSheet.addStyleName("TabSheetSmall");
+            ContentLayout.addComponent(FolderTabSheet);
+        } else {
+            ContentLayout.addComponent(FolderContentLayout);
+        }
+
 
         ContentLayout.setMargin(false);
         ContentLayout.setSpacing(true);

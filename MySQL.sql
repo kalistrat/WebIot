@@ -1931,7 +1931,7 @@ CREATE TABLE IF NOT EXISTS `timezones` (
   `timezone_id` int(11) NOT NULL AUTO_INCREMENT,
   `timezone_value` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`timezone_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.timezones: ~38 rows (приблизительно)
 DELETE FROM `timezones`;
@@ -2302,6 +2302,7 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   `sync_interval` int(11) NOT NULL,
   `control_log` varchar(50) NOT NULL,
   `control_pass` varchar(255) NOT NULL,
+  `control_pass_sha` varchar(255) NOT NULL,
   PRIMARY KEY (`user_devices_tree_id`),
   KEY `FK_user_devices_tree_user_device` (`user_device_id`),
   KEY `FK_user_devices_tree_users` (`user_id`),
@@ -2316,27 +2317,27 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
 -- Дамп данных таблицы things.user_devices_tree: ~20 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
-INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`) VALUES
-	(1, 1, NULL, NULL, 'Устройства', 1, 17, 3, '', 0, '', ''),
-	(5, 2, 1, NULL, 'Кухня', 1, 17, 3, '', 0, '', ''),
-	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '', 0, '', ''),
-	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '', 0, '', ''),
-	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1, 17, 3, '', 0, '', ''),
-	(41, 6, 2, 1, 'UniPing RS-485', 1, 17, 3, '', 0, '', ''),
-	(107, 7, 1, NULL, 'Санитарный блок', 1, 17, 3, '', 0, '', ''),
-	(125, 8, 7, 11, 'барометр', 1, 17, 3, '', 0, '', ''),
-	(131, 9, 1, NULL, 'Гараж', 1, 17, 3, '', 0, '', ''),
-	(132, 10, 9, 16, 'Датчик СО', 1, 17, 3, '', 0, '', ''),
-	(133, 11, 1, NULL, 'Подсобка', 1, 17, 3, '', 0, '', ''),
-	(134, 12, 1, NULL, 'Бассейн', 1, 17, 3, '', 0, '', ''),
-	(135, 13, 7, 17, 'термометр-1', 1, 17, 3, '', 0, '', ''),
-	(146, 1, NULL, NULL, 'Устройства', 2, 17, 3, '', 0, '', ''),
-	(148, 14, 7, 19, 'Помпа', 1, 17, 3, '', 0, '', ''),
-	(151, 15, 9, 22, 'Датчик СО2', 1, 17, 3, '', 0, '', ''),
-	(153, 16, 9, 24, 'Косяк на косяке', 1, 17, 3, '', 0, '', ''),
-	(159, 17, 9, 30, 'Testovich', 1, 17, 3, '', 0, '', ''),
-	(160, 18, 9, 31, '345345', 1, 17, 3, '', 0, '', ''),
-	(161, 19, 11, 32, '1234', 1, 17, 3, '', 0, '', '');
+INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`, `control_pass_sha`) VALUES
+	(1, 1, NULL, NULL, 'Устройства', 1, 17, 3, '', 0, '', '', ''),
+	(5, 2, 1, NULL, 'Кухня', 1, 17, 3, '', 0, '', '', ''),
+	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '', 0, '', '', ''),
+	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '', 0, '', '', ''),
+	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1, 17, 3, '', 0, '', '', ''),
+	(41, 6, 2, 1, 'UniPing RS-485', 1, 17, 3, '', 0, '', '', ''),
+	(107, 7, 1, NULL, 'Санитарный блок', 1, 17, 3, '', 0, '', '', ''),
+	(125, 8, 7, 11, 'барометр', 1, 17, 3, '', 0, '', '', ''),
+	(131, 9, 1, NULL, 'Гараж', 1, 17, 3, '', 0, '', '', ''),
+	(132, 10, 9, 16, 'Датчик СО', 1, 17, 3, '', 0, '', '', ''),
+	(133, 11, 1, NULL, 'Подсобка', 1, 17, 3, '', 0, '', '', ''),
+	(134, 12, 1, NULL, 'Бассейн', 1, 17, 3, '', 0, '', '', ''),
+	(135, 13, 7, 17, 'термометр-1', 1, 17, 3, '', 0, '', '', ''),
+	(146, 1, NULL, NULL, 'Устройства', 2, 17, 3, '', 0, '', '', ''),
+	(148, 14, 7, 19, 'Помпа', 1, 17, 3, '', 0, '', '', ''),
+	(151, 15, 9, 22, 'Датчик СО2', 1, 17, 3, '', 0, '', '', ''),
+	(153, 16, 9, 24, 'Косяк на косяке', 1, 17, 3, '', 0, '', '', ''),
+	(159, 17, 9, 30, 'Testovich', 1, 17, 3, '', 0, '', '', ''),
+	(160, 18, 9, 31, '345345', 1, 17, 3, '', 0, '', '', ''),
+	(161, 19, 11, 32, '1234', 1, 17, 3, '', 0, '', '', '');
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 

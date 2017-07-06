@@ -9,6 +9,7 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -526,6 +527,24 @@ public class tUsefulFuctions {
             default: return  "+";
         }
 
+    }
+
+
+    public static Integer calculateAge(Date birthday)
+    {
+
+        Calendar dob = Calendar.getInstance();
+        Calendar today = Calendar.getInstance();
+
+        dob.setTime(birthday);
+        // include day of birth
+        dob.add(Calendar.DAY_OF_MONTH, -1);
+
+        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        if (today.get(Calendar.DAY_OF_YEAR) <= dob.get(Calendar.DAY_OF_YEAR)) {
+            age--;
+        }
+        return age;
     }
 
 
