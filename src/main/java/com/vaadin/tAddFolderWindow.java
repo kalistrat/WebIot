@@ -1,12 +1,16 @@
 package com.vaadin;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.util.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
 import java.sql.*;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Created by kalistrat on 15.05.2017.
@@ -15,11 +19,19 @@ public class tAddFolderWindow extends Window {
 
     Button SaveButton;
     Button CancelButton;
-    TextField EditTextField;
     tTreeContentLayout iTreeContentLayout;
     int iLeafId;
     int iNewTreeId;
     int iNewLeafId;
+
+    TextField NameTextField;
+    TextField MqttServerTextField;
+    TextField DeviceLoginTextField;
+    TextField DevicePassWordTextField;
+    TextField OutTopicNameField;
+    NativeSelect TimeZoneSelect;
+    TextField TimeSyncInterval;
+    CheckBox SLLCheck;
 
     public tAddFolderWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
@@ -30,13 +42,8 @@ public class tAddFolderWindow extends Window {
         iNewTreeId = 0;
         iNewLeafId = 0;
 
-
         this.setIcon(VaadinIcons.FOLDER_ADD);
-        this.setCaption(" Добавление подкаталога");
-
-        EditTextField = new TextField("Наименование подкаталога");
-        EditTextField.setIcon(VaadinIcons.FOLDER);
-        EditTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        this.setCaption(" Добавление контроллера");
 
         SaveButton = new Button("Сохранить");
 
@@ -49,14 +56,14 @@ public class tAddFolderWindow extends Window {
             public void buttonClick(Button.ClickEvent clickEvent) {
 
                 String sErrorMessage = "";
-                String sFieldValue = EditTextField.getValue();
+                String sFieldValue = NameTextField.getValue();
 
                 if (sFieldValue == null){
-                    sErrorMessage = "Наименование подкаталога не задано\n";
+                    sErrorMessage = "Наименование контроллера не задано\n";
                 }
 
                 if (sFieldValue.equals("")){
-                    sErrorMessage = "Наименование подкаталога не задано\n";
+                    sErrorMessage = "Наименование контроллера не задано\n";
                 }
 
                 if (sFieldValue.length() > 30){
@@ -92,7 +99,7 @@ public class tAddFolderWindow extends Window {
                         iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId,0);
                         iTreeContentLayout.itTree.expandItem(iLeafId);
                     }
-                    Notification.show("Подкаталог добавлен!",
+                    Notification.show("Контроллер добавлен!",
                             null,
                             Notification.Type.TRAY_NOTIFICATION);
                     UI.getCurrent().removeWindow((tAddFolderWindow) clickEvent.getButton().getData());
@@ -122,15 +129,67 @@ public class tAddFolderWindow extends Window {
         ButtonsLayout.setSizeUndefined();
         ButtonsLayout.setSpacing(true);
 
-        VerticalLayout MessageLayout = new VerticalLayout(
-                EditTextField
+        NameTextField = new TextField("Наименование контроллера :");
+        NameTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
+        MqttServerTextField = new TextField("mqtt-сервер :");
+        MqttServerTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
+        DeviceLoginTextField = new TextField("Логин контроллера :");
+        DeviceLoginTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
+        DevicePassWordTextField = new TextField("Пароль контроллера :");
+        DevicePassWordTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
+        OutTopicNameField = new TextField("mqtt-топик для синхронизации времени :");
+        OutTopicNameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
+        TimeZoneSelect = new NativeSelect("Часовой пояс контроллера :");
+        TimeZoneSelect.setNullSelectionAllowed(false);
+        tUsefulFuctions.setTimeZoneList(TimeZoneSelect);
+        TimeZoneSelect.select("UTC+3");
+        TimeSyncInterval = new TextField("Интервал синхронизации времени (в сутках) :");
+        TimeSyncInterval.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        StringToIntegerConverter plainIntegerConverter = new StringToIntegerConverter() {
+            protected java.text.NumberFormat getFormat(Locale locale) {
+                NumberFormat format = super.getFormat(locale);
+                format.setGroupingUsed(false);
+                return format;
+            };
+        };
+        TimeSyncInterval.setConverter(plainIntegerConverter);
+        TimeSyncInterval.addValidator(new IntegerRangeValidator("Значение может изменяться от 1 до 365", 1, 365));
+        TimeSyncInterval.setConversionError("Введённое значение не является целочисленным");
+        TimeSyncInterval.setNullRepresentation("");
+        TimeSyncInterval.setValue("");
+
+        SLLCheck = new CheckBox("шифрование трафика (SSL)");
+        SLLCheck.addStyleName(ValoTheme.CHECKBOX_SMALL);
+
+
+        FormLayout ContParamLayout = new FormLayout(
+                NameTextField
+                , MqttServerTextField
+                , DeviceLoginTextField
+                , DevicePassWordTextField
+                , OutTopicNameField
+                , TimeZoneSelect
+                , TimeSyncInterval
+                , SLLCheck
         );
+        ContParamLayout.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
+        ContParamLayout.setSizeUndefined();
+        ContParamLayout.setMargin(false);
+
+        VerticalLayout MessageLayout = new VerticalLayout(
+                ContParamLayout
+        );
+
         MessageLayout.setSpacing(true);
-        MessageLayout.setWidth("320px");
-        MessageLayout.setHeightUndefined();
+        MessageLayout.setSizeUndefined();
         MessageLayout.setMargin(true);
-        MessageLayout.setComponentAlignment(EditTextField, Alignment.MIDDLE_CENTER);
-        MessageLayout.addStyleName(ValoTheme.LAYOUT_WELL);
+        MessageLayout.setComponentAlignment(ContParamLayout, Alignment.MIDDLE_CENTER);
+        MessageLayout.addStyleName(ValoTheme.LAYOUT_CARD);
 
         VerticalLayout WindowContentLayout = new VerticalLayout(
                 MessageLayout

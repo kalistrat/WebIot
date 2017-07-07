@@ -547,5 +547,38 @@ public class tUsefulFuctions {
         return age;
     }
 
+    public static void setTimeZoneList(NativeSelect eListBox){
+
+        try {
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            String DataSql = "select tz.timezone_value\n" +
+                    "from timezones tz";
+
+            PreparedStatement DataStmt = Con.prepareStatement(DataSql);
+
+            ResultSet DataRs = DataStmt.executeQuery();
+
+            while (DataRs.next()) {
+                eListBox.addItem(DataRs.getString(1));
+            }
+
+
+            Con.close();
+
+        } catch (SQLException se3) {
+            //Handle errors for JDBC
+            se3.printStackTrace();
+        } catch (Exception e13) {
+            //Handle errors for Class.forName
+            e13.printStackTrace();
+        }
+    }
+
 
 }

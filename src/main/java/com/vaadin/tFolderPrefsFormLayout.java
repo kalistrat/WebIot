@@ -95,7 +95,7 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
 
         TimeZoneSelect = new NativeSelect("Часовой пояс контроллера :");
         TimeZoneSelect.setNullSelectionAllowed(false);
-        setTimeZoneList();
+        tUsefulFuctions.setTimeZoneList(TimeZoneSelect);
 
         TimeSyncInterval = new TextField("Интервал синхронизации времени (в сутках) :");
 
@@ -201,36 +201,4 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
         }
     }
 
-    public void setTimeZoneList(){
-
-        try {
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            String DataSql = "select tz.timezone_value\n" +
-                    "from timezones tz";
-
-            PreparedStatement DataStmt = Con.prepareStatement(DataSql);
-
-            ResultSet DataRs = DataStmt.executeQuery();
-
-            while (DataRs.next()) {
-                TimeZoneSelect.addItem(DataRs.getString(1));
-            }
-
-
-            Con.close();
-
-        } catch (SQLException se3) {
-            //Handle errors for JDBC
-            se3.printStackTrace();
-        } catch (Exception e13) {
-            //Handle errors for Class.forName
-            e13.printStackTrace();
-        }
-    }
 }
