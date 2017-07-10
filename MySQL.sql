@@ -27,6 +27,23 @@ INSERT INTO `action_type` (`action_type_id`, `action_type_name`, `icon_code`) VA
 /*!40000 ALTER TABLE `action_type` ENABLE KEYS */;
 
 
+-- Дамп структуры для функция things.fIsExistsContLogin
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `fIsExistsContLogin`(
+eContLog varchar(50)
+) RETURNS int(11)
+begin
+
+return(
+select case when count(*)>0 then 1 else 0 end
+from user_devices_tree udt
+where udt.control_log=eContLog
+);
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для функция things.fIsLeafNameExists
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `fIsLeafNameExists`(eUserLog varchar(50)
@@ -547,6 +564,26 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для функция things.f_get_server_link
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_server_link`(
+eServType varchar(50)
+) RETURNS varchar(50) CHARSET utf8
+begin
+return(
+select concat('tcp://',concat(concat(ss.server_ip,':'),ss.server_port)) mqtt_link
+from mqtt_servers ss
+where ss.server_id in (
+select max(ms.server_id)
+from mqtt_servers ms
+where ms.is_busy=0
+and ms.server_type=eServType
+)
+);
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для функция things.f_get_unit_sym
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_unit_sym`(`eUserDeviceId` int) RETURNS varchar(50) CHARSET utf8
@@ -838,18 +875,18 @@ CREATE TABLE IF NOT EXISTS `mqtt_servers` (
   `name` varchar(50) DEFAULT NULL,
   `server_type` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`server_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.mqtt_servers: ~6 rows (приблизительно)
 DELETE FROM `mqtt_servers`;
 /*!40000 ALTER TABLE `mqtt_servers` DISABLE KEYS */;
 INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`, `server_type`) VALUES
-	(1, '192.168.1.64', '1883', 0, 'HOME', 'общий незащищённый'),
-	(2, '172.16.98.95', '1883', 0, 'NOTEBOOK', 'общий незащищённый'),
-	(3, 'localhost', '1883', 0, 'LOCALHOST', 'общий незащищённый'),
-	(4, 'localhost', '1883', 0, 'LOCALHOST', 'общий защищённый'),
-	(5, 'localhost', '1883', 0, 'LOCALHOST', 'отдельный незащищённый'),
-	(6, 'localhost', '1883', 0, 'LOCALHOST', 'отдельный защищённый');
+	(3, 'localhost', '1883', 0, 'LOCALHOST', 'regular'),
+	(4, 'localhost', '1884', 0, 'LOCALHOST', 'ssl'),
+	(5, 'localhost', '1885', 0, 'LOCALHOST', 'tls'),
+	(6, 'localhost', '1883', 0, 'LOCALHOST', 'standalone'),
+	(7, '192.168.1.64', '1883', 1, 'HOME', 'regular'),
+	(8, '172.16.98.95', '1883', 1, 'NOTEBOOK', 'regular');
 /*!40000 ALTER TABLE `mqtt_servers` ENABLE KEYS */;
 
 
@@ -2318,7 +2355,7 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`, `control_pass_sha`) VALUES
-	(1, 1, NULL, NULL, 'Устройства', 1, 17, 3, '', 0, '', '', ''),
+	(1, 1, NULL, NULL, 'Устройства', 1, 17, 3, '', 0, 'kalistrat', '', ''),
 	(5, 2, 1, NULL, 'Кухня', 1, 17, 3, '', 0, '', '', ''),
 	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '', 0, '', '', ''),
 	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '', 0, '', '', ''),

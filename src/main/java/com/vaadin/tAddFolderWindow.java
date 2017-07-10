@@ -1,6 +1,7 @@
 package com.vaadin;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.icons.VaadinIcons;
@@ -28,10 +29,14 @@ public class tAddFolderWindow extends Window {
     TextField MqttServerTextField;
     TextField DeviceLoginTextField;
     TextField DevicePassWordTextField;
-    TextField OutTopicNameField;
+    HorizontalLayout OutTopicNameField;
     NativeSelect TimeZoneSelect;
     TextField TimeSyncInterval;
     CheckBox SLLCheck;
+    Label RootTopicName;
+    String mqttRegularUrl;
+    String mqttSslUrl;
+
 
     public tAddFolderWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
@@ -41,6 +46,9 @@ public class tAddFolderWindow extends Window {
 
         iNewTreeId = 0;
         iNewLeafId = 0;
+
+        mqttRegularUrl = setMqttRegularLink("regular");
+        mqttSslUrl = setMqttRegularLink("ssl");
 
         this.setIcon(VaadinIcons.FOLDER_ADD);
         this.setCaption(" Добавление контроллера");
@@ -57,21 +65,68 @@ public class tAddFolderWindow extends Window {
 
                 String sErrorMessage = "";
                 String sFieldValue = NameTextField.getValue();
-
-                if (sFieldValue == null){
-                    sErrorMessage = "Наименование контроллера не задано\n";
-                }
+                String sLogValue = DeviceLoginTextField.getValue();
+                String sPassValue = DevicePassWordTextField.getValue();
+                String sTimeSync = TimeSyncInterval.getValue();
 
                 if (sFieldValue.equals("")){
                     sErrorMessage = "Наименование контроллера не задано\n";
                 }
 
                 if (sFieldValue.length() > 30){
-                    sErrorMessage = "Длина наименования превышает 30 символов\n";
+                    sErrorMessage = sErrorMessage + "Длина наименования превышает 30 символов\n";
                 }
 
                 if (tUsefulFuctions.fIsLeafNameBusy(iTreeContentLayout.iUserLog,sFieldValue) > 0){
-                    sErrorMessage = "Указанное наименование уже используется. Введите другое.\n";
+                    sErrorMessage = sErrorMessage + "Указанное наименование уже используется. Введите другое.\n";
+                }
+
+                if (sLogValue.equals("")){
+                    sErrorMessage = sErrorMessage + "Логин контроллера не задан\n";
+                } else {
+                    if (sLogValue.length() > 50){
+                        sErrorMessage = sErrorMessage + "Длина логина превышает 50 символов\n";
+                    }
+                    if (sLogValue.length() < 5){
+                        sErrorMessage = sErrorMessage + "Длина логина меньше 5 символов\n";
+                    }
+                    if (isExistsContLogIn(sLogValue).intValue() == 1){
+                        sErrorMessage = sErrorMessage + "Указанный логин занят. Введите другой\n";
+                    }
+                    if (!tUsefulFuctions.IsLatinAndDigits(sLogValue)){
+                        sErrorMessage = sErrorMessage + "Логин должен состоять из латиницы и цифр\n";
+                    }
+                }
+
+                if (sPassValue.equals("")){
+                    sErrorMessage = sErrorMessage + "Пароль контроллера не задан\n";
+                } else {
+                    if (sPassValue.length() > 50){
+                        sErrorMessage = sErrorMessage + "Длина пароля превышает 50 символов\n";
+                    }
+                    if (sPassValue.length() < 5){
+                        sErrorMessage = sErrorMessage + "Длина пароля меньше 5 символов\n";
+                    }
+                    if (!tUsefulFuctions.IsLatinAndDigits(sPassValue)){
+                        sErrorMessage = sErrorMessage + "Пароль должен состоять из латиницы и цифр\n";
+                    }
+                }
+
+                if (sTimeSync != null){
+
+                    if (tUsefulFuctions.StrToIntValue(sTimeSync)!= null) {
+
+                        if (Integer.parseInt(sTimeSync) < 1) {
+                            sErrorMessage = sErrorMessage + "Интервал синхронизации не может быть меньше суток\n";
+                        }
+                        if (Integer.parseInt(sTimeSync) > 365) {
+                            sErrorMessage = sErrorMessage + "Интервал синхронизации превышает 365 суток\n";
+                        }
+
+                    } else {
+                        sErrorMessage = sErrorMessage + "Интервал синхронизации некорректный\n";
+                    }
+
                 }
 
                 if (!sErrorMessage.equals("")){
@@ -131,18 +186,44 @@ public class tAddFolderWindow extends Window {
 
         NameTextField = new TextField("Наименование контроллера :");
         NameTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        NameTextField.setValue("");
 
         MqttServerTextField = new TextField("mqtt-сервер :");
         MqttServerTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        MqttServerTextField.setEnabled(false);
+        MqttServerTextField.setValue(mqttRegularUrl);
 
         DeviceLoginTextField = new TextField("Логин контроллера :");
         DeviceLoginTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        DeviceLoginTextField.setValue("");
+
+        DeviceLoginTextField.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                RootTopicName.setValue("/" + DeviceLoginTextField.getValue() + "/synctime");
+            }
+        });
 
         DevicePassWordTextField = new TextField("Пароль контроллера :");
         DevicePassWordTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        DevicePassWordTextField.setValue("");
 
-        OutTopicNameField = new TextField("mqtt-топик для синхронизации времени :");
-        OutTopicNameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+//        OutTopicNameField = new TextField("mqtt-топик для синхронизации времени :");
+//        OutTopicNameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        TextField topicfield = new TextField();
+        //topicfield.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        topicfield.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+
+        RootTopicName = new Label();
+        RootTopicName.addStyleName("FormTextLabel");
+        //RootTopicName.addStyleName(ValoTheme.LABEL_SMALL);
+
+        OutTopicNameField = new HorizontalLayout(
+                RootTopicName
+                ,topicfield
+        );
+        OutTopicNameField.setCaption("mqtt-топик для синхронизации времени :");
+        OutTopicNameField.setEnabled(false);
 
         TimeZoneSelect = new NativeSelect("Часовой пояс контроллера :");
         TimeZoneSelect.setNullSelectionAllowed(false);
@@ -165,6 +246,16 @@ public class tAddFolderWindow extends Window {
 
         SLLCheck = new CheckBox("шифрование трафика (SSL)");
         SLLCheck.addStyleName(ValoTheme.CHECKBOX_SMALL);
+        SLLCheck.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                if ((Boolean) valueChangeEvent.getProperty().getValue()) {
+                    MqttServerTextField.setValue(mqttSslUrl);
+                } else {
+                    MqttServerTextField.setValue(mqttRegularUrl);
+                }
+            }
+        });
 
 
         FormLayout ContParamLayout = new FormLayout(
@@ -179,6 +270,7 @@ public class tAddFolderWindow extends Window {
         );
         ContParamLayout.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
         ContParamLayout.setSizeUndefined();
+        ContParamLayout.addStyleName("FormFont");
         ContParamLayout.setMargin(false);
 
         VerticalLayout MessageLayout = new VerticalLayout(
@@ -240,5 +332,65 @@ public class tAddFolderWindow extends Window {
             e.printStackTrace();
         }
 
+    }
+
+    public String setMqttRegularLink(String qServType){
+        String servLink = null;
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement callStmt = Con.prepareCall("{? = call f_get_server_link(?)}");
+            callStmt.registerOutParameter(1, Types.VARCHAR);
+            callStmt.setString(2, qServType);
+            callStmt.execute();
+
+            servLink =  callStmt.getString(1);
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+        return  servLink;
+    }
+
+    public Integer isExistsContLogIn(String qLogIn){
+        Integer isE = 0;
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement callStmt = Con.prepareCall("{? = call fIsExistsContLogin(?)}");
+            callStmt.registerOutParameter(1, Types.INTEGER);
+            callStmt.setString(2, qLogIn);
+            callStmt.execute();
+
+            isE =  callStmt.getInt(1);
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+        return isE;
     }
 }

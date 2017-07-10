@@ -12978,6 +12978,10 @@ div.v-layout.v-horizontal.v-widget {
 	margin-top: 6px;
 }
 
+.mytheme .FormTextLabel {
+	margin-top: 10px;
+}
+
 .mytheme .TableLabel {
 	margin-top: 9px;
 }
