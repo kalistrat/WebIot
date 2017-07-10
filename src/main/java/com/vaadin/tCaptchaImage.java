@@ -20,6 +20,7 @@ import java.util.Random;
 public class tCaptchaImage implements StreamResource.StreamSource {
     ByteArrayOutputStream imagebuffer = null;
     int reloads = 0;
+    int captchaRes;
 
     // This method generates the stream contents
     public InputStream getStream () {
@@ -43,6 +44,19 @@ public class tCaptchaImage implements StreamResource.StreamSource {
         int ca = tUsefulFuctions.genRandInt(1,99);
         int cb = tUsefulFuctions.genRandInt(1,99);
         String csign = tUsefulFuctions.genSign();
+
+        if (csign.equals("+")) {
+            captchaRes = ca + cb;
+        }
+        else if (csign.equals("-")) {
+            captchaRes = ca - cb;
+        }
+        else if (csign.equals("*")) {
+            captchaRes = ca * cb;
+        }
+        else {
+            captchaRes = ca + cb;
+        }
         String genExpr = String.valueOf(ca) + "  " + csign + "  " + String.valueOf(cb);
 
         drawable.drawString(genExpr,20,Math.round(0.5*capHeight) + 10);

@@ -111,15 +111,18 @@ public class tAddFolderWindow extends Window {
                         sErrorMessage = sErrorMessage + "Пароль должен состоять из латиницы и цифр\n";
                     }
                 }
+                int timeSyncInt = 0;
 
                 if (sTimeSync != null){
 
                     if (tUsefulFuctions.StrToIntValue(sTimeSync)!= null) {
 
-                        if (Integer.parseInt(sTimeSync) < 1) {
+                        timeSyncInt = Integer.parseInt(sTimeSync);
+
+                        if (timeSyncInt < 1) {
                             sErrorMessage = sErrorMessage + "Интервал синхронизации не может быть меньше суток\n";
                         }
-                        if (Integer.parseInt(sTimeSync) > 365) {
+                        if (timeSyncInt > 365) {
                             sErrorMessage = sErrorMessage + "Интервал синхронизации превышает 365 суток\n";
                         }
 
@@ -136,7 +139,18 @@ public class tAddFolderWindow extends Window {
                 } else {
 
 
-                    addSubFolder(iLeafId,sFieldValue,iTreeContentLayout.iUserLog);
+                    addSubFolder(
+                     iLeafId
+                    ,sFieldValue
+                    ,iTreeContentLayout.iUserLog
+                    ,sLogValue
+                    ,sPassValue
+                    ,tUsefulFuctions.sha256(sPassValue)
+                    ,MqttServerTextField.getValue()
+                    ,(String) TimeZoneSelect.getValue()
+                    ,timeSyncInt
+                    ,RootTopicName.getValue()
+                    );
 
                     if (iNewTreeId != 0) {
 
@@ -301,6 +315,13 @@ public class tAddFolderWindow extends Window {
             int qParentLeafId
             ,String qSubFolderName
             ,String qUserLog
+            ,String qDeviceLog
+            ,String qDevicePass
+            ,String qDevicePassSha
+            ,String qMqttServerLink
+            ,String qTimeZoneVal
+            ,int qTimeSyncInt
+            ,String qTimeSyncTopic
     ){
         try {
 
@@ -311,12 +332,19 @@ public class tAddFolderWindow extends Window {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement addFolderStmt = Con.prepareCall("{call p_add_subfolder(?, ?, ?, ?, ?)}");
+            CallableStatement addFolderStmt = Con.prepareCall("{call p_add_subfolder(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
             addFolderStmt.setInt(1, qParentLeafId);
             addFolderStmt.setString(2, qSubFolderName);
             addFolderStmt.setString(3, qUserLog);
             addFolderStmt.registerOutParameter(4, Types.INTEGER);
             addFolderStmt.registerOutParameter(5, Types.INTEGER);
+            addFolderStmt.setString(6, qDeviceLog);
+            addFolderStmt.setString(7, qDevicePass);
+            addFolderStmt.setString(8, qDevicePassSha);
+            addFolderStmt.setString(9, qMqttServerLink);
+            addFolderStmt.setInt(10, qTimeSyncInt);
+            addFolderStmt.setString(11, qTimeSyncTopic);
+            addFolderStmt.setString(12, qTimeZoneVal);
             addFolderStmt.execute();
 
             iNewTreeId = addFolderStmt.getInt(4);

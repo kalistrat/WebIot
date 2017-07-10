@@ -11,6 +11,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,6 +48,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
     FormLayout PersonalForm;
 
     tCaptchaLayout captchaLayout;
+    tCaptchaImage sendedCaptchaImage;
 
 
     public tRegistrationFormLayout() {
@@ -284,9 +286,10 @@ public class tRegistrationFormLayout extends VerticalLayout {
                             sErrorMessage,
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
-                    Notification.show("Письмо для подтверждения отправлено",
-                            null,
-                            Notification.Type.TRAY_NOTIFICATION);
+
+                    sendEmail(sMail);
+                    System.out.println("sendedCaptchaImage : " + sendedCaptchaImage.captchaRes);
+
                 }
             }
         });
@@ -516,6 +519,34 @@ public class tRegistrationFormLayout extends VerticalLayout {
         ContentLayout.setSizeUndefined();
 
         this.addComponent(ContentLayout);
+    }
+
+    private void sendEmail(String to) {
+        try {
+
+            sendedCaptchaImage = new tCaptchaImage();
+
+            InputStream inputStream = sendedCaptchaImage.getStream();
+            String from = "snslog@mail.ru";
+            String subject = "Регистрация на snslog.ru";
+            String text = "Введите результат арифметического выражения в окне активации на snslog.ru";
+            String fileName = LoginField.getValue()+".png";
+            String mimeType = "image/png";
+
+            SpringEmailService.send(from, to, subject, text, inputStream, fileName, mimeType);
+
+            inputStream.close();
+
+            Notification.show("Письмо для подтверждения отправлено",
+                    null,
+                    Notification.Type.TRAY_NOTIFICATION);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Notification.show("Ошибка отправки письма"
+                    , Notification.Type.ERROR_MESSAGE
+            );
+        }
     }
 
 }

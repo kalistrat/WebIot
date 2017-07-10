@@ -83,8 +83,8 @@ public class SpringEmailService {
 //        properties.put("mail.smtp.socketFactory.port", "465");
 //        properties.put("mail.smtp.socketFactory.class","javax.net.ssl.SSLSocketFactory");
 
-        properties.put("mail.smtp.username","kalique@bk.ru");
-        properties.put("mail.smtp.password","irensorokina");
+        properties.put("mail.smtp.username","snslog@mail.ru");
+        properties.put("mail.smtp.password","WebIot7");
         properties.put("mail.transport.protocol", "smtp");
         properties.put("mail.smtp.host", "smtp.mail.ru");
         properties.put("mail.smtp.starttls.enable", "true");
@@ -99,8 +99,8 @@ public class SpringEmailService {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 
         mailSender.setJavaMailProperties(properties);
-        mailSender.setUsername("kalique@bk.ru");
-        mailSender.setPassword("irensorokina");
+        mailSender.setUsername("snslog@mail.ru");
+        mailSender.setPassword("WebIot7");
 
 //        System.out.println(username+":"+password);
 
