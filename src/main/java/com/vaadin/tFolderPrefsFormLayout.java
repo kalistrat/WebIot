@@ -50,7 +50,8 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
         SaveButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-
+                SaveButton.setEnabled(false);
+                EditButton.setEnabled(true);
             }
         });
 
@@ -163,7 +164,12 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
                     ",udt.control_log\n" +
                     ",udt.control_pass\n" +
                     ",tz.timezone_value\n" +
-                    ",if(udt.sync_interval,0,1) sync_interval\n" +
+                    ",udt.sync_interval sync_interval\n" +
+                    ",(\n" +
+                    "select mss.server_type\n" +
+                    "from mqtt_servers mss\n" +
+                    "where mss.server_id=ser.server_id\n" +
+                    ") server_type\n" +
                     "from user_devices_tree udt\n" +
                     "join users u on u.user_id=udt.user_id\n" +
                     "join mqtt_servers ser on ser.server_id=udt.mqtt_server_id\n" +
@@ -185,7 +191,14 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
                 DeviceLoginTextField.setValue(DataRs.getString(4));
                 DevicePassWordTextField.setValue(DataRs.getString(5));
                 TimeZoneSelect.select(DataRs.getString(6));
-                TimeSyncInterval.setValue(DataRs.getString(7));
+                if (DataRs.getInt(7) == 0){
+                    TimeSyncInterval.setValue("");
+                } else {
+                    TimeSyncInterval.setValue(String.valueOf(DataRs.getInt(7)));
+                }
+                if (DataRs.getString(8).equals("ssl")) {
+                    SLLCheck.setValue(true);
+                }
 
             }
 

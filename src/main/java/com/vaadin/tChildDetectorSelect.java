@@ -30,16 +30,19 @@ public class tChildDetectorSelect extends NativeSelect {
                     .iParentContentLayout
                     .itTree
                     .TreeContainer.getItem(iL).getItemProperty(7).getValue();
-            if (ChildLeafActionType.equals("Измерительное устройство")){
-                Integer ChildUserDeviceId = eActuatorStatesLayout
-                        .iParentContentLayout
-                        .getLeafUserDeviceId(iL);
-                String ChildUserDeviceName = eActuatorStatesLayout
-                        .iParentContentLayout
-                        .GetLeafNameById(iL);
 
-                ChildDetectors.add(new tDeviceIdName(ChildUserDeviceId,ChildUserDeviceName));
-                addItem(ChildUserDeviceName);
+            if (ChildLeafActionType != null) {
+                if (ChildLeafActionType.equals("Измерительное устройство")) {
+                    Integer ChildUserDeviceId = eActuatorStatesLayout
+                            .iParentContentLayout
+                            .getLeafUserDeviceId(iL);
+                    String ChildUserDeviceName = eActuatorStatesLayout
+                            .iParentContentLayout
+                            .GetLeafNameById(iL);
+
+                    ChildDetectors.add(new tDeviceIdName(ChildUserDeviceId, ChildUserDeviceName));
+                    addItem(ChildUserDeviceName);
+                }
             }
         }
 
