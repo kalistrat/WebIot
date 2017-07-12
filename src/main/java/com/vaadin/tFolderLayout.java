@@ -232,22 +232,28 @@ public class tFolderLayout extends VerticalLayout {
         MenuBar.Command mycommand = new MenuBar.Command() {
             public void menuSelected(MenuBar.MenuItem selectedItem) {
 
-                if (selectedItem.getText().equals("Добавить подкаталог")) {
+                if (selectedItem.getText().equals("Добавить контроллер")) {
                     UI.getCurrent().addWindow(new tAddFolderWindow(tCurrentLeafId
                             ,tParentContentLayout
                     ));
 
                 }  else {
 
-                    UI.getCurrent().addWindow(new tAddDeviceWindow(tCurrentLeafId
-                            ,tParentContentLayout
-                    ));
+                    if (tParentContentLayout.GetParentLeafById(tCurrentLeafId)!=0) {
+                        UI.getCurrent().addWindow(new tAddDeviceWindow(tCurrentLeafId
+                                ,tParentContentLayout
+                        ));
+                    } else {
+                        Notification.show(null,
+                                "В корневой каталог нельзя добавлять устройства, только контроллеры",
+                                Notification.Type.TRAY_NOTIFICATION);
+                    }
                 }
 
             }
         };
 
-        AdditionItem.addItem("Добавить подкаталог"
+        AdditionItem.addItem("Добавить контроллер"
                 , VaadinIcons.FOLDER_ADD
                 , mycommand
         );

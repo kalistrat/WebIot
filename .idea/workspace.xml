@@ -4,8 +4,8 @@
     <list default="true" id="fb44adc8-b759-4f7e-9775-efa68dd97484" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tAddDeviceWindow.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tAddDeviceWindow.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tChildDetectorSelect.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tChildDetectorSelect.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tFolderPrefsFormLayout.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tFolderPrefsFormLayout.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tFolderLayout.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tFolderLayout.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tPeriodMeasuresLayout.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tPeriodMeasuresLayout.java" />
     </list>
     <ignored path="things.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -29,28 +29,48 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="tAddDeviceWindow.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tAddDeviceWindow.java">
+      <file leaf-file-name="tUsefulFuctions.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tUsefulFuctions.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="129" column="34" selection-start-line="129" selection-start-column="34" selection-end-line="129" selection-end-column="34" />
+              <caret line="36" column="22" selection-start-line="36" selection-start-column="22" selection-end-line="36" selection-end-column="22" />
               <folding>
-                <marker date="1499781681678" expanded="true" signature="9190:9262" placeholder="select at.ac... action_type" />
-                <marker date="1499781681678" expanded="true" signature="10211:10443" placeholder="select udt.c... user_devices_tree" />
+                <marker date="1499436763581" expanded="true" signature="7369:8310" placeholder="select ud.de... user_device" />
+                <marker date="1499436763581" expanded="true" signature="13722:13820" placeholder="select conca... mqtt_servers" />
+                <marker date="1499436763581" expanded="true" signature="17921:17989" placeholder="select tz.ti... timezones" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tUsefulFuctions.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tUsefulFuctions.java">
+      <file leaf-file-name="tGraphLayout.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tGraphLayout.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.13421053">
-              <caret line="335" column="13" selection-start-line="335" selection-start-column="13" selection-end-line="335" selection-end-column="13" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="124" column="9" selection-start-line="124" selection-start-column="9" selection-end-line="124" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tDetectorLayout.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tDetectorLayout.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="142" column="28" selection-start-line="142" selection-start-column="28" selection-end-line="142" selection-end-column="28" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tPeriodMeasuresLayout.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tPeriodMeasuresLayout.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.08421053">
+              <caret line="271" column="83" selection-start-line="271" selection-start-column="83" selection-end-line="271" selection-end-column="83" />
               <folding>
-                <marker date="1499436763581" expanded="true" signature="7369:8310" placeholder="select ud.de... user_device" />
-                <marker date="1499436763581" expanded="true" signature="13722:13820" placeholder="select conca... mqtt_servers" />
-                <marker date="1499436763581" expanded="true" signature="17921:17989" placeholder="select tz.ti... timezones" />
+                <marker date="1499875715381" expanded="true" signature="6186:6291" placeholder="select g.per... graph_period" />
+                <marker date="1499875715381" expanded="true" signature="9070:9613" placeholder="select TIMES... user_device_measures" />
               </folding>
             </state>
           </provider>
@@ -116,9 +136,7 @@
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tActuatorStatesLayout.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tRegistrationVeiw.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tCaptchaLayout.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tPeriodMeasuresLayout.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tDetectorLayout.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tFolderLayout.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tUsefulFuctions.java" />
         <option value="$PROJECT_DIR$/src/main/webapp/VAADIN/themes/mytheme/mytheme.scss" />
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tAddFolderWindow.java" />
@@ -128,6 +146,8 @@
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tFolderPrefsFormLayout.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tChildDetectorSelect.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tAddDeviceWindow.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tFolderLayout.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/vaadin/tPeriodMeasuresLayout.java" />
       </list>
     </option>
   </component>
@@ -255,6 +275,8 @@
     </navigator>
     <panes>
       <pane id="PackagesPane" />
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -357,8 +379,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1001,11 +1021,13 @@
       <workItem from="1499713862674" duration="4480000" />
       <workItem from="1499719702104" duration="1654000" />
       <workItem from="1499767158651" duration="8736000" />
+      <workItem from="1499849226386" duration="9592000" />
+      <workItem from="1499874876073" duration="1699000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="882861000" />
+    <option name="totallyTimeSpent" value="894152000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1168" height="696" extended-state="6" />
@@ -1221,13 +1243,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tActuatorStatesLayout.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.39177102">
-          <caret line="422" column="14" selection-start-line="422" selection-start-column="14" selection-end-line="422" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/MathParser.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1246,34 +1261,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="105" column="30" selection-start-line="105" selection-start-column="30" selection-end-line="105" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tGraphLayout.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="5.283784">
-          <caret line="124" column="9" selection-start-line="124" selection-start-column="9" selection-end-line="124" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tPeriodMeasuresLayout.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.17297298">
-          <caret line="150" column="48" selection-start-line="150" selection-start-column="48" selection-end-line="150" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tFolderLayout.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4945946">
-          <caret line="296" column="0" selection-start-line="296" selection-start-column="0" selection-end-line="296" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tDetectorLayout.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.045945946">
-          <caret line="177" column="0" selection-start-line="177" selection-start-column="0" selection-end-line="183" selection-end-column="36" />
         </state>
       </provider>
     </entry>
@@ -1310,7 +1297,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="63" column="0" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1318,7 +1304,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.11449016">
           <caret line="101" column="49" selection-start-line="101" selection-start-column="49" selection-end-line="101" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1342,7 +1327,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1350,7 +1334,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="125" column="0" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1376,9 +1359,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="148" column="43" selection-start-line="148" selection-start-column="43" selection-end-line="148" selection-end-column="43" />
-          <folding>
-            <marker date="1495019194645" expanded="true" signature="4973:5719" placeholder="select udt.u... user_devices_tree" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1386,7 +1366,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.43421054">
           <caret line="27" column="39" selection-start-line="27" selection-start-column="39" selection-end-line="27" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1405,15 +1384,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="2.2368422">
           <caret line="74" column="42" selection-start-line="74" selection-start-column="42" selection-end-line="74" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tAddFolderWindow.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="286" column="49" selection-start-line="286" selection-start-column="8" selection-end-line="286" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1427,25 +1397,78 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tAddDeviceWindow.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tAddFolderWindow.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="129" column="34" selection-start-line="129" selection-start-column="34" selection-end-line="129" selection-end-column="34" />
+          <caret line="92" column="0" selection-start-line="92" selection-start-column="0" selection-end-line="94" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tFolderLayout.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.26842105">
+          <caret line="255" column="49" selection-start-line="255" selection-start-column="49" selection-end-line="255" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tAddDeviceWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.4473684">
+          <caret line="114" column="17" selection-start-line="114" selection-start-column="17" selection-end-line="114" selection-end-column="17" />
           <folding>
-            <marker date="1499781681678" expanded="true" signature="9190:9262" placeholder="select at.ac... action_type" />
-            <marker date="1499781681678" expanded="true" signature="10211:10443" placeholder="select udt.c... user_devices_tree" />
+            <marker date="1499862855316" expanded="true" signature="9665:9737" placeholder="select at.ac... action_type" />
+            <marker date="1499862855316" expanded="true" signature="10686:10918" placeholder="select udt.c... user_devices_tree" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tActuatorStatesLayout.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.21315789">
+          <caret line="450" column="34" selection-start-line="450" selection-start-column="34" selection-end-line="450" selection-end-column="34" />
+          <folding>
+            <marker date="1497364734864" expanded="true" signature="11071:11671" placeholder="select @num1... " />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tUsefulFuctions.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.13421053">
-          <caret line="335" column="13" selection-start-line="335" selection-start-column="13" selection-end-line="335" selection-end-column="13" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="36" column="22" selection-start-line="36" selection-start-column="22" selection-end-line="36" selection-end-column="22" />
           <folding>
             <marker date="1499436763581" expanded="true" signature="7369:8310" placeholder="select ud.de... user_device" />
             <marker date="1499436763581" expanded="true" signature="13722:13820" placeholder="select conca... mqtt_servers" />
             <marker date="1499436763581" expanded="true" signature="17921:17989" placeholder="select tz.ti... timezones" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tGraphLayout.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="124" column="9" selection-start-line="124" selection-start-column="9" selection-end-line="124" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tDetectorLayout.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="142" column="28" selection-start-line="142" selection-start-column="28" selection-end-line="142" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tPeriodMeasuresLayout.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.08421053">
+          <caret line="271" column="83" selection-start-line="271" selection-start-column="83" selection-end-line="271" selection-end-column="83" />
+          <folding>
+            <marker date="1499875715381" expanded="true" signature="6186:6291" placeholder="select g.per... graph_period" />
+            <marker date="1499875715381" expanded="true" signature="9070:9613" placeholder="select TIMES... user_device_measures" />
           </folding>
         </state>
       </provider>

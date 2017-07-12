@@ -103,6 +103,15 @@ public class tAddDeviceWindow extends Window {
 
                 if (sChildTopicName.equals("")){
                     sErrorMessage = sErrorMessage + "Имя топика устройства не задано\n";
+                } else {
+
+                    if (!tUsefulFuctions.IsLatinAndDigits(sChildTopicName)) {
+                        sErrorMessage = sErrorMessage + "Имя топика устройства должно состоять из латиницы и цифр\n";
+                    }
+
+                    if (isExistsTopicName(RootTopicName.getValue()+sChildTopicName).intValue() == 1){
+                        sErrorMessage = sErrorMessage + "Указанный топик используется. Введите другой\n";
+                    }
                 }
 
                 if (!tUsefulFuctions.isSubscriberExists()) {
@@ -350,5 +359,35 @@ public class tAddDeviceWindow extends Window {
             //return "Ошибка Class.forName";
         }
 
+    }
+
+    public Integer isExistsTopicName(String qTopicName){
+        Integer isE = 0;
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement callStmt = Con.prepareCall("{? = call fIsExistsTopicName(?)}");
+            callStmt.registerOutParameter(1, Types.INTEGER);
+            callStmt.setString(2, qTopicName);
+            callStmt.execute();
+
+            isE =  callStmt.getInt(1);
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+        return isE;
     }
 }

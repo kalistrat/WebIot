@@ -277,6 +277,7 @@ public class tPeriodMeasuresLayout extends VerticalLayout {
                     ")\n" +
                     "and udm.measure_date >= f_get_min_period_date1(?)\n" +
                     "and udm.user_device_id=?\n" +
+                    "and udm.measure_value is not null\n" +
                     "order by udm.measure_date";
 
             PreparedStatement GraphSqlStmt = Con.prepareStatement(GraphSql);
