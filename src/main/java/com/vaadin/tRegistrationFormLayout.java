@@ -543,7 +543,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Notification.show("Ошибка отправки письма"
+            Notification.show("Ошибка отправки письма, проверьте адрес электронной почты"
                     , Notification.Type.ERROR_MESSAGE
             );
         }

@@ -93,7 +93,8 @@ public class SpringEmailService {
         properties.put("mail.smtp.port", "465");
         properties.put("mail.smtp.socketFactory.port", "465");
         properties.put("mail.smtp.socketFactory.class","javax.net.ssl.SSLSocketFactory");
-
+        //properties.put("mail.smtp.allow8bitmime", "true");
+        //properties.put("mail.smtps.allow8bitmime", "true");
 
         // configure the connection to the SMTP server
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -113,12 +114,15 @@ public class SpringEmailService {
 //                });
 
         MimeMessage message = mailSender.createMimeMessage();
+
         //mailSender.setSession(session);
         //MimeMessage message = new MimeMessage(session);
+
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom(from);
         helper.setSubject(subject);
-        helper.setText(text, true);
+        helper.setText(text, false);
+
 
         for (String recipient : recipients) {
             helper.addTo(recipient);
