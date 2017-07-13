@@ -88,13 +88,11 @@ public class SpringEmailService {
         properties.put("mail.transport.protocol", "smtp");
         properties.put("mail.smtp.host", "smtp.mail.ru");
         properties.put("mail.smtp.starttls.enable", "true");
-        properties.put("mail.debug", "true");
+        properties.put("mail.debug", "false");
         properties.put("mail.smtp.auth", "true");
         properties.put("mail.smtp.port", "465");
         properties.put("mail.smtp.socketFactory.port", "465");
         properties.put("mail.smtp.socketFactory.class","javax.net.ssl.SSLSocketFactory");
-        //properties.put("mail.smtp.allow8bitmime", "true");
-        //properties.put("mail.smtps.allow8bitmime", "true");
 
         // configure the connection to the SMTP server
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

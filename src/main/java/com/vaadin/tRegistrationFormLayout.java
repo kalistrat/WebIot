@@ -48,7 +48,7 @@ public class tRegistrationFormLayout extends VerticalLayout {
     FormLayout PersonalForm;
 
     tCaptchaLayout captchaLayout;
-    tCaptchaImage sendedCaptchaImage;
+    //tCaptchaImage sendedCaptchaImage;
 
 
     public tRegistrationFormLayout() {
@@ -124,6 +124,10 @@ public class tRegistrationFormLayout extends VerticalLayout {
                         sErrorMessage = sErrorMessage + "Логин должен состоять из латиницы и цифр\n";
                     }
 
+                    if (tUsefulFuctions.isExistsUserLogin(sLog).intValue() == 1) {
+                        sErrorMessage = sErrorMessage + "Указанный логин уже используется\n";
+                    }
+
                 }
 
                 if (sPswd.equals("")){
@@ -167,6 +171,14 @@ public class tRegistrationFormLayout extends VerticalLayout {
                 } else {
                     if (!tUsefulFuctions.IsEmailName(sMail)) {
                         sErrorMessage = sErrorMessage + "Адрес электронной почты не соответствует указанному формату\n";
+                    }
+
+                    if (sMail.length() > 150) {
+                        sErrorMessage = sErrorMessage + "Длина адреса электронной почты превышает 150 символов\n";
+                    }
+
+                    if (tUsefulFuctions.isExistsUserMail(sMail).intValue() == 1) {
+                        sErrorMessage = sErrorMessage + "Указанная электронная почта уже используется\n";
                     }
                 }
 
@@ -287,8 +299,25 @@ public class tRegistrationFormLayout extends VerticalLayout {
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
 
-                    sendEmail(sMail);
-                    System.out.println("sendedCaptchaImage : " + sendedCaptchaImage.captchaRes);
+                    tUserAttributes userAttributes = new tUserAttributes(
+                            sLog
+                            ,sPswd
+                            ,sPhone
+                            ,sMail
+                            ,sPost
+                            ,sSubjType
+                            ,sSubjName
+                            ,sSubjAddr
+                            ,sSubjInn
+                            ,sSubjKpp
+                            ,sFirName
+                            ,sSecName
+                            ,sMidName
+                            ,dBirthdate
+                    );
+
+                    sendEmail(sMail,userAttributes);
+                    //System.out.println("sendedCaptchaImage : " + sendedCaptchaImage.captchaRes);
 
                 }
             }
@@ -521,10 +550,10 @@ public class tRegistrationFormLayout extends VerticalLayout {
         this.addComponent(ContentLayout);
     }
 
-    private void sendEmail(String to) {
+    private void sendEmail(String to,tUserAttributes userAttr) {
         try {
 
-            sendedCaptchaImage = new tCaptchaImage();
+            tCaptchaImage sendedCaptchaImage = new tCaptchaImage();
 
             InputStream inputStream = sendedCaptchaImage.getStream();
             String from = "snslog@mail.ru";
@@ -541,11 +570,17 @@ public class tRegistrationFormLayout extends VerticalLayout {
                     null,
                     Notification.Type.TRAY_NOTIFICATION);
 
+            UI.getCurrent().addWindow(new tAddUserAccountWindow(
+                    userAttr
+                    ,sendedCaptchaImage.captchaRes)
+            );
+
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             Notification.show("Ошибка отправки письма, проверьте адрес электронной почты"
                     , Notification.Type.ERROR_MESSAGE
             );
+            System.out.println("Ошибка отправки письма на :" + to);
         }
     }
 

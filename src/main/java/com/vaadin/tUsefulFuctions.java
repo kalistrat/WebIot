@@ -604,5 +604,65 @@ public class tUsefulFuctions {
         return isE;
     }
 
+    public static Integer isExistsUserMail(String qMailValue){
+        Integer isE = 0;
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement callStmt = Con.prepareCall("{? = call fisExistsUserMail(?)}");
+            callStmt.registerOutParameter(1, Types.INTEGER);
+            callStmt.setString(2, qMailValue);
+            callStmt.execute();
+
+            isE =  callStmt.getInt(1);
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+        return isE;
+    }
+
+    public static Integer isExistsUserLogin(String qLoginValue){
+        Integer isE = 0;
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement callStmt = Con.prepareCall("{? = call fisExistsUserLogin(?)}");
+            callStmt.registerOutParameter(1, Types.INTEGER);
+            callStmt.setString(2, qLoginValue);
+            callStmt.execute();
+
+            isE =  callStmt.getInt(1);
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+        return isE;
+    }
+
 
 }

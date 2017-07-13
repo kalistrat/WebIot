@@ -3,7 +3,6 @@ package com.vaadin;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -11,7 +10,6 @@ import com.vaadin.ui.themes.ValoTheme;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 /**
  * Created by kalistrat on 13.07.2017.
