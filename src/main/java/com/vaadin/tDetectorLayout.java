@@ -25,6 +25,7 @@ public class tDetectorLayout extends VerticalLayout {
     tDescriptionLayout DeviceDescription;
     tPeriodMeasuresLayout DeviceMeasuresLayout;
     tDetectorLastMeasureLayout DeviceLastMeasure;
+    tDetectorMeasuresJournalLayout DeviceMeasureJournal;
 
     public tDetectorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
 
@@ -125,6 +126,8 @@ public class tDetectorLayout extends VerticalLayout {
 
         DeviceLastMeasure = new tDetectorLastMeasureLayout(iUserDeviceId);
 
+        DeviceMeasureJournal = new tDetectorMeasuresJournalLayout(iUserDeviceId);
+
         tUsefulFuctions.getUserDetectorData(
                 iUserDeviceId
                 ,DeviceDataLayout
@@ -141,6 +144,7 @@ public class tDetectorLayout extends VerticalLayout {
         VerticalLayout ContentMeasureLayout = new VerticalLayout(
                 DeviceLastMeasure
                 ,DeviceMeasuresLayout
+                ,DeviceMeasureJournal
         );
 
         ContentPrefLayout.setMargin(true);
@@ -192,7 +196,7 @@ public class tDetectorLayout extends VerticalLayout {
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);
 
-        SplPanel.setHeight("800px");
+        SplPanel.setHeight("900px");
         //SplPanel.setWidth("1000px");
 
         this.addComponent(SplPanel);

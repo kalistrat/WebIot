@@ -1,5 +1,6 @@
 package com.vaadin;
 
+import com.vaadin.data.Item;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -29,6 +30,7 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
     NativeSelect TimeZoneSelect;
     TextField TimeSyncInterval;
     CheckBox SLLCheck;
+    String sCurrentDeviceLog;
 
     public tFolderPrefsFormLayout(int eLeafId, String eUserLog) {
 
@@ -50,8 +52,97 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
         SaveButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                SaveButton.setEnabled(false);
-                EditButton.setEnabled(true);
+
+                String sErrorMessage = "";
+                String sLogValue = DeviceLoginTextField.getValue();
+                String sPassValue = DevicePassWordTextField.getValue();
+                String sTimeSync = TimeSyncInterval.getValue();
+
+                if (sLogValue.equals("")){
+                    sErrorMessage = sErrorMessage + "Логин контроллера не задан\n";
+                } else {
+                    if (!sLogValue.equals(sCurrentDeviceLog)) {
+                        if (sLogValue.length() > 50) {
+                            sErrorMessage = sErrorMessage + "Длина логина превышает 50 символов\n";
+                        }
+                        if (sLogValue.length() < 5) {
+                            sErrorMessage = sErrorMessage + "Длина логина меньше 5 символов\n";
+                        }
+                        if (tUsefulFuctions.isExistsContLogIn(sLogValue).intValue() == 1) {
+                            sErrorMessage = sErrorMessage + "Указанный логин занят. Введите другой\n";
+                        }
+                        if (!tUsefulFuctions.IsLatinAndDigits(sLogValue)) {
+                            sErrorMessage = sErrorMessage + "Логин должен состоять из латиницы и цифр\n";
+                        }
+                    }
+                }
+
+                if (sPassValue.equals("")){
+                    sErrorMessage = sErrorMessage + "Пароль контроллера не задан\n";
+                } else {
+                    if (sPassValue.length() > 50){
+                        sErrorMessage = sErrorMessage + "Длина пароля превышает 50 символов\n";
+                    }
+                    if (sPassValue.length() < 5){
+                        sErrorMessage = sErrorMessage + "Длина пароля меньше 5 символов\n";
+                    }
+                    if (!tUsefulFuctions.IsLatinAndDigits(sPassValue)){
+                        sErrorMessage = sErrorMessage + "Пароль должен состоять из латиницы и цифр\n";
+                    }
+                }
+                int timeSyncInt = 0;
+
+                if (sTimeSync != null){
+
+                    if (tUsefulFuctions.StrToIntValue(sTimeSync)!= null) {
+
+                        timeSyncInt = Integer.parseInt(sTimeSync);
+
+                        if (timeSyncInt < 1) {
+                            sErrorMessage = sErrorMessage + "Интервал синхронизации не может быть меньше суток\n";
+                        }
+                        if (timeSyncInt > 365) {
+                            sErrorMessage = sErrorMessage + "Интервал синхронизации превышает 365 суток\n";
+                        }
+
+                    } else {
+                        if (!sTimeSync.equals("")) {
+                            sErrorMessage = sErrorMessage + "Интервал синхронизации некорректный\n";
+                        }
+                    }
+
+                }
+
+                if (!sErrorMessage.equals("")){
+                    Notification.show("Ошибка сохранения:",
+                            sErrorMessage,
+                            Notification.Type.TRAY_NOTIFICATION);
+                } else {
+
+                    updateFolderPrefsFormData(
+                    iLeafId
+                    ,iUserLog
+                    ,sLogValue
+                    ,sPassValue
+                    ,tUsefulFuctions.sha256(sPassValue)
+                    ,(String) TimeZoneSelect.getValue()
+                    ,timeSyncInt
+                    );
+
+
+                    SaveButton.setEnabled(false);
+                    EditButton.setEnabled(true);
+                    DeviceLoginTextField.setEnabled(false);
+                    DevicePassWordTextField.setEnabled(false);
+                    TimeZoneSelect.setEnabled(false);
+                    TimeSyncInterval.setEnabled(false);
+
+                    Notification.show("Параметры контроллера изменены!",
+                            null,
+                            Notification.Type.TRAY_NOTIFICATION);
+                    UI.getCurrent().removeWindow((tAddFolderWindow) clickEvent.getButton().getData());
+
+                }
             }
         });
 
@@ -63,8 +154,13 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
         EditButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
+                sCurrentDeviceLog = DeviceLoginTextField.getValue();
                 SaveButton.setEnabled(true);
                 EditButton.setEnabled(false);
+                DeviceLoginTextField.setEnabled(true);
+                DevicePassWordTextField.setEnabled(true);
+                TimeZoneSelect.setEnabled(true);
+                TimeSyncInterval.setEnabled(true);
             }
         });
 
@@ -189,6 +285,7 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
                 OutTopicNameField.setValue(DataRs.getString(2));
                 MqttServerTextField.setValue("tcp://" + DataRs.getString(3));
                 DeviceLoginTextField.setValue(DataRs.getString(4));
+                //sCurrentDeviceLog = DataRs.getString(4);
                 DevicePassWordTextField.setValue(DataRs.getString(5));
                 TimeZoneSelect.select(DataRs.getString(6));
                 if (DataRs.getInt(7) == 0){
@@ -212,6 +309,47 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
             //Handle errors for Class.forName
             e13.printStackTrace();
         }
+    }
+
+    public void updateFolderPrefsFormData(
+            int qLeafId
+            ,String qUserLog
+            ,String qDeviceLog
+            ,String qDevicePass
+            ,String qDevicePassSha
+            ,String qTimeZone
+            ,int qTimeSyncInt
+    ){
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement Stmt = Con.prepareCall("{call p_updateFolderPrefsFormData(?, ? ,?, ?, ?, ?, ?)}");
+            Stmt.setInt(1, qLeafId);
+            Stmt.setString(2, qUserLog);
+            Stmt.setString(3, qDeviceLog);
+            Stmt.setString(4, qDevicePass);
+            Stmt.setString(5, qDevicePassSha);
+            Stmt.setString(6, qTimeZone);
+            Stmt.setInt(7, qTimeSyncInt);
+
+            Stmt.execute();
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+
     }
 
 }

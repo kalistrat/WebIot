@@ -825,6 +825,7 @@ user_id
 ,user_device_measure_period
 ,device_log
 ,device_pass
+,measure_data_type
 )
 values(
 eUserId
@@ -839,6 +840,7 @@ eUserId
 ,'не задано'
 ,eDeviceLog
 ,eDevicePass
+,'текст'
 );
 
 select LAST_INSERT_ID() into i_user_device_id;
@@ -2009,6 +2011,72 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для процедура things.p_updateDetectorFormData
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_updateDetectorFormData`(
+eUserDeviceId int
+,ePeriodMeasureValue varchar(100)
+,eMeasureDataTypeValue varchar(50)
+)
+begin
+
+update user_device ud
+set ud.user_device_measure_period = ePeriodMeasureValue
+,ud.measure_data_type = eMeasureDataTypeValue
+where ud.user_device_id = eUserDeviceId;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_updateFolderPrefsFormData
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_updateFolderPrefsFormData`(IN `eLeafId` int
+, IN `eUserLog` varchar(50)
+, IN `eDeviceLog` varchar(50)
+, IN `eDevicePass` varchar(50)
+, IN `eDevicePassSha` varchar(255)
+, IN `eTimeZone` varchar(15)
+, IN `eTimeSyncInt` int
+)
+begin
+declare i_time_zone_id int;
+declare i_tree_id int;
+
+select tm.timezone_id into i_time_zone_id
+from timezones tm
+where tm.timezone_value=eTimeZone;
+
+select udtr.user_devices_tree_id into i_tree_id
+from user_devices_tree udtr
+join users u on u.user_id=udtr.user_id
+where u.user_log = eUserLog
+and udtr.leaf_id = eLeafId;
+
+update user_devices_tree udt
+set udt.control_log = eDeviceLog
+,udt.control_pass = eDevicePass
+,udt.control_pass_sha = eDevicePassSha
+,udt.timezone_id = i_time_zone_id
+,udt.sync_interval = eTimeSyncInt
+where udt.user_devices_tree_id = i_tree_id;
+
+
+update user_device ude
+set ude.device_log = eDeviceLog
+,ude.device_pass = eDevicePass
+where ude.user_device_id in (
+select chl.user_device_id
+from user_devices_tree pl
+join user_devices_tree chl on chl.parent_leaf_id=pl.leaf_id and chl.user_id=pl.user_id
+where pl.user_devices_tree_id=i_tree_id
+);
+
+
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для процедура things.s_p_sensor_initial
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_p_sensor_initial`(IN `eUserLog` varchar(50)
@@ -2384,6 +2452,7 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   `description` varchar(255) DEFAULT NULL,
   `device_log` varchar(50) DEFAULT NULL,
   `device_pass` varchar(50) DEFAULT NULL,
+  `measure_data_type` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`user_device_id`),
   UNIQUE KEY `USER_DEVICE_TOPIC_WRITE` (`mqtt_topic_write`),
   KEY `USER_DEVICE_NAME_INDX` (`user_id`,`device_user_name`),
@@ -2401,14 +2470,14 @@ CREATE TABLE IF NOT EXISTS `user_device` (
 -- Дамп данных таблицы things.user_device: ~7 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
-INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`, `device_log`, `device_pass`) VALUES
-	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'ежеминутно', '2017-03-03 18:43:27', 1, '°С', '/kalistrat1/detector1', '', 3, 96, 64, 'UniPing RS-485 xxxxx', 'kalistrat1', '7'),
-	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежесекундно', '2017-02-28 18:32:52', 1, '°С x 10e2', '/kalistrat1/detector2', '', 3, 95, 66, 'Это описание устройства HWg-STE. Максимальная длина 200 символов fdfdf', 'kalistrat1', '7'),
-	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, '/kalistrat1/actuator3', '', 3, NULL, NULL, 'Logitech HD Webcam C270 максимальная длина 200 символов', 'kalistrat1', '7'),
-	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, '/kalistrat1/actuator4', '', 3, NULL, NULL, 'Microsoft LifeCam HD-3000', 'kalistrat1', '7'),
-	(37, 1, 'термометр-1', NULL, 'не задано', '2017-07-12 14:05:51', 1, 'Ед', '/garage1/temp1', '', 3, 96, 64, 'термометр-1', 'garage1', '123123123'),
-	(39, 1, 'wer', NULL, 'не задано', '2017-07-12 14:52:19', 2, 'Ед', '/garage1/wer1', '', 3, 96, 64, 'wer', 'garage1', '123123123'),
-	(42, 1, 'qwer2', NULL, 'не задано', '2017-07-12 15:43:06', 1, 'Ед', '/kalistrat1/wer1', '42', 3, 96, 64, 'qwer2', 'kalistrat1', '7');
+INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`, `device_log`, `device_pass`, `measure_data_type`) VALUES
+	(1, 1, 'UniPing RS-485', 'Однократное измерение', 'ежесекундно', '2017-03-03 18:43:27', 1, '°С', '/kalistrat1/detector1', '', 3, 96, 64, 'UniPing RS-485 xxxxx', 'kalistrat1', '7345345', 'число'),
+	(2, 1, 'HWg-STE', 'Периодическое измерение', 'ежегодно', '2017-02-28 18:32:52', 1, '°С x 10e2', '/kalistrat1/detector2', '', 3, 95, 66, 'Это описание устройства HWg-STE. Максимальная длина 200 символов fdfdf', 'kalistrat1', '7345345', 'число'),
+	(3, 1, 'Logitech HD Webcam C270', NULL, NULL, NULL, 2, NULL, '/kalistrat1/actuator3', '', 3, NULL, NULL, 'Logitech HD Webcam C270 максимальная длина 200 символов', 'kalistrat1', '7345345', 'текст'),
+	(4, 1, 'Microsoft LifeCam HD-3000', NULL, NULL, NULL, 2, NULL, '/kalistrat1/actuator4', '', 3, NULL, NULL, 'Microsoft LifeCam HD-3000', 'kalistrat1', '7345345', 'текст'),
+	(37, 1, 'термометр-1', NULL, 'не задано', '2017-07-12 14:05:51', 1, 'Ед', '/garage1/temp1', '', 3, 96, 64, 'термометр-1', 'garage1', '123123123', 'текст'),
+	(39, 1, 'wer', NULL, 'не задано', '2017-07-12 14:52:19', 2, 'Ед', '/garage1/wer1', '', 3, 96, 64, 'wer', 'garage1', '123123123', 'текст'),
+	(42, 1, 'qwer2', NULL, 'не задано', '2017-07-12 15:43:06', 1, 'Ед', '/kalistrat1/wer1', '42', 3, 96, 64, 'qwer2', 'kalistrat1', '7345345', 'текст');
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -2432,6 +2501,7 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   KEY `FK_user_devices_tree_users` (`user_id`),
   KEY `FK_user_devices_tree_timezones` (`timezone_id`),
   KEY `FK_user_devices_tree_mqtt_servers` (`mqtt_server_id`),
+  KEY `CONTROL_LOG_IN_INDX` (`control_log`),
   CONSTRAINT `FK_user_devices_tree_mqtt_servers` FOREIGN KEY (`mqtt_server_id`) REFERENCES `mqtt_servers` (`server_id`),
   CONSTRAINT `FK_user_devices_tree_timezones` FOREIGN KEY (`timezone_id`) REFERENCES `timezones` (`timezone_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
@@ -2443,7 +2513,7 @@ DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`, `control_pass_sha`) VALUES
 	(1, 1, NULL, NULL, 'Устройства', 1, 17, 3, '', 0, '', '', ''),
-	(5, 2, 1, NULL, 'Кухня', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7', '7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451'),
+	(5, 2, 1, NULL, 'Кухня', 1, 19, 3, '/kalistrat1/synctime', 5, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
 	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7', '7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451'),
 	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7', '7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451'),
 	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7', '7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451'),
@@ -2468,28 +2538,28 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_measures: ~204 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_measures: ~217 rows (приблизительно)
 DELETE FROM `user_device_measures`;
 /*!40000 ALTER TABLE `user_device_measures` DISABLE KEYS */;
 INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`, `measure_mess`) VALUES
-	(1, 2, 21.00, '2017-01-18 18:19:40', NULL),
-	(2, 2, 25.00, '2017-01-19 18:20:13', NULL),
-	(3, 2, 22.00, '2017-01-20 18:20:33', NULL),
-	(4, 2, 27.00, '2017-01-21 18:20:49', NULL),
-	(5, 2, 15.00, '2017-01-22 18:21:05', NULL),
-	(6, 2, 24.00, '2017-01-23 18:21:21', NULL),
-	(7, 1, 10.00, '2017-01-23 10:21:42', NULL),
-	(8, 1, 7.00, '2017-01-23 12:21:54', NULL),
-	(9, 1, 15.00, '2017-01-23 14:22:05', NULL),
-	(10, 1, 17.00, '2017-01-23 16:22:15', NULL),
-	(11, 1, 20.54, '2017-01-23 18:22:30', NULL),
-	(12, 2, 34.00, '2017-01-26 19:22:47', NULL),
-	(13, 2, 34.00, '2017-01-26 19:22:57', NULL),
-	(14, 2, 56.00, '2017-01-26 19:23:06', NULL),
-	(15, 2, 45.00, '2017-01-26 19:23:15', NULL),
-	(16, 2, 34.00, '2017-01-26 19:23:23', NULL),
-	(17, 2, 35.00, '2017-01-26 19:23:35', NULL),
-	(18, 2, 44.21, '2017-01-26 19:23:46', NULL),
+	(1, 2, 21.00, '2017-01-18 18:19:40', '21'),
+	(2, 2, 25.00, '2017-01-19 18:20:13', '25'),
+	(3, 2, 22.00, '2017-01-20 18:20:33', '22'),
+	(4, 2, 27.00, '2017-01-21 18:20:49', '27'),
+	(5, 2, 15.00, '2017-01-22 18:21:05', '15'),
+	(6, 2, 24.00, '2017-01-23 18:21:21', '24'),
+	(7, 1, 10.00, '2017-01-23 10:21:42', '10'),
+	(8, 1, 7.00, '2017-01-23 12:21:54', '7'),
+	(9, 1, 15.00, '2017-01-23 14:22:05', '15'),
+	(10, 1, 17.00, '2017-01-23 16:22:15', '17'),
+	(11, 1, 20.54, '2017-01-23 18:22:30', '20.54'),
+	(12, 2, 34.00, '2017-01-26 19:22:47', '34'),
+	(13, 2, 34.00, '2017-01-26 19:22:57', '34'),
+	(14, 2, 56.00, '2017-01-26 19:23:06', '56'),
+	(15, 2, 45.00, '2017-01-26 19:23:15', '45'),
+	(16, 2, 34.00, '2017-01-26 19:23:23', '34'),
+	(17, 2, 35.00, '2017-01-26 19:23:35', '35'),
+	(18, 2, 44.21, '2017-01-26 19:23:46', '44.21'),
 	(19, 1, 20.00, '2017-05-20 15:10:22', '20'),
 	(20, 1, 20.00, '2017-05-20 15:10:22', '20'),
 	(21, 1, 20.00, '2017-05-20 15:10:22', '20'),
@@ -2677,10 +2747,10 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 	(203, 1, 4.00, '2017-06-11 20:43:45', '4'),
 	(204, 1, 2.00, '2017-06-11 20:45:59', '2'),
 	(205, 37, NULL, '2010-07-30 00:00:00', 'cleorus'),
-	(206, 37, NULL, '2017-07-12 00:00:00', 'CleorusIsSexy'),
-	(207, 37, NULL, '2017-07-12 00:00:00', 'CleorusIsSexy'),
-	(208, 37, NULL, '2017-07-12 17:10:33', 'CleorusIsSexy'),
-	(209, 37, NULL, '2017-07-12 17:12:10', 'CleorusIsSexy'),
+	(206, 37, NULL, '2017-07-12 00:00:00', 'cleorus'),
+	(207, 37, NULL, '2017-07-12 00:00:00', 'cleorus'),
+	(208, 37, NULL, '2017-07-12 17:10:33', 'cleorus'),
+	(209, 37, NULL, '2017-07-12 17:12:10', 'cleorus'),
 	(210, 37, NULL, '2017-07-12 17:14:24', '23.2'),
 	(211, 37, NULL, '2017-07-12 17:15:20', '23,2'),
 	(212, 37, NULL, '2017-07-12 17:16:25', '23,2'),

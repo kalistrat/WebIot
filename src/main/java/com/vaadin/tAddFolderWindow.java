@@ -90,7 +90,7 @@ public class tAddFolderWindow extends Window {
                     if (sLogValue.length() < 5){
                         sErrorMessage = sErrorMessage + "Длина логина меньше 5 символов\n";
                     }
-                    if (isExistsContLogIn(sLogValue).intValue() == 1){
+                    if (tUsefulFuctions.isExistsContLogIn(sLogValue).intValue() == 1){
                         sErrorMessage = sErrorMessage + "Указанный логин занят. Введите другой\n";
                     }
                     if (!tUsefulFuctions.IsLatinAndDigits(sLogValue)){
@@ -392,33 +392,4 @@ public class tAddFolderWindow extends Window {
         return  servLink;
     }
 
-    public Integer isExistsContLogIn(String qLogIn){
-        Integer isE = 0;
-        try {
-
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            CallableStatement callStmt = Con.prepareCall("{? = call fIsExistsContLogin(?)}");
-            callStmt.registerOutParameter(1, Types.INTEGER);
-            callStmt.setString(2, qLogIn);
-            callStmt.execute();
-
-            isE =  callStmt.getInt(1);
-
-            Con.close();
-
-        }catch(SQLException se){
-            //Handle errors for JDBC
-            se.printStackTrace();
-        }catch(Exception e) {
-            //Handle errors for Class.forName
-            e.printStackTrace();
-        }
-        return isE;
-    }
 }

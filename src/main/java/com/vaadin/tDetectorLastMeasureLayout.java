@@ -109,7 +109,7 @@ public class tDetectorLastMeasureLayout extends VerticalLayout {
                     , tUsefulFuctions.PASS
             );
 
-            String DataSql = "select udme.measure_value\n" +
+            String DataSql = "select udme.measure_mess\n" +
                     ",udme.measure_date\n" +
                     "from user_device_measures udme\n" +
                     "where udme.user_device_measure_id in (\n" +
@@ -124,7 +124,7 @@ public class tDetectorLastMeasureLayout extends VerticalLayout {
             ResultSet DataRs = DataStmt.executeQuery();
 
             while (DataRs.next()) {
-                MeasureValueTextField.setValue(String.valueOf(DataRs.getDouble(1)));
+                MeasureValueTextField.setValue(String.valueOf(DataRs.getString(1)));
                 MeasureDateTextField.setValue(df.format(new Date(DataRs.getTimestamp(2).getTime())));
             }
 

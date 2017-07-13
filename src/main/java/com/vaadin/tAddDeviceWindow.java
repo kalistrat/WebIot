@@ -135,12 +135,16 @@ public class tAddDeviceWindow extends Window {
                                 , sFullDeviceTopicName
                         );
 
+                        String addSubsribeRes = "";
 
-                        String addSubsribeRes = tUsefulFuctions.updateDeviceMqttLogger(
-                                iNewUserDeviceId
-                                , iTreeContentLayout.iUserLog
-                                , "add"
-                        );
+                        if (DeviceActionType.getValue().equals("Измерительное устройство")) {
+
+                            addSubsribeRes = tUsefulFuctions.updateDeviceMqttLogger(
+                                    iNewUserDeviceId
+                                    , iTreeContentLayout.iUserLog
+                                    , "add"
+                            );
+                        }
 
                         Item newItem = iTreeContentLayout.itTree.TreeContainer.addItem(iNewLeafId);
                         newItem.getItemProperty(1).setValue(iNewTreeId);

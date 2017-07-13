@@ -22,13 +22,9 @@ public class tDetectorFormLayout extends VerticalLayout {
     NativeSelect PeriodMeasureSelect;
     TextField DetectorAddDate;
     TextField InTopicNameField;
-    //NativeSelect MqttServerSelect;
+    NativeSelect ArrivedDataTypeSelect;
 
     int iUserDeviceId;
-
-    TextField DeviceLoginTextField;
-    TextField DevicePassWordTextField;
-    TextField MqttServerTextField;
 
     public tDetectorFormLayout(int eUserDeviceId){
 
@@ -44,53 +40,18 @@ public class tDetectorFormLayout extends VerticalLayout {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 String sErrorMessage = "";
-                String sDeviceLog = DeviceLoginTextField.getValue();
-                String sDevicePass = DevicePassWordTextField.getValue();
-
-                if (sDeviceLog == null){
-                    sErrorMessage = "Логин устройства не задан\n";
-                }
-
-                if (sDeviceLog.equals("")){
-                    sErrorMessage = sErrorMessage + "Логин устройства не задан\n";
-                }
-
-                if (sDeviceLog.length() > 25){
-                    sErrorMessage = sErrorMessage + "Длина логина превышает 25 символов\n";
-                }
-
-                if (sDevicePass == null){
-                    sErrorMessage = "Пароль устройства не задан\n";
-                }
-
-                if (sDevicePass.equals("")){
-                    sErrorMessage = sErrorMessage + "Пароль устройства не задан\n";
-                }
-
-                if (sDevicePass.length() > 25){
-                    sErrorMessage = sErrorMessage + "Длина пароля превышает 25 символов\n";
-                }
-
-                if (!tUsefulFuctions.IsLatinAndDigits(sDeviceLog)){
-                    sErrorMessage = sErrorMessage + "Указанный логин недопустим. Он должен состоять из букв латиницы и цифр\n";
-                }
-
-                if (!tUsefulFuctions.IsLatinAndDigits(sDevicePass)){
-                    sErrorMessage = sErrorMessage + "Указанный пароль недопустим. Он должен состоять из букв латиницы и цифр\n";
-                }
 
                 if (!sErrorMessage.equals("")){
                     Notification.show("Ошибка сохранения:",
                             sErrorMessage,
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
-                    tUsefulFuctions.updateActuatorLoginPassWord(iUserDeviceId,sDeviceLog,sDevicePass);
-                    updateDetectorMeasurePeriod();
+//                    tUsefulFuctions.updateActuatorLoginPassWord(iUserDeviceId,sDeviceLog,sDevicePass);
+                    updateDetectorFormData();
                     SaveButton.setEnabled(false);
                     EditButton.setEnabled(true);
-                    DeviceLoginTextField.setEnabled(false);
-                    DevicePassWordTextField.setEnabled(false);
                     PeriodMeasureSelect.setEnabled(false);
+                    ArrivedDataTypeSelect.setEnabled(false);
                 }
 
             }
@@ -106,10 +67,8 @@ public class tDetectorFormLayout extends VerticalLayout {
             public void buttonClick(Button.ClickEvent clickEvent) {
                 SaveButton.setEnabled(true);
                 EditButton.setEnabled(false);
-                //UnitsTextField.setEnabled(true);
                 PeriodMeasureSelect.setEnabled(true);
-                DeviceLoginTextField.setEnabled(true);
-                DevicePassWordTextField.setEnabled(true);
+                ArrivedDataTypeSelect.setEnabled(true);
             }
         });
 
@@ -130,37 +89,26 @@ public class tDetectorFormLayout extends VerticalLayout {
         PeriodMeasureSelect.setNullSelectionAllowed(false);
         PeriodMeasureSelect.select("не задано");
 
+        ArrivedDataTypeSelect = new NativeSelect("Тип измеряемых данных :");
+        ArrivedDataTypeSelect.setEnabled(false);
+        ArrivedDataTypeSelect.addItem("текст");
+        ArrivedDataTypeSelect.addItem("число");
+        ArrivedDataTypeSelect.setNullSelectionAllowed(false);
+        ArrivedDataTypeSelect.select("текст");
+
 
         DetectorAddDate = new TextField("Дата добавления устройства :");
         DetectorAddDate.setEnabled(false);
         InTopicNameField = new TextField("mqtt-топик для записи :");
         InTopicNameField.setEnabled(false);
 
-//        MqttServerSelect = new NativeSelect("mqtt-сервер :");
-//        MqttServerSelect.setNullSelectionAllowed(false);
-//        MqttServerSelect.setEnabled(false);
-
-        DeviceLoginTextField = new TextField("Логин устройства :");
-        DevicePassWordTextField = new TextField("Пароль устройства :");
-        MqttServerTextField = new TextField("mqtt-сервер :");
-
-        DeviceLoginTextField.setEnabled(false);
-        DevicePassWordTextField.setEnabled(false);
-        MqttServerTextField.setEnabled(false);
-
-        //tUsefulFuctions.getMqttServerData(MqttServerSelect);
-
 
         FormLayout dform = new FormLayout(
                 NameTextField
-                //,UnitsTextField
                 ,PeriodMeasureSelect
                 ,DetectorAddDate
                 ,InTopicNameField
-                //,MqttServerSelect
-                ,MqttServerTextField
-                ,DeviceLoginTextField
-                ,DevicePassWordTextField
+                ,ArrivedDataTypeSelect
         );
         dform.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
         dform.addStyleName("FormFont");
@@ -217,7 +165,7 @@ public class tDetectorFormLayout extends VerticalLayout {
 
 
 
-    public void updateDetectorMeasurePeriod(){
+    public void updateDetectorFormData(){
         try {
 
             Class.forName(tUsefulFuctions.JDBC_DRIVER);
@@ -227,9 +175,10 @@ public class tDetectorFormLayout extends VerticalLayout {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement Stmt = Con.prepareCall("{call p_device_measure_period(?, ?)}");
+            CallableStatement Stmt = Con.prepareCall("{call p_updateDetectorFormData(?, ? ,?)}");
             Stmt.setInt(1, iUserDeviceId);
             Stmt.setString(2, (String) PeriodMeasureSelect.getValue());
+            Stmt.setString(3, (String) ArrivedDataTypeSelect.getValue());
 
             Stmt.execute();
 

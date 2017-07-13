@@ -250,6 +250,7 @@ public class tUsefulFuctions {
                     ",uf.factor_value\n" +
                     ",ifnull(ud.device_log,'') device_log\n" +
                     ",ifnull(ud.device_pass,'') device_pass\n" +
+                    ",ud.measure_data_type\n" +
                     "from user_device ud\n" +
                     "left join mqtt_servers ser on ser.server_id = ud.mqqt_server_id\n" +
                     "left join unit un on un.unit_id = ud.unit_id\n" +
@@ -271,16 +272,9 @@ public class tUsefulFuctions {
                 }
                 qUnitsForm.UnitTextField.setValue(DetectorDataRs.getString(4));
                 qParamsForm.InTopicNameField.setValue(DetectorDataRs.getString(5));
-
-                //qParamsForm.MqttServerSelect.select(DetectorDataRs.getString(6));
-
-                qParamsForm.MqttServerTextField.setValue("tcp://" + DetectorDataRs.getString(6));
                 qUnitsForm.UnitSymbolSelect.select(DetectorDataRs.getString(8));
                 qUnitsForm.UnitFactorSelect.select(DetectorDataRs.getString(9));
-                qParamsForm.DeviceLoginTextField.setValue(DetectorDataRs.getString(10));
-                qParamsForm.DevicePassWordTextField.setValue(DetectorDataRs.getString(11));
-
-                //qDescriptionForm.DescritionArea.setValue(DetectorDataRs.getString(7));
+                qParamsForm.ArrivedDataTypeSelect.select(DetectorDataRs.getString(12));
 
             }
 
@@ -578,6 +572,36 @@ public class tUsefulFuctions {
             //Handle errors for Class.forName
             e13.printStackTrace();
         }
+    }
+
+    public static Integer isExistsContLogIn(String qLogIn){
+        Integer isE = 0;
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement callStmt = Con.prepareCall("{? = call fIsExistsContLogin(?)}");
+            callStmt.registerOutParameter(1, Types.INTEGER);
+            callStmt.setString(2, qLogIn);
+            callStmt.execute();
+
+            isE =  callStmt.getInt(1);
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+        return isE;
     }
 
 
