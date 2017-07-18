@@ -2280,19 +2280,19 @@ CREATE TABLE IF NOT EXISTS `timezones` (
 DELETE FROM `timezones`;
 /*!40000 ALTER TABLE `timezones` DISABLE KEYS */;
 INSERT INTO `timezones` (`timezone_id`, `timezone_value`) VALUES
-	(1, 'UTC−12'),
-	(2, 'UTC−11'),
-	(3, 'UTC−10'),
-	(4, 'UTC−9'),
-	(5, 'UTC−8'),
-	(6, 'UTC−7'),
-	(7, 'UTC−6'),
-	(8, 'UTC−5'),
-	(9, 'UTC−4'),
-	(10, 'UTC−3:30'),
-	(11, 'UTC−3'),
-	(12, 'UTC−2'),
-	(13, 'UTC−1'),
+	(1, 'UTC-12'),
+	(2, 'UTC-11'),
+	(3, 'UTC-10'),
+	(4, 'UTC-9'),
+	(5, 'UTC-8'),
+	(6, 'UTC-7'),
+	(7, 'UTC-6'),
+	(8, 'UTC-5'),
+	(9, 'UTC-4'),
+	(10, 'UTC-3:30'),
+	(11, 'UTC-3'),
+	(12, 'UTC-2'),
+	(13, 'UTC-1'),
 	(14, 'UTC+0'),
 	(15, 'UTC+1'),
 	(16, 'UTC+2'),
@@ -2917,21 +2917,22 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 -- Дамп структуры для таблица things.user_device_task
 CREATE TABLE IF NOT EXISTS `user_device_task` (
   `user_device_task_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_devices_tree_id` int(11) DEFAULT NULL,
-  `task_interval` int(11) DEFAULT NULL,
+  `user_device_id` int(11) DEFAULT NULL,
   `task_type_id` int(11) DEFAULT NULL,
+  `task_interval` int(11) DEFAULT NULL,
+  `interval_type` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`user_device_task_id`),
-  KEY `FK_user_device_task_user_devices_tree` (`user_devices_tree_id`),
+  KEY `FK_user_device_task_user_device` (`user_device_id`),
   KEY `FK_user_device_task_task_type` (`task_type_id`),
   CONSTRAINT `FK_user_device_task_task_type` FOREIGN KEY (`task_type_id`) REFERENCES `task_type` (`task_type_id`),
-  CONSTRAINT `FK_user_device_task_user_devices_tree` FOREIGN KEY (`user_devices_tree_id`) REFERENCES `user_devices_tree` (`user_devices_tree_id`)
+  CONSTRAINT `FK_user_device_task_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_device_task: ~1 rows (приблизительно)
 DELETE FROM `user_device_task`;
 /*!40000 ALTER TABLE `user_device_task` DISABLE KEYS */;
-INSERT INTO `user_device_task` (`user_device_task_id`, `user_devices_tree_id`, `task_interval`, `task_type_id`) VALUES
-	(1, 5, 1, 1);
+INSERT INTO `user_device_task` (`user_device_task_id`, `user_device_id`, `task_type_id`, `task_interval`, `interval_type`) VALUES
+	(1, 2, 1, 1, 'DAYS');
 /*!40000 ALTER TABLE `user_device_task` ENABLE KEYS */;
 
 
