@@ -298,7 +298,7 @@ implements addDeleteListenable {
                     ",uas.actuator_state_name\n" +
                     ",uas.actuator_message_code\n" +
                     ",ud.mqtt_topic_read\n" +
-                    ",concat(concat(ser.server_ip,':'),ser.server_port) mqtt_server_host\n" +
+                    ",ser.server_ip mqtt_server_host\n" +
                     "from user_actuator_state uas\n" +
                     "join user_device ud on ud.user_device_id=uas.user_device_id\n" +
                     "join mqtt_servers ser on ser.server_id=ud.mqqt_server_id\n" +
@@ -451,7 +451,7 @@ implements addDeleteListenable {
             ,String mqttServerHost
     ){
         try {
-            MqttClient client = new MqttClient("tcp://" + mqttServerHost, topicName, null);
+            MqttClient client = new MqttClient(mqttServerHost, topicName, null);
             MqttMessage message = new MqttMessage(MessCode.getBytes());
             client.connect();
             client.publish(topicName, message);

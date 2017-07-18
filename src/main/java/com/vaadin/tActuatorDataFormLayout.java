@@ -205,7 +205,7 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                     ",ud.user_device_date_from\n" +
                     ",ud.mqtt_topic_write\n" +
                     ",ud.mqtt_topic_read\n" +
-                    ",concat(concat(ser.server_ip,':'),ser.server_port) mqqtt\n" +
+                    ",ser.server_ip mqqtt\n" +
                     ",ifnull(ud.device_log,'')\n" +
                     ",ifnull(ud.device_pass,'')\n" +
                     "from user_device ud\n" +
@@ -227,7 +227,7 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                 InTopicNameField.setValue(DataRs.getString(3));
                 OutTopicNameField.setValue(DataRs.getString(4));
                 //MqttServerSelect.select(DataRs.getString(5));
-                MqttServerTextField.setValue("tcp://" + DataRs.getString(5));
+                MqttServerTextField.setValue(DataRs.getString(5));
                 DeviceLoginTextField.setValue(DataRs.getString(6));
                 DevicePassWordTextField.setValue(DataRs.getString(7));
 

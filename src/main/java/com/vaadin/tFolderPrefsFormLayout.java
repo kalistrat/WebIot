@@ -256,7 +256,7 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
 
             String DataSql = "select udt.leaf_name\n" +
                     ",udt.time_topic\n" +
-                    ",concat(concat(ser.server_ip,':'),ser.server_port) mqqtt\n" +
+                    ",ser.server_ip mqqtt\n" +
                     ",udt.control_log\n" +
                     ",udt.control_pass\n" +
                     ",tz.timezone_value\n" +
@@ -283,7 +283,7 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
 
                 NameTextField.setValue(DataRs.getString(1));
                 OutTopicNameField.setValue(DataRs.getString(2));
-                MqttServerTextField.setValue("tcp://" + DataRs.getString(3));
+                MqttServerTextField.setValue(DataRs.getString(3));
                 DeviceLoginTextField.setValue(DataRs.getString(4));
                 //sCurrentDeviceLog = DataRs.getString(4);
                 DevicePassWordTextField.setValue(DataRs.getString(5));

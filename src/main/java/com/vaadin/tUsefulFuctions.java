@@ -244,7 +244,7 @@ public class tUsefulFuctions {
                     ",ud.user_device_date_from\n" +
                     ",ud.device_units\n" +
                     ",ud.mqtt_topic_write\n" +
-                    ",concat(concat(ser.server_ip,':'),ser.server_port) mqqtt\n" +
+                    ",ser.server_ip mqqtt\n" +
                     ",ud.description\n" +
                     ",concat(un.unit_name,concat(' : ',un.unit_symbol))\n" +
                     ",uf.factor_value\n" +
@@ -406,7 +406,7 @@ public class tUsefulFuctions {
                     , tUsefulFuctions.PASS
             );
 
-            String DataSql = "select concat(concat(s.server_ip,':'),s.server_port)\n" +
+            String DataSql = "select s.server_ip\n" +
                     "from mqtt_servers s";
 
             PreparedStatement MqttDataStmt = Con.prepareStatement(DataSql);
