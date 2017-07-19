@@ -68,12 +68,14 @@ public class tDetectorMeasuresJournalLayout extends VerticalLayout {
         MeasuresTable.setColumnHeader(2, "Дата<br/>показания");
         MeasuresTable.setColumnHeader(3, "Текстовое<br/>значение");
         MeasuresTable.setColumnHeader(4, "Числовое<br/>значение");
+        MeasuresTable.setColumnHeader(5, "Временное<br/>значение");
 
         MeasuresContainer = new IndexedContainer();
         MeasuresContainer.addContainerProperty(1, Integer.class, null);
         MeasuresContainer.addContainerProperty(2, String.class, null);
         MeasuresContainer.addContainerProperty(3, String.class, null);
         MeasuresContainer.addContainerProperty(4, String.class, null);
+        MeasuresContainer.addContainerProperty(5, String.class, null);
         setMeasuresContainer();
         MeasuresTable.setContainerDataSource(MeasuresContainer);
 
@@ -122,6 +124,7 @@ public class tDetectorMeasuresJournalLayout extends VerticalLayout {
                     ",udm.measure_date\n" +
                     ",udm.measure_mess\n" +
                     ",udm.measure_value\n" +
+                    ",udm.measure_date_value\n" +
                     "from user_device_measures udm\n" +
                     "join (select @num1:=0) t1\n" +
                     "where udm.user_device_id = ?\n" +
@@ -139,7 +142,11 @@ public class tDetectorMeasuresJournalLayout extends VerticalLayout {
                 newItem.getItemProperty(2).setValue(df.format(new Date(DataRs.getTimestamp(2).getTime())));
                 newItem.getItemProperty(3).setValue(DataRs.getString(3));
                 newItem.getItemProperty(4).setValue(DataRs.getString(4));
-
+                if (DataRs.getTimestamp(5) != null) {
+                    newItem.getItemProperty(5).setValue(df.format(new Date(DataRs.getTimestamp(5).getTime())));
+                } else {
+                    newItem.getItemProperty(5).setValue("");
+                }
             }
 
 

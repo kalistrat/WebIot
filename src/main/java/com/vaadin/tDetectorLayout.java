@@ -42,7 +42,7 @@ public class tDetectorLayout extends VerticalLayout {
         TopLabel.addStyleName(ValoTheme.LABEL_SMALL);
         TopLabel.addStyleName("TopLabel");
 
-        DeviceDataLayout = new tDetectorFormLayout(iUserDeviceId);
+        DeviceDataLayout = new tDetectorFormLayout(iUserDeviceId,tParentContentLayout.iUserLog);
         DeviceUnitsLayout = new tDetectorUnitsLayout(iUserDeviceId);
 
 

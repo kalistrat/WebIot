@@ -136,14 +136,35 @@ public class tAddDeviceWindow extends Window {
                         );
 
                         String addSubsribeRes = "";
+                        String addTaskRes = "";
 
                         if (DeviceActionType.getValue().equals("Измерительное устройство")) {
 
-                            addSubsribeRes = tUsefulFuctions.updateDeviceMqttLogger(
+                            addSubsribeRes = tUsefulFuctions.sendMessAgeToSubcribeServer(
                                     iNewUserDeviceId
                                     , iTreeContentLayout.iUserLog
                                     , "add"
+                                    , "sensor"
                             );
+                        }
+                        int DevSyncDaysInterval = GetSyncIntervalDays(iNewUserDeviceId);
+                        int NewTaskId;
+
+                        if (DevSyncDaysInterval > 0) {
+                            NewTaskId = addUserDeviceTask(
+                                    iNewUserDeviceId
+                            , "SYNCTIME"
+                            , DevSyncDaysInterval
+                            , "DAYS"
+                            );
+
+                            addTaskRes = tUsefulFuctions.sendMessAgeToSubcribeServer(
+                                    NewTaskId
+                                    , iTreeContentLayout.iUserLog
+                                    , "add"
+                                    , "task"
+                            );
+
                         }
 
                         Item newItem = iTreeContentLayout.itTree.TreeContainer.addItem(iNewLeafId);
@@ -175,14 +196,18 @@ public class tAddDeviceWindow extends Window {
                                     addSubsribeRes,
                                     Notification.Type.TRAY_NOTIFICATION);
                             UI.getCurrent().removeWindow((tAddDeviceWindow) clickEvent.getButton().getData());
-                        } else {
+                        } else if (!addTaskRes.equals("")) {
 
+                            Notification.show("Устройство добавлено c ошибкой",
+                                    addTaskRes,
+                                    Notification.Type.TRAY_NOTIFICATION);
+                            UI.getCurrent().removeWindow((tAddDeviceWindow) clickEvent.getButton().getData());
+                        } else {
                             Notification.show("Устройство добавлено!",
                                     null,
                                     Notification.Type.TRAY_NOTIFICATION);
                             UI.getCurrent().removeWindow((tAddDeviceWindow) clickEvent.getButton().getData());
-
-                        }
+                       }
                     }
 
 
@@ -393,5 +418,79 @@ public class tAddDeviceWindow extends Window {
             e.printStackTrace();
         }
         return isE;
+    }
+
+    public Integer GetSyncIntervalDays(int qUserDeviceId){
+        Integer isE = 0;
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement callStmt = Con.prepareCall("{? = call fGetSyncIntervalDays(?)}");
+            callStmt.registerOutParameter(1, Types.INTEGER);
+            callStmt.setInt(2, qUserDeviceId);
+            callStmt.execute();
+
+            isE =  callStmt.getInt(1);
+
+            Con.close();
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+        return isE;
+    }
+
+    public Integer addUserDeviceTask(
+            int qUserDeviceId
+            , String eTaskTypeName
+            , int eTaskInterval
+            , String eIntervalType
+    ){
+        Integer iTaskId = 0;
+        try {
+
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement addDeviceTaskStmt = Con.prepareCall("{call p_add_task(?, ?, ?, ?, ?)}");
+            addDeviceTaskStmt.setInt(1, qUserDeviceId);
+            addDeviceTaskStmt.setString(2, eTaskTypeName);
+            addDeviceTaskStmt.setInt(3, eTaskInterval);
+            addDeviceTaskStmt.setString(4, eIntervalType);
+            addDeviceTaskStmt.registerOutParameter(5, Types.INTEGER);
+
+            addDeviceTaskStmt.execute();
+
+            iTaskId = addDeviceTaskStmt.getInt(5);
+
+
+            Con.close();
+
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+            //return "Ошибка JDBC";
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+            //return "Ошибка Class.forName";
+        }
+        return iTaskId;
+
     }
 }

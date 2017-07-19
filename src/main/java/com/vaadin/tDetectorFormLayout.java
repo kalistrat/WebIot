@@ -26,7 +26,7 @@ public class tDetectorFormLayout extends VerticalLayout {
 
     int iUserDeviceId;
 
-    public tDetectorFormLayout(int eUserDeviceId){
+    public tDetectorFormLayout(int eUserDeviceId,String eUserLogIn){
 
         iUserDeviceId = eUserDeviceId;
 
@@ -46,8 +46,20 @@ public class tDetectorFormLayout extends VerticalLayout {
                             sErrorMessage,
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
-//                    tUsefulFuctions.updateActuatorLoginPassWord(iUserDeviceId,sDeviceLog,sDevicePass);
+
                     updateDetectorFormData();
+                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+                            iUserDeviceId
+                            , eUserLogIn
+                            , "delete"
+                            , "sensor"
+                    );
+                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+                            iUserDeviceId
+                            , eUserLogIn
+                            , "add"
+                            , "sensor"
+                    );
                     SaveButton.setEnabled(false);
                     EditButton.setEnabled(true);
                     PeriodMeasureSelect.setEnabled(false);
@@ -93,6 +105,7 @@ public class tDetectorFormLayout extends VerticalLayout {
         ArrivedDataTypeSelect.setEnabled(false);
         ArrivedDataTypeSelect.addItem("текст");
         ArrivedDataTypeSelect.addItem("число");
+        ArrivedDataTypeSelect.addItem("дата");
         ArrivedDataTypeSelect.setNullSelectionAllowed(false);
         ArrivedDataTypeSelect.select("текст");
 

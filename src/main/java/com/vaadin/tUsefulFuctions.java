@@ -47,6 +47,7 @@ public class tUsefulFuctions {
 
     public static List<tMark> GetMarksFromString(String MarksString,String AxeTitle){
         List<tMark> MarksList = new ArrayList<tMark>();
+        //System.out.println("MarksString :" + MarksString);
         List<String> MarksPairs = GetListFromString(MarksString,"/");
         for (String sPair : MarksPairs){
             int iPos = sPair.indexOf("#");
@@ -322,15 +323,16 @@ public class tUsefulFuctions {
 
     }
 
-    public static String updateDeviceMqttLogger(
-            int qUserDeviceId
+    public static String sendMessAgeToSubcribeServer(
+            int qEntityId
             ,String qUserLog
             ,String qActionType
+            ,String MessAgeType
     ){
         try {
 
             Socket s = new Socket("localhost", 3128);
-            String InMessageValue = qActionType + "/" + qUserLog + "/sensor/" + String.valueOf(qUserDeviceId) + "/";
+            String InMessageValue = qActionType + "/" + qUserLog + "/" + MessAgeType +"/" + String.valueOf(qEntityId) + "/";
 
 
             s.getOutputStream().write(InMessageValue.getBytes());
