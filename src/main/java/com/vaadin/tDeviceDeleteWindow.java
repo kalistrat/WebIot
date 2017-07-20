@@ -51,12 +51,15 @@ public class tDeviceDeleteWindow extends Window {
                 String sParentLeafName = iTreeContentLayout
                         .GetLeafNameById(iTreeContentLayout.GetParentLeafById(iLeafId));
 
+                if (iTreeContentLayout.getLeafIconCode(iLeafId).equals("TACHOMETER")) {
 
-                tUsefulFuctions.updateDeviceMqttLogger(
-                        iTreeContentLayout.getLeafUserDeviceId(iLeafId)
-                        ,iTreeContentLayout.iUserLog
-                        ,"delete"
-                );
+                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+                            iTreeContentLayout.getLeafUserDeviceId(iLeafId)
+                            , iTreeContentLayout.iUserLog
+                            , "delete"
+                            , "sensor"
+                    );
+                }
 
                 tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,iLeafId);
 

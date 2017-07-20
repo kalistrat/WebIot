@@ -73,6 +73,7 @@ public class tTreeContentLayout extends VerticalLayout {
 
     }
 
+
     public Integer getLeafUserDeviceId(int eLeafId){
 
         return (Integer) this.itTree.getItem(eLeafId).getItemProperty(6).getValue();

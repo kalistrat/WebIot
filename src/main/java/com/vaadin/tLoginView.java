@@ -93,7 +93,6 @@ public class tLoginView extends CustomComponent implements View {
 
                     CheckUserStmt.execute();
                     db_Password = CheckUserStmt.getString(1);
-                    //System.out.println(tUsefulFuctions.sha256(password));
 
                     conn.close();
                 } catch(SQLException SQLe){
@@ -104,7 +103,9 @@ public class tLoginView extends CustomComponent implements View {
                     e1.printStackTrace();
                 }
 
-
+                if (db_Password == null) {
+                    db_Password = "";
+                }
 
                 if (db_Password.equals(password) && !password.equals("")) {
 

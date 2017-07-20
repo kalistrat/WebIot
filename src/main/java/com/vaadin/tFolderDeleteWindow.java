@@ -64,11 +64,17 @@ public class tFolderDeleteWindow extends Window {
                         int RemoveLeafId = ChildsLeafs.get(childLeafsCount-(i+1));
 
                         if (iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId).intValue()!=0) {
-                            tUsefulFuctions.updateDeviceMqttLogger(
-                                    iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId)
-                                    ,iTreeContentLayout.iUserLog
-                                    ,"delete"
-                            );
+
+                            if (iTreeContentLayout.getLeafIconCode(RemoveLeafId).equals("TACHOMETER")) {
+                                tUsefulFuctions.sendMessAgeToSubcribeServer(
+                                        iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId)
+                                        , iTreeContentLayout.iUserLog
+                                        , "delete"
+                                        , "sensor"
+                                );
+                            }
+
+
                             tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,RemoveLeafId);
                         } else {
                             tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,RemoveLeafId);
