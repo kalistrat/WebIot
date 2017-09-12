@@ -124,7 +124,7 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
                     ,iUserLog
                     ,sLogValue
                     ,sPassValue
-                    ,tUsefulFuctions.sha256(sPassValue)
+                    ,new MosquittoPBKDF2().createPassword(sPassValue)
                     ,(String) TimeZoneSelect.getValue()
                     ,timeSyncInt
                     );

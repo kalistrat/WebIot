@@ -145,7 +145,7 @@ public class tAddFolderWindow extends Window {
                     ,iTreeContentLayout.iUserLog
                     ,sLogValue
                     ,sPassValue
-                    ,tUsefulFuctions.sha256(sPassValue)
+                    ,new MosquittoPBKDF2().createPassword(sPassValue)
                     ,MqttServerTextField.getValue()
                     ,(String) TimeZoneSelect.getValue()
                     ,timeSyncInt
