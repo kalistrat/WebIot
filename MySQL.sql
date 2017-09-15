@@ -2732,23 +2732,23 @@ DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`, `control_pass_sha`) VALUES
 	(1, 1, NULL, NULL, 'Устройства', 1, 17, 3, '', 0, '', '', ''),
-	(5, 2, 1, NULL, 'Кухня', 1, 19, 3, '/kalistrat1/synctime', 5, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
-	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
-	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
-	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
-	(41, 6, 2, 1, 'UniPing RS-485', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
+	(5, 2, 1, NULL, 'Кухня', 1, 19, 3, '/kalistrat1/synctime', 5, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
+	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
+	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
+	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
+	(41, 6, 2, 1, 'UniPing RS-485', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
 	(146, 1, NULL, NULL, 'Устройства', 2, 17, 3, '', 0, '', '', ''),
-	(170, 7, 1, NULL, 'Гараж', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef'),
-	(171, 8, 7, 37, 'термометр-1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef'),
-	(173, 9, 7, 39, 'wer', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef'),
-	(176, 10, 2, 42, 'qwer2', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
+	(170, 7, 1, NULL, 'Гараж', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', 'PBKDF2$sha256$901$LZbs/u+RQLQBqZ7e$GEa0CdyeQ/uPQOLjOe4SnAGlcPAKVIDz'),
+	(171, 8, 7, 37, 'термометр-1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', 'PBKDF2$sha256$901$LZbs/u+RQLQBqZ7e$GEa0CdyeQ/uPQOLjOe4SnAGlcPAKVIDz'),
+	(173, 9, 7, 39, 'wer', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', 'PBKDF2$sha256$901$LZbs/u+RQLQBqZ7e$GEa0CdyeQ/uPQOLjOe4SnAGlcPAKVIDz'),
+	(176, 10, 2, 42, 'qwer2', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
 	(178, 1, NULL, NULL, 'Устройства', 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	(179, 1, NULL, NULL, 'Устройства', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	(180, 2, 1, NULL, 'qwe', 5, 17, 3, '/qwe123/synctime', 0, 'qwe123', '123123', '96cae35ce8a9b0244178bf28e4966c2ce1b8385723a96a6b838858cdd6ca0a1e'),
+	(180, 2, 1, NULL, 'qwe', 5, 17, 3, '/qwe123/synctime', 0, 'qwe123', '123123', 'PBKDF2$sha256$901$d8B6nO30M9Uba0yo$cwe45inBgOyeEs2t09o6vvk0ymUmDrjh'),
 	(181, 1, NULL, NULL, 'Устройства', 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	(182, 1, NULL, NULL, 'Устройства', 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	(183, 11, 1, NULL, 'новый контроллер', 1, 17, 3, '/asdfg/synctime', 2, 'asdfg', 'asdfg', 'f969fdbe811d8a66010d6f8973246763147a2a0914afc8087839e29b563a5af0'),
-	(184, 12, 7, 43, 'Измеритель1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef');
+	(184, 12, 7, 43, 'Измеритель1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', 'PBKDF2$sha256$901$LZbs/u+RQLQBqZ7e$GEa0CdyeQ/uPQOLjOe4SnAGlcPAKVIDz');
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 
@@ -2763,9 +2763,9 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   PRIMARY KEY (`user_device_measure_id`),
   KEY `FK_user_device_measures_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=223 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9990 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_measures: ~222 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_measures: ~250 rows (приблизительно)
 DELETE FROM `user_device_measures`;
 /*!40000 ALTER TABLE `user_device_measures` DISABLE KEYS */;
 INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`, `measure_mess`, `measure_date_value`) VALUES
@@ -2989,8 +2989,36 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 	(218, 37, 23.01, '2017-07-19 12:44:50', '23.006', NULL),
 	(219, 37, 777.00, '2017-07-19 12:45:47', '777', NULL),
 	(220, 37, NULL, '2017-07-19 15:29:05', NULL, '2017-07-19 15:29:11'),
-	(221, 43, NULL, '2017-07-19 16:17:14', '1500473834', NULL),
-	(222, 43, NULL, '2017-07-19 16:18:23', '1500473903', '2017-07-19 16:18:23');
+	(9960, 42, NULL, '2017-09-06 14:33:10', '25', NULL),
+	(9961, 42, NULL, '2017-09-06 14:34:04', '25', NULL),
+	(9962, 42, NULL, '2017-09-06 14:34:31', '25', NULL),
+	(9963, 42, NULL, '2017-09-06 15:51:58', '27', NULL),
+	(9964, 42, NULL, '2017-09-06 17:14:52', '27', NULL),
+	(9965, 43, NULL, '2017-09-08 16:00:25', '27', '1970-01-01 03:00:27'),
+	(9966, 37, NULL, '2017-09-08 16:00:25', '27', NULL),
+	(9967, 1, 27.00, '2017-09-08 16:00:25', '27', NULL),
+	(9968, 2, 27.00, '2017-09-08 16:00:25', '27', NULL),
+	(9969, 42, NULL, '2017-09-08 16:00:25', '27', NULL),
+	(9970, 43, NULL, '2017-09-08 16:01:52', '27', '1970-01-01 03:00:27'),
+	(9971, 37, NULL, '2017-09-08 16:01:52', '27', NULL),
+	(9972, 1, 27.00, '2017-09-08 16:01:52', '27', NULL),
+	(9973, 2, 27.00, '2017-09-08 16:01:52', '27', NULL),
+	(9974, 42, NULL, '2017-09-08 16:01:52', '27', NULL),
+	(9975, 43, NULL, '2017-09-08 16:03:07', '27', '1970-01-01 03:00:27'),
+	(9976, 37, NULL, '2017-09-08 16:03:07', '27', NULL),
+	(9977, 1, 27.00, '2017-09-08 16:03:07', '27', NULL),
+	(9978, 2, 27.00, '2017-09-08 16:03:07', '27', NULL),
+	(9979, 42, NULL, '2017-09-08 16:03:07', '27', NULL),
+	(9980, 43, NULL, '2017-09-08 16:03:33', '27', '1970-01-01 03:00:27'),
+	(9981, 37, NULL, '2017-09-08 16:03:33', '27', NULL),
+	(9982, 1, 27.00, '2017-09-08 16:03:33', '27', NULL),
+	(9983, 2, 27.00, '2017-09-08 16:03:33', '27', NULL),
+	(9984, 42, NULL, '2017-09-08 16:03:33', '27', NULL),
+	(9985, 43, NULL, '2017-09-08 16:04:13', '27', '1970-01-01 03:00:27'),
+	(9986, 37, NULL, '2017-09-08 16:04:13', '27', NULL),
+	(9987, 1, 27.00, '2017-09-08 16:04:13', '27', NULL),
+	(9988, 2, 27.00, '2017-09-08 16:04:13', '27', NULL),
+	(9989, 42, NULL, '2017-09-08 16:04:13', '27', NULL);
 /*!40000 ALTER TABLE `user_device_measures` ENABLE KEYS */;
 
 
