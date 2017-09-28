@@ -75,12 +75,6 @@ public class tFolderDeleteWindow extends Window {
 //                            }
 
 
-                            tUsefulFuctions.sendMessAgeToSubcribeServer(
-                                    RemoveLeafId
-                                    , iTreeContentLayout.iUserLog
-                                    , "delete"
-                                    , "folder"
-                            );
 
 
                             tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,RemoveLeafId);
@@ -89,6 +83,13 @@ public class tFolderDeleteWindow extends Window {
                         }
                     }
                 }
+
+                tUsefulFuctions.sendMessAgeToSubcribeServer(
+                        iLeafId
+                        , iTreeContentLayout.iUserLog
+                        , "delete"
+                        , "folder"
+                );
 
                 tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,iLeafId);
                 iTreeContentLayout.reloadTreeContainer();

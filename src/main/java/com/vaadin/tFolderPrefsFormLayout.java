@@ -256,7 +256,7 @@ public class tFolderPrefsFormLayout extends VerticalLayout {
 
             String DataSql = "select udt.leaf_name\n" +
                     ",udt.time_topic\n" +
-                    ",ser.server_ip mqqtt\n" +
+                    ",ser.vserver_ip mqqtt\n" +
                     ",udt.control_log\n" +
                     ",udt.control_pass\n" +
                     ",tz.timezone_value\n" +
