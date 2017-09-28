@@ -145,7 +145,7 @@ public class tAddFolderWindow extends Window {
                     ,iTreeContentLayout.iUserLog
                     ,sLogValue
                     ,sPassValue
-                    ,new MosquittoPBKDF2().createPassword(sPassValue)
+                    ,tUsefulFuctions.sha256(sPassValue)
                     ,MqttServerTextField.getValue()
                     ,(String) TimeZoneSelect.getValue()
                     ,timeSyncInt
@@ -167,6 +167,13 @@ public class tAddFolderWindow extends Window {
                         iTreeContentLayout.itTree.setItemIcon(iNewLeafId, VaadinIcons.FOLDER);
                         iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId,0);
                         iTreeContentLayout.itTree.expandItem(iLeafId);
+
+                        tUsefulFuctions.sendMessAgeToSubcribeServer(
+                                iNewLeafId
+                                , iTreeContentLayout.iUserLog
+                                , "add"
+                                , "folder"
+                        );
                     }
                     Notification.show("Контроллер добавлен!",
                             null,

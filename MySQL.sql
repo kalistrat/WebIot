@@ -639,7 +639,7 @@ CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_server_link`(`eServType` 
 ) RETURNS varchar(50) CHARSET utf8
 begin
 return(
-select ss.server_ip mqtt_link
+select ss.vserver_ip mqtt_link
 from mqtt_servers ss
 where ss.server_id in (
 select max(ms.server_id)
@@ -937,15 +937,16 @@ CREATE TABLE IF NOT EXISTS `mqtt_servers` (
   `is_busy` int(11) DEFAULT NULL,
   `name` varchar(50) DEFAULT NULL,
   `server_type` varchar(50) DEFAULT NULL,
+  `vserver_ip` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`server_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.mqtt_servers: ~2 rows (приблизительно)
 DELETE FROM `mqtt_servers`;
 /*!40000 ALTER TABLE `mqtt_servers` DISABLE KEYS */;
-INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`, `server_type`) VALUES
-	(3, 'tcp://localhost:1883', '1883', 0, 'LOCALHOST', 'regular'),
-	(4, 'ssl://localhost:1884', '1884', 0, 'LOCALHOST', 'ssl');
+INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`, `server_type`, `vserver_ip`) VALUES
+	(3, 'tcp://0.0.0.0:1883', '1883', 0, 'LOCALHOST', 'regular', 'tcp://snslog.ru:1883'),
+	(4, 'ssl://0.0.0.0:1884', '1884', 0, 'LOCALHOST', 'ssl', 'ssl://snslog.ru:1884');
 /*!40000 ALTER TABLE `mqtt_servers` ENABLE KEYS */;
 
 
@@ -2683,7 +2684,7 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_unit` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
   CONSTRAINT `FK_user_device_unit_factor` FOREIGN KEY (`factor_id`) REFERENCES `unit_factor` (`factor_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_device: ~8 rows (приблизительно)
 DELETE FROM `user_device`;
@@ -2696,7 +2697,8 @@ INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `use
 	(37, 1, 'термометр-1', NULL, 'не задано', '2017-07-12 14:05:51', 1, 'Ед', '/garage1/temp1', '', 3, 96, 64, 'термометр-1', 'garage1', '123123123', 'текст'),
 	(39, 1, 'wer', NULL, 'не задано', '2017-07-12 14:52:19', 2, 'Ед', '/garage1/wer1', '', 3, 96, 64, 'wer', 'garage1', '123123123', 'текст'),
 	(42, 1, 'qwer2', NULL, 'не задано', '2017-07-12 15:43:06', 1, 'Ед', '/kalistrat1/wer1', '42', 3, 96, 64, 'qwer2', 'kalistrat1', '7345345', 'текст'),
-	(43, 1, 'Измеритель1', NULL, 'не задано', '2017-07-19 16:59:57', 1, 'Ед', '/garage1/measurer1', '43', 3, 96, 64, 'Измеритель1', 'garage1', '123123123', 'дата');
+	(43, 1, 'Измеритель1', NULL, 'не задано', '2017-07-19 16:59:57', 1, 'Ед', '/garage1/measurer1', '43', 3, 96, 64, 'Измеритель1', 'garage1', '123123123', 'дата'),
+	(44, 1, 'qwe', NULL, 'не задано', '2017-09-28 19:32:50', 1, 'Ед', '/alogin/sss', '44', NULL, 96, 64, 'qwe', 'alogin', 'alogin', 'текст');
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -2732,23 +2734,25 @@ DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`, `control_pass_sha`) VALUES
 	(1, 1, NULL, NULL, 'Устройства', 1, 17, 3, '', 0, '', '', ''),
-	(5, 2, 1, NULL, 'Кухня', 1, 19, 3, '/kalistrat1/synctime', 5, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
-	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
-	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
-	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
-	(41, 6, 2, 1, 'UniPing RS-485', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
+	(5, 2, 1, NULL, 'Кухня', 1, 19, 3, '/kalistrat1/synctime', 5, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
+	(6, 3, 2, 3, 'Logitech HD Webcam C270', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
+	(7, 4, 2, 2, 'HWg-STE', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
+	(40, 5, 2, 4, 'Microsoft LifeCam HD-3000', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
+	(41, 6, 2, 1, 'UniPing RS-485', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
 	(146, 1, NULL, NULL, 'Устройства', 2, 17, 3, '', 0, '', '', ''),
-	(170, 7, 1, NULL, 'Гараж', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', 'PBKDF2$sha256$901$LZbs/u+RQLQBqZ7e$GEa0CdyeQ/uPQOLjOe4SnAGlcPAKVIDz'),
-	(171, 8, 7, 37, 'термометр-1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', 'PBKDF2$sha256$901$LZbs/u+RQLQBqZ7e$GEa0CdyeQ/uPQOLjOe4SnAGlcPAKVIDz'),
-	(173, 9, 7, 39, 'wer', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', 'PBKDF2$sha256$901$LZbs/u+RQLQBqZ7e$GEa0CdyeQ/uPQOLjOe4SnAGlcPAKVIDz'),
-	(176, 10, 2, 42, 'qwer2', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', 'PBKDF2$sha256$901$AdLt63g+to0A/2ox$bxVPTK2XepTBFkL7zKdgYLXr8vIiblC2'),
+	(170, 7, 1, NULL, 'Гараж', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef'),
+	(171, 8, 7, 37, 'термометр-1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef'),
+	(173, 9, 7, 39, 'wer', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef'),
+	(176, 10, 2, 42, 'qwer2', 1, 17, 3, '/kalistrat1/synctime', 0, 'kalistrat1', '7345345', '7fac25fd39a90cec55cdce1a44f804aa26f0506b2abf696de559b99f38393e1f'),
 	(178, 1, NULL, NULL, 'Устройства', 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	(179, 1, NULL, NULL, 'Устройства', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	(180, 2, 1, NULL, 'qwe', 5, 17, 3, '/qwe123/synctime', 0, 'qwe123', '123123', 'PBKDF2$sha256$901$d8B6nO30M9Uba0yo$cwe45inBgOyeEs2t09o6vvk0ymUmDrjh'),
+	(180, 2, 1, NULL, 'qwe', 5, 17, 3, '/qwe123/synctime', 0, 'qwe123', '123123', '96cae35ce8a9b0244178bf28e4966c2ce1b8385723a96a6b838858cdd6ca0a1e'),
 	(181, 1, NULL, NULL, 'Устройства', 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	(182, 1, NULL, NULL, 'Устройства', 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	(183, 11, 1, NULL, 'новый контроллер', 1, 17, 3, '/asdfg/synctime', 2, 'asdfg', 'asdfg', 'f969fdbe811d8a66010d6f8973246763147a2a0914afc8087839e29b563a5af0'),
-	(184, 12, 7, 43, 'Измеритель1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', 'PBKDF2$sha256$901$LZbs/u+RQLQBqZ7e$GEa0CdyeQ/uPQOLjOe4SnAGlcPAKVIDz');
+	(184, 12, 7, 43, 'Измеритель1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef'),
+	(185, 13, 1, NULL, 'уцпауцпуц', 1, 17, NULL, '/alogin/synctime', 0, 'alogin', 'alogin', '8ccdf1779c852af0b149a5ba902489a739483fa75c3c79bc951037b3b01a1cb9'),
+	(186, 14, 13, 44, 'qwe', 1, 17, NULL, '/alogin/synctime', 0, 'alogin', 'alogin', '8ccdf1779c852af0b149a5ba902489a739483fa75c3c79bc951037b3b01a1cb9');
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 
@@ -2763,9 +2767,9 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   PRIMARY KEY (`user_device_measure_id`),
   KEY `FK_user_device_measures_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9990 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9993 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_measures: ~250 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_measures: ~253 rows (приблизительно)
 DELETE FROM `user_device_measures`;
 /*!40000 ALTER TABLE `user_device_measures` DISABLE KEYS */;
 INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`, `measure_mess`, `measure_date_value`) VALUES
@@ -3018,7 +3022,10 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 	(9986, 37, NULL, '2017-09-08 16:04:13', '27', NULL),
 	(9987, 1, 27.00, '2017-09-08 16:04:13', '27', NULL),
 	(9988, 2, 27.00, '2017-09-08 16:04:13', '27', NULL),
-	(9989, 42, NULL, '2017-09-08 16:04:13', '27', NULL);
+	(9989, 42, NULL, '2017-09-08 16:04:13', '27', NULL),
+	(9990, 43, NULL, '2017-09-20 17:49:30', '25', '1970-01-01 03:00:25'),
+	(9991, 43, NULL, '1970-01-01 03:39:02', '23234', '1970-01-01 09:27:14'),
+	(9992, 43, NULL, '1970-01-01 09:27:14', '23', '1970-01-01 03:00:23');
 /*!40000 ALTER TABLE `user_device_measures` ENABLE KEYS */;
 
 

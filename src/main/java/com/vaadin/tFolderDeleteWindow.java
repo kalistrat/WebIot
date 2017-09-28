@@ -65,14 +65,22 @@ public class tFolderDeleteWindow extends Window {
 
                         if (iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId).intValue()!=0) {
 
-                            if (iTreeContentLayout.getLeafIconCode(RemoveLeafId).equals("TACHOMETER")) {
-                                tUsefulFuctions.sendMessAgeToSubcribeServer(
-                                        iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId)
-                                        , iTreeContentLayout.iUserLog
-                                        , "delete"
-                                        , "sensor"
-                                );
-                            }
+//                            if (iTreeContentLayout.getLeafIconCode(RemoveLeafId).equals("TACHOMETER")) {
+//                                tUsefulFuctions.sendMessAgeToSubcribeServer(
+//                                        iTreeContentLayout.getLeafUserDeviceId(RemoveLeafId)
+//                                        , iTreeContentLayout.iUserLog
+//                                        , "delete"
+//                                        , "sensor"
+//                                );
+//                            }
+
+
+                            tUsefulFuctions.sendMessAgeToSubcribeServer(
+                                    RemoveLeafId
+                                    , iTreeContentLayout.iUserLog
+                                    , "delete"
+                                    , "folder"
+                            );
 
 
                             tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,RemoveLeafId);
@@ -90,6 +98,7 @@ public class tFolderDeleteWindow extends Window {
                 for (Object id : iTreeContentLayout.itTree.rootItemIds()) {
                     iTreeContentLayout.itTree.expandItemsRecursively(id);
                 }
+
 
                 Notification.show("Подкаталог удалён!",
                         null,
