@@ -876,6 +876,55 @@ return i_user_device_id;
 end//
 DELIMITER ;
 
+-- Дамп структуры для процедура things.get_max_vals
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `get_max_vals`()
+begin
+declare row_cnt int;
+declare i int default 0;
+
+declare i_TABLE_NAME varchar(100);
+declare i_COLUMN_NAME varchar(100);
+declare i_COLUMN_TYPE varchar(100);
+declare i_QUERY_VAL varchar(500);
+
+
+declare cur1 cursor for
+select col.TABLE_NAME
+,col.COLUMN_NAME
+,col.COLUMN_TYPE
+,concat(concat(concat('select max(',col.COLUMN_NAME),') into @a from '),col.TABLE_NAME) query_val
+from information_schema.`COLUMNS` col
+join information_schema.`TABLES` tab on tab.TABLE_NAME=col.TABLE_NAME
+where tab.TABLE_SCHEMA='things';
+
+select count(*) into row_cnt
+from information_schema.`COLUMNS` col
+join information_schema.`TABLES` tab on tab.TABLE_NAME=col.TABLE_NAME
+where tab.TABLE_SCHEMA='things';
+
+open cur1;
+
+	while i<row_cnt do
+	
+		fetch cur1 into i_TABLE_NAME,i_COLUMN_NAME,i_COLUMN_TYPE,i_QUERY_VAL;
+		set @s = i_QUERY_VAL;
+		PREPARE stmt FROM @s;
+		EXECUTE stmt;
+		DEALLOCATE prepare stmt;
+		
+		insert into tab_meta_data
+		select i_TABLE_NAME,i_COLUMN_NAME,i_COLUMN_TYPE,@a;
+			
+		set i = i + 1;
+	
+	end while;
+
+close cur1;
+
+end//
+DELIMITER ;
+
 -- Дамп структуры для таблица things.graph_period
 CREATE TABLE IF NOT EXISTS `graph_period` (
   `period_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -894,6 +943,12 @@ INSERT INTO `graph_period` (`period_id`, `period_code`) VALUES
 	(5, 'месяц'),
 	(6, 'год');
 /*!40000 ALTER TABLE `graph_period` ENABLE KEYS */;
+
+-- Дамп структуры для функция things.IsNumeric
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `IsNumeric`(sIn varchar(1024)) RETURNS tinyint(4)
+RETURN sIn REGEXP '^(-|\\+){0,1}([0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+|[0-9]+)$'//
+DELIMITER ;
 
 -- Дамп структуры для таблица things.mqtt_servers
 CREATE TABLE IF NOT EXISTS `mqtt_servers` (
@@ -2217,6 +2272,130 @@ where pl.user_devices_tree_id=i_tree_id
 end//
 DELIMITER ;
 
+-- Дамп структуры для процедура things.s_message_recerve
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_message_recerve`(
+eTopic varchar(200)
+,eMessage varchar(200)
+,eUserLog varchar(100)
+)
+begin
+
+declare i_sep_pos int;
+declare i_topic_exists int;
+declare i_mess_unix_time varchar(200);
+declare i_mess_date_time datetime;
+declare i_mess_date_serv datetime;
+declare i_message_value varchar(500);
+declare i_user_device_id int;
+declare i_data_type varchar(50);
+
+declare i_date_value datetime;
+declare i_num_value double(10,2);
+
+select count(*) into i_topic_exists
+from user_device ud
+join users u on u.user_id=ud.user_id
+where ud.mqtt_topic_write = eTopic
+and u.user_log = eUserLog;
+
+if (i_topic_exists = 1) then
+
+	select ud.user_device_id
+	,ud.measure_data_type
+	,case when instr(replace(tm.timezone_value,'UTC',''),'+') 
+	then date_add(now(),interval cast(replace(tm.timezone_value,'UTC+','') as unsigned)-3 hour)
+	else date_sub(now(),interval cast(replace(tm.timezone_value,'UTC-','') as unsigned)+3 hour) 
+	end utc_datetime 
+	into i_user_device_id
+	,i_data_type
+	,i_mess_date_serv
+	from user_device ud
+	join user_devices_tree udt on udt.user_device_id=ud.user_device_id
+	join timezones tm on tm.timezone_id=udt.timezone_id
+	join users u on u.user_id=ud.user_id
+	where ud.mqtt_topic_write = eTopic
+	and u.user_log = eUserLog;
+	
+	select instr(eMessage,':') into i_sep_pos;
+	
+	if (i_sep_pos>0) then
+	
+		select substring(eMessage,1,instr(eMessage,':')-1) into i_mess_unix_time;
+		if (IsNumeric(i_mess_unix_time)=1) then
+		SELECT FROM_UNIXTIME(round((CAST(replace(i_mess_unix_time,' ','') AS UNSIGNED))/1000)) into i_mess_date_time;
+		else 
+		set i_mess_date_time = i_mess_date_serv;
+		end if;
+		select substring(eMessage,instr(eMessage,':')+1,length(eMessage)) into i_message_value;
+	
+	else
+	
+		set i_mess_date_time = i_mess_date_serv;
+		select replace(eMessage,' ','') into i_message_value;
+	
+	end if;
+		
+	if (i_data_type='дата' and IsNumeric(i_message_value)=1) then
+			SELECT FROM_UNIXTIME(round((CAST(replace(i_message_value,' ','') AS UNSIGNED))/1000)) into i_date_value;
+			
+			insert into user_device_measures(
+			user_device_id
+			,measure_value
+			,measure_date
+			,measure_mess
+			,measure_date_value
+			)
+			values(
+			i_user_device_id
+			,null
+			,i_mess_date_time
+			,null
+			,i_date_value
+			);
+			
+	elseif (i_data_type='число' and IsNumeric(i_message_value)=1) then
+	
+			SELECT CAST(replace(i_message_value,' ','') AS decimal(10,2)) + 0E0 into i_num_value;
+			insert into user_device_measures(
+			user_device_id
+			,measure_value
+			,measure_date
+			,measure_mess
+			,measure_date_value
+			)
+			values(
+			i_user_device_id
+			,i_num_value
+			,i_mess_date_time
+			,null
+			,null
+			);
+			
+	else
+	
+			insert into user_device_measures(
+			user_device_id
+			,measure_value
+			,measure_date
+			,measure_mess
+			,measure_date_value
+			)
+			values(
+			i_user_device_id
+			,null
+			,i_mess_date_time
+			,i_message_value
+			,null
+			);
+			
+	end if;
+
+end if;
+
+end//
+DELIMITER ;
+
 -- Дамп структуры для процедура things.s_p_sensor_initial
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `s_p_sensor_initial`(IN `eUserLog` varchar(50)
@@ -2272,6 +2451,122 @@ i_user_device_id
 
 end//
 DELIMITER ;
+
+-- Дамп структуры для таблица things.tab_meta_data
+CREATE TABLE IF NOT EXISTS `tab_meta_data` (
+  `TABLE_NAME` varchar(100) DEFAULT NULL,
+  `COLUMN_NAME` varchar(100) DEFAULT NULL,
+  `COLUMN_TYPE` varchar(100) DEFAULT NULL,
+  `MAX_VAL` varchar(500) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Дамп данных таблицы things.tab_meta_data: ~102 rows (приблизительно)
+DELETE FROM `tab_meta_data`;
+/*!40000 ALTER TABLE `tab_meta_data` DISABLE KEYS */;
+INSERT INTO `tab_meta_data` (`TABLE_NAME`, `COLUMN_NAME`, `COLUMN_TYPE`, `MAX_VAL`) VALUES
+	('action_type', 'action_type_id', 'int(11)', '2'),
+	('action_type', 'action_type_name', 'varchar(100)', 'Исполнительное устройство'),
+	('action_type', 'icon_code', 'varchar(100)', 'TACHOMETER'),
+	('graph_period', 'period_id', 'int(11)', '6'),
+	('graph_period', 'period_code', 'varchar(50)', 'час'),
+	('mqtt_servers', 'server_id', 'int(11)', '4'),
+	('mqtt_servers', 'server_ip', 'varchar(20)', 'tcp://0.0.0.0:1883'),
+	('mqtt_servers', 'server_port', 'varchar(8)', '1884'),
+	('mqtt_servers', 'is_busy', 'int(11)', '0'),
+	('mqtt_servers', 'name', 'varchar(50)', 'LOCALHOST'),
+	('mqtt_servers', 'server_type', 'varchar(50)', 'ssl'),
+	('mqtt_servers', 'vserver_ip', 'varchar(50)', 'tcp://snslog.ru:1883'),
+	('tab_meta_data', 'TABLE_NAME', 'varchar(100)', 'mqtt_servers'),
+	('tab_meta_data', 'COLUMN_NAME', 'varchar(100)', 'vserver_ip'),
+	('tab_meta_data', 'COLUMN_TYPE', 'varchar(100)', 'varchar(8)'),
+	('tab_meta_data', 'MAX_VAL', 'varchar(500)', 'час'),
+	('task_type', 'task_type_id', 'int(11)', '2'),
+	('task_type', 'task_type_name', 'varchar(20)', 'SYNCTIME'),
+	('timezones', 'timezone_id', 'int(11)', '38'),
+	('timezones', 'timezone_value', 'varchar(15)', 'UTC-9'),
+	('unit', 'unit_id', 'int(11)', '97'),
+	('unit', 'unit_symbol', 'varchar(25)', 'Ф'),
+	('unit', 'unit_name', 'varchar(100)', 'фарад'),
+	('unit_factor', 'factor_id', 'int(11)', '112'),
+	('unit_factor', 'factor_value', 'varchar(25)', '10e9'),
+	('user_accounts', 'account_id', 'int(11)', '1'),
+	('user_accounts', 'user_id', 'int(11)', '1'),
+	('user_accounts', 'account_type', 'varchar(50)', 'PRIVILEGED'),
+	('user_accounts', 'date_from', 'datetime', '2017-01-05 17:36:23'),
+	('user_accounts', 'date_till', 'datetime', '2019-06-05 17:36:29'),
+	('user_actuator_state', 'user_actuator_state_id', 'int(11)', '34'),
+	('user_actuator_state', 'user_device_id', 'int(11)', '4'),
+	('user_actuator_state', 'actuator_state_name', 'varchar(30)', 'Выключено'),
+	('user_actuator_state', 'actuator_message_code', 'varchar(20)', 'On50'),
+	('user_actuator_state_condition', 'actuator_state_condition_id', 'int(11)', '5'),
+	('user_actuator_state_condition', 'user_actuator_state_id', 'int(11)', '23'),
+	('user_actuator_state_condition', 'left_part_expression', 'varchar(150)', 'm/(4+m)^2'),
+	('user_actuator_state_condition', 'sign_expression', 'varchar(2)', '>'),
+	('user_actuator_state_condition', 'right_part_expression', 'varchar(150)', 'n'),
+	('user_actuator_state_condition', 'condition_num', 'int(11)', '2'),
+	('user_actuator_state_condition', 'condition_interval', 'int(11)', '15'),
+	('user_device', 'user_device_id', 'int(11)', '43'),
+	('user_device', 'user_id', 'int(11)', '1'),
+	('user_device', 'device_user_name', 'varchar(30)', 'термометр-1'),
+	('user_device', 'user_device_mode', 'varchar(100)', 'Периодическое измерение'),
+	('user_device', 'user_device_measure_period', 'varchar(100)', 'не задано'),
+	('user_device', 'user_device_date_from', 'datetime', '2017-07-19 16:59:57'),
+	('user_device', 'action_type_id', 'int(11)', '2'),
+	('user_device', 'device_units', 'varchar(20)', 'Ед'),
+	('user_device', 'mqtt_topic_write', 'varchar(200)', '/kalistrat1/wer1'),
+	('user_device', 'mqtt_topic_read', 'varchar(200)', '43'),
+	('user_device', 'mqqt_server_id', 'int(11)', '3'),
+	('user_device', 'unit_id', 'int(11)', '96'),
+	('user_device', 'factor_id', 'int(11)', '66'),
+	('user_device', 'description', 'varchar(255)', 'Это описание устройства HWg-STE. Максимальная длина 200 символов fdfdf'),
+	('user_device', 'device_log', 'varchar(50)', 'kalistrat1'),
+	('user_device', 'device_pass', 'varchar(50)', '7345345'),
+	('user_device', 'measure_data_type', 'varchar(50)', 'число'),
+	('user_device_measures', 'user_device_measure_id', 'int(11)', '9992'),
+	('user_device_measures', 'user_device_id', 'int(11)', '43'),
+	('user_device_measures', 'measure_value', 'double(10,2)', '777'),
+	('user_device_measures', 'measure_date', 'datetime', '2017-09-20 17:49:30'),
+	('user_device_measures', 'measure_mess', 'varchar(255)', 'cleorus'),
+	('user_device_measures', 'measure_date_value', 'datetime', '2017-07-19 15:29:11'),
+	('user_device_task', 'user_device_task_id', 'int(11)', '3'),
+	('user_device_task', 'user_device_id', 'int(11)', '43'),
+	('user_device_task', 'task_type_id', 'int(11)', '1'),
+	('user_device_task', 'task_interval', 'int(11)', '1'),
+	('user_device_task', 'interval_type', 'varchar(15)', 'DAYS'),
+	('user_devices_tree', 'user_devices_tree_id', 'int(11)', '184'),
+	('user_devices_tree', 'leaf_id', 'int(11)', '11'),
+	('user_devices_tree', 'parent_leaf_id', 'int(11)', '7'),
+	('user_devices_tree', 'user_device_id', 'int(11)', '43'),
+	('user_devices_tree', 'leaf_name', 'varchar(30)', 'Устройства'),
+	('user_devices_tree', 'user_id', 'int(11)', '7'),
+	('user_devices_tree', 'timezone_id', 'int(11)', '19'),
+	('user_devices_tree', 'mqtt_server_id', 'int(11)', '3'),
+	('user_devices_tree', 'time_topic', 'varchar(150)', '/qwe123/synctime'),
+	('user_devices_tree', 'sync_interval', 'int(11)', '5'),
+	('user_devices_tree', 'control_log', 'varchar(50)', 'qwe123'),
+	('user_devices_tree', 'control_pass', 'varchar(50)', '7345345'),
+	('user_devices_tree', 'control_pass_sha', 'varchar(255)', '96cae35ce8a9b0244178bf28e4966c2ce1b8385723a96a6b838858cdd6ca0a1e'),
+	('user_state_condition_vars', 'state_condition_vars_id', 'int(11)', '9'),
+	('user_state_condition_vars', 'actuator_state_condition_id', 'int(11)', '5'),
+	('user_state_condition_vars', 'var_code', 'varchar(20)', 'n'),
+	('user_state_condition_vars', 'user_device_id', 'int(11)', '2'),
+	('users', 'user_id', 'int(11)', '7'),
+	('users', 'user_log', 'varchar(50)', 'qweqweqwe123'),
+	('users', 'user_pass', 'varchar(150)', '7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451'),
+	('users', 'user_last_activity', 'datetime', '2017-01-12 18:02:48'),
+	('users', 'user_mail', 'varchar(150)', 'sexpost@bk.ru'),
+	('users', 'user_phone', 'varchar(150)', '12312312312'),
+	('users', 'first_name', 'varchar(50)', 'qwe'),
+	('users', 'second_name', 'varchar(50)', 'qwe'),
+	('users', 'middle_name', 'varchar(50)', 'qwe'),
+	('users', 'birth_date', 'date', '1987-07-13'),
+	('users', 'subject_type', 'varchar(50)', 'юридическое лицо'),
+	('users', 'subject_name', 'varchar(150)', 'snslog'),
+	('users', 'subject_address', 'varchar(150)', 'anywhere'),
+	('users', 'subject_inn', 'varchar(50)', '1231231231'),
+	('users', 'subject_kpp', 'varchar(50)', '123123123'),
+	('users', 'post_index', 'varchar(50)', '123123');
+/*!40000 ALTER TABLE `tab_meta_data` ENABLE KEYS */;
 
 -- Дамп структуры для таблица things.task_type
 CREATE TABLE IF NOT EXISTS `task_type` (
@@ -2624,9 +2919,9 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_unit` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
   CONSTRAINT `FK_user_device_unit_factor` FOREIGN KEY (`factor_id`) REFERENCES `unit_factor` (`factor_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device: ~11 rows (приблизительно)
+-- Дамп данных таблицы things.user_device: ~8 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`, `device_log`, `device_pass`, `measure_data_type`) VALUES
@@ -2665,9 +2960,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   CONSTRAINT `FK_user_devices_tree_timezones` FOREIGN KEY (`timezone_id`) REFERENCES `timezones` (`timezone_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~30 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~17 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`, `control_pass_sha`) VALUES
