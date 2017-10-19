@@ -636,17 +636,14 @@ DELIMITER ;
 -- Дамп структуры для функция things.f_get_server_link
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_get_server_link`(`eServType` varchar(50)
-) RETURNS varchar(50) CHARSET utf8
+, `eUserLog` VARCHAR(50)) RETURNS varchar(50) CHARSET utf8
 begin
 return(
-select ss.vserver_ip mqtt_link
-from mqtt_servers ss
-where ss.server_id in (
-select max(ms.server_id)
+select ms.vserver_ip
 from mqtt_servers ms
-where ms.is_busy=0
-and ms.server_type=eServType
-)
+join users u on u.user_id=ms.user_id
+where ms.server_type=eServType
+and u.user_log=eUserLog
 );
 end//
 DELIMITER ;
@@ -990,57 +987,49 @@ DELIMITER ;
 CREATE TABLE IF NOT EXISTS `mqtt_servers` (
   `server_id` int(11) NOT NULL AUTO_INCREMENT,
   `server_ip` varchar(20) DEFAULT NULL,
-  `server_port` varchar(8) DEFAULT NULL,
+  `server_port` int(11) DEFAULT NULL,
   `is_busy` int(11) DEFAULT NULL,
   `name` varchar(50) DEFAULT NULL,
   `server_type` varchar(50) DEFAULT NULL,
   `vserver_ip` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`server_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`server_id`),
+  KEY `FK_mqtt_servers_users` (`user_id`),
+  CONSTRAINT `FK_mqtt_servers_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.mqtt_servers: ~2 rows (приблизительно)
+-- Дамп данных таблицы things.mqtt_servers: ~4 rows (приблизительно)
 DELETE FROM `mqtt_servers`;
 /*!40000 ALTER TABLE `mqtt_servers` DISABLE KEYS */;
-INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`, `server_type`, `vserver_ip`) VALUES
-	(3, 'tcp://0.0.0.0:1883', '1883', 0, 'LOCALHOST', 'regular', 'tcp://snslog.ru:1883'),
-	(4, 'ssl://0.0.0.0:1884', '1884', 0, 'LOCALHOST', 'ssl', 'ssl://snslog.ru:1884');
+INSERT INTO `mqtt_servers` (`server_id`, `server_ip`, `server_port`, `is_busy`, `name`, `server_type`, `vserver_ip`, `user_id`) VALUES
+	(3, 'tcp://0.0.0.0:9001', 9001, 0, 'LOCALHOST', 'regular', 'tcp://snslog.ru:9001', 1),
+	(4, 'ssl://0.0.0.0:9002', 9002, 0, 'LOCALHOST', 'ssl', 'ssl://snslog.ru:9002', 1),
+	(5, 'tcp://0.0.0.0:9001', 9001, 0, 'LOCALHOST', 'regular', 'tcp://snslog.ru:9001', 2),
+	(6, 'ssl://0.0.0.0:9002', 9002, 0, 'LOCALHOST', 'ssl', 'ssl://snslog.ru:9002', 2);
 /*!40000 ALTER TABLE `mqtt_servers` ENABLE KEYS */;
 
 
 -- Дамп структуры для процедура things.pNewUserAdd
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `pNewUserAdd`(
-	IN `eLog` varchar(50)
-,
-	IN `ePswdSha` varchar(150)
-,
-	IN `ePhone` varchar(150)
-,
-	IN `eMail` varchar(150)
-,
-	IN `ePost` varchar(50)
-,
-	IN `eSubjType` varchar(50)
-,
-	IN `eSubjName` varchar(150)
-,
-	IN `eSubjAddr` varchar(150)
-,
-	IN `eSubjInn` varchar(50)
-,
-	IN `eSubjKpp` varchar(50)
-,
-	IN `eFirName` varchar(50)
-,
-	IN `eSecName` varchar(50)
-,
-	IN `eMidName` varchar(50)
-,
-	IN `edBirthdate` Date
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `pNewUserAdd`(IN `eLog` varchar(50)
+, IN `ePswdSha` varchar(150)
+, IN `ePhone` varchar(150)
+, IN `eMail` varchar(150)
+, IN `ePost` varchar(50)
+, IN `eSubjType` varchar(50)
+, IN `eSubjName` varchar(150)
+, IN `eSubjAddr` varchar(150)
+, IN `eSubjInn` varchar(50)
+, IN `eSubjKpp` varchar(50)
+, IN `eFirName` varchar(50)
+, IN `eSecName` varchar(50)
+, IN `eMidName` varchar(50)
+, IN `edBirthdate` Date
 
 )
 begin
 declare i_user_id int;
+declare i_server_port int;
 
 if (eSubjType = 'физическое лицо') then
 
@@ -1105,6 +1094,46 @@ leaf_id
 ) values (
 1
 ,'Устройства'
+,i_user_id
+);
+
+select max(server_port) into i_server_port
+from mqtt_servers;
+
+insert into mqtt_servers(
+server_ip
+,server_port
+,is_busy
+,name
+,server_type
+,vserver_ip
+,user_id
+) values (
+concat('tcp://0.0.0.0:',i_server_port+1)
+,i_server_port+1
+,0
+,'LOCALHOST'
+,'regular'
+,concat('tcp://snslog.ru:',i_server_port+1)
+,i_user_id
+);
+
+
+insert into mqtt_servers(
+server_ip
+,server_port
+,is_busy
+,name
+,server_type
+,vserver_ip
+,user_id
+) values (
+concat('ssl://0.0.0.0:',i_server_port+2)
+,i_server_port+2
+,0
+,'LOCALHOST'
+,'ssl'
+,concat('ssl://snslog.ru:',i_server_port+2)
 ,i_user_id
 );
 
@@ -2349,7 +2378,7 @@ select concat('<condition_rule>',
 '<server_ip>',ms.server_ip,'</server_ip>',
 '<left_part_expression>',uasc.left_part_expression,'</left_part_expression>',
 '<right_part_expression>',uasc.right_part_expression,'</right_part_expression>',
-'<sign_expression>',replace(replace(uasc.sign_expression,'>','&gt'),'>','&lt'),'</sign_expression>',
+'<sign_expression>',replace(replace(uasc.sign_expression,'>','&gt;'),'<','&lt;'),'</sign_expression>',
 '<condition_interval>',uasc.condition_interval,'</condition_interval>',
 '</condition_rule>'
 )
@@ -2358,6 +2387,46 @@ join user_actuator_state uas on uas.user_actuator_state_id=uasc.user_actuator_st
 join user_device ud on ud.user_device_id=uas.user_device_id
 join mqtt_servers ms on ms.server_id=ud.mqqt_server_id
 where uasc.actuator_state_condition_id = eConditionId
+);
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для функция things.s_get_task_data
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `s_get_task_data`(eTaskId int) RETURNS text CHARSET utf8
+begin
+return(
+select concat(
+'<task_data>'
+,'<task_type_name>',t.task_type_name,'</task_type_name>'
+,'<task_interval>',t.task_interval,'</task_interval>'
+,'<interval_type>',t.interval_type,'</interval_type>'
+,'<write_topic_name>',t.write_topic_name,'</write_topic_name>'
+,'<server_ip>',t.server_ip,'</server_ip>'
+,'<control_log>',t.control_log,'</control_log>'
+,'<control_pass>',t.control_pass,'</control_pass>'
+,'<message_value>',t.message_value,'</message_value>'
+,'</task_data>'
+)
+from (
+select tt.task_type_name
+,tas.task_interval
+,tas.interval_type
+,case when tt.task_type_name = 'SYNCTIME' then udtr.time_topic
+else null end write_topic_name
+,ms.server_ip
+,udtr.control_log
+,udtr.control_pass
+,case when tt.task_type_name = 'SYNCTIME' then tz.timezone_value
+else null end message_value
+from user_device_task tas
+join task_type tt on tt.task_type_id=tas.task_type_id
+left join user_devices_tree udtr on udtr.user_device_id=tas.user_device_id
+left join mqtt_servers ms on ms.server_id=udtr.mqtt_server_id
+left join timezones tz on tz.timezone_id=udtr.timezone_id
+where tas.user_device_task_id = eTaskId
+) t
 );
 end//
 DELIMITER ;
@@ -2995,7 +3064,7 @@ DELETE FROM `user_actuator_state_condition`;
 INSERT INTO `user_actuator_state_condition` (`actuator_state_condition_id`, `user_actuator_state_id`, `left_part_expression`, `sign_expression`, `right_part_expression`, `condition_num`, `condition_interval`) VALUES
 	(1, 20, 'a', '>', 'b', 1, 10),
 	(4, 20, 'm', '=', 'n', 2, 7),
-	(5, 23, 'm/(4+m)^2', '>', '0', 1, 15);
+	(5, 23, 'm/(4+m)^2', '<', '0', 1, 15);
 /*!40000 ALTER TABLE `user_actuator_state_condition` ENABLE KEYS */;
 
 

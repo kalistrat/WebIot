@@ -47,8 +47,8 @@ public class tAddFolderWindow extends Window {
         iNewTreeId = 0;
         iNewLeafId = 0;
 
-        mqttRegularUrl = setMqttRegularLink("regular");
-        mqttSslUrl = setMqttRegularLink("ssl");
+        mqttRegularUrl = setMqttRegularLink("regular",iTreeContentLayout.iUserLog);
+        mqttSslUrl = setMqttRegularLink("ssl",iTreeContentLayout.iUserLog);
 
         this.setIcon(VaadinIcons.FOLDER_ADD);
         this.setCaption(" Добавление контроллера");
@@ -369,7 +369,7 @@ public class tAddFolderWindow extends Window {
 
     }
 
-    public String setMqttRegularLink(String qServType){
+    public String setMqttRegularLink(String qServType, String qUserLog){
         String servLink = null;
         try {
 
@@ -380,9 +380,11 @@ public class tAddFolderWindow extends Window {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement callStmt = Con.prepareCall("{? = call f_get_server_link(?)}");
+            CallableStatement callStmt = Con.prepareCall("{? = call f_get_server_link(?,?)}");
             callStmt.registerOutParameter(1, Types.VARCHAR);
             callStmt.setString(2, qServType);
+            callStmt.setString(3, qUserLog);
+
             callStmt.execute();
 
             servLink =  callStmt.getString(1);
