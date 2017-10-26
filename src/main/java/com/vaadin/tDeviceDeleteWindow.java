@@ -5,7 +5,13 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +27,7 @@ public class tDeviceDeleteWindow extends Window {
 
     public tDeviceDeleteWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
-    ){
+    ) throws Throwable {
         iLeafId = eLeafId;
         iTreeContentLayout = eParentContentLayout;
 
@@ -53,12 +59,30 @@ public class tDeviceDeleteWindow extends Window {
 
                 if (iTreeContentLayout.getLeafIconCode(iLeafId).equals("TACHOMETER")) {
 
-                    tUsefulFuctions.sendMessAgeToSubcribeServer(
-                            iTreeContentLayout.getLeafUserDeviceId(iLeafId)
-                            , iTreeContentLayout.iUserLog
-                            , "delete"
-                            , "sensor"
-                    );
+//                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+//                            iTreeContentLayout.getLeafUserDeviceId(iLeafId)
+//                            , iTreeContentLayout.iUserLog
+//                            , "delete"
+//                            , "sensor"
+//                    );
+
+                    List<Integer> tList = null;
+                    try {
+                        tList = getUsersTaskList();
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    for (Integer iTask : tList) {
+
+                        tUsefulFuctions.sendMessAgeToSubcribeServer(
+                                iTask
+                                , iTreeContentLayout.iUserLog
+                                , "delete"
+                                , "task"
+                        );
+                    }
+
                 }
 
                 tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,iLeafId);
@@ -122,5 +146,36 @@ public class tDeviceDeleteWindow extends Window {
         this.setContent(WindowContentLayout);
         this.setSizeUndefined();
         this.setModal(true);
+    }
+
+    private List<Integer> getUsersTaskList() throws Throwable {
+        List<Integer> taskList = new ArrayList<>();
+
+        Document xmlDocument = tUsefulFuctions
+                .loadXMLFromString(
+                        tUsefulFuctions
+                                .getDataBaseXMLString("w_task_device_list"
+                                        ,iTreeContentLayout
+                                                .getLeafUserDeviceId(iLeafId)
+                                )
+                );
+
+        Node taskListNode = (Node) XPathFactory.newInstance().newXPath()
+                .compile("/task_device_list").evaluate(xmlDocument, XPathConstants.NODE);
+
+        NodeList nodeList = taskListNode.getChildNodes();
+
+        for (int i=0; i<nodeList.getLength(); i++){
+
+            NodeList childNodeList = nodeList.item(i).getChildNodes();
+
+            for (int j=0; j<childNodeList.getLength();j++) {
+                if (childNodeList.item(j).getNodeName().equals("task_id")) {
+                    taskList.add(Integer.parseInt(childNodeList.item(j).getTextContent()));
+                }
+            }
+        }
+
+        return taskList;
     }
 }

@@ -138,15 +138,16 @@ public class tAddDeviceWindow extends Window {
                         String addSubsribeRes = "";
                         String addTaskRes = "";
 
-                        if (DeviceActionType.getValue().equals("Измерительное устройство")) {
+//                        if (DeviceActionType.getValue().equals("Измерительное устройство")) {
+//
+//                            addSubsribeRes = tUsefulFuctions.sendMessAgeToSubcribeServer(
+//                                    iNewUserDeviceId
+//                                    , iTreeContentLayout.iUserLog
+//                                    , "add"
+//                                    , "sensor"
+//                            );
+//                        }
 
-                            addSubsribeRes = tUsefulFuctions.sendMessAgeToSubcribeServer(
-                                    iNewUserDeviceId
-                                    , iTreeContentLayout.iUserLog
-                                    , "add"
-                                    , "sensor"
-                            );
-                        }
                         int DevSyncDaysInterval = GetSyncIntervalDays(iNewUserDeviceId);
                         int NewTaskId;
 

@@ -48,18 +48,6 @@ public class tDetectorFormLayout extends VerticalLayout {
                 } else {
 
                     updateDetectorFormData();
-                    tUsefulFuctions.sendMessAgeToSubcribeServer(
-                            iUserDeviceId
-                            , eUserLogIn
-                            , "delete"
-                            , "sensor"
-                    );
-                    tUsefulFuctions.sendMessAgeToSubcribeServer(
-                            iUserDeviceId
-                            , eUserLogIn
-                            , "add"
-                            , "sensor"
-                    );
                     SaveButton.setEnabled(false);
                     EditButton.setEnabled(true);
                     PeriodMeasureSelect.setEnabled(false);

@@ -171,8 +171,8 @@ public class tAddFolderWindow extends Window {
                         tUsefulFuctions.sendMessAgeToSubcribeServer(
                                 iNewLeafId
                                 , iTreeContentLayout.iUserLog
-                                , "add"
-                                , "folder"
+                                , "change"
+                                , "server"
                         );
                     }
                     Notification.show("Контроллер добавлен!",

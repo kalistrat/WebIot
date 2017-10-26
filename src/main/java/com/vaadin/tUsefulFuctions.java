@@ -1,8 +1,13 @@
 package com.vaadin;
 
 import com.vaadin.ui.NativeSelect;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.sql.*;
@@ -43,6 +48,13 @@ public class tUsefulFuctions {
         return StrPieces;
     }
 
+    public static Document loadXMLFromString(String xml) throws Exception
+    {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        InputSource is = new InputSource(new StringReader(xml));
+        return builder.parse(is);
+    }
 
 
     public static List<tMark> GetMarksFromString(String MarksString,String AxeTitle){
@@ -664,6 +676,39 @@ public class tUsefulFuctions {
             e.printStackTrace();
         }
         return isE;
+    }
+
+    public static String getDataBaseXMLString(
+            String storedFunctionCall
+            ,int storedVariable
+    ){
+        try {
+
+            Class.forName(JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    DB_URL
+                    , USER
+                    , PASS
+            );
+
+            CallableStatement Stmt = Con.prepareCall("{? = call " + storedFunctionCall + "(?)}");
+            Stmt.registerOutParameter(1, Types.BLOB);
+            Stmt.setInt(2,storedVariable);
+            Stmt.execute();
+            Blob CondValue = Stmt.getBlob(1);
+            String resultStr = new String(CondValue.getBytes(1l, (int) CondValue.length()));
+            Con.close();
+            return resultStr;
+
+        }catch(SQLException se){
+            //Handle errors for JDBC
+            se.printStackTrace();
+            return null;
+        }catch(Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

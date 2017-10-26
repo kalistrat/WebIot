@@ -87,8 +87,8 @@ public class tFolderDeleteWindow extends Window {
                 tUsefulFuctions.sendMessAgeToSubcribeServer(
                         iLeafId
                         , iTreeContentLayout.iUserLog
-                        , "delete"
-                        , "folder"
+                        , "change"
+                        , "server"
                 );
 
                 tUsefulFuctions.deleteTreeLeaf(iTreeContentLayout.iUserLog,iLeafId);
