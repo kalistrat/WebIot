@@ -2382,6 +2382,35 @@ where u.user_log = eUserLog
 end//
 DELIMITER ;
 
+-- Дамп структуры для функция things.s_get_state_condition_list
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `s_get_state_condition_list`(
+	`eStateId` int
+
+) RETURNS text CHARSET utf8
+begin
+return(
+select ifnull(concat('<condition_list>'
+,group_concat(
+concat('<condition_data>'
+,'<actuator_state_condition_id>',uasc.actuator_state_condition_id,'</actuator_state_condition_id>'
+,'<user_actuator_state_id>',uasc.user_actuator_state_id,'</user_actuator_state_id>'
+,'<left_part_expression>',uasc.left_part_expression,'</left_part_expression>'
+,'<sign_expression>',replace(replace(uasc.sign_expression,'>','&gt;'),'<','&lt;'),'</sign_expression>'
+,'<right_part_expression>',uasc.right_part_expression,'</right_part_expression>'
+,'<condition_num>',uasc.condition_num,'</condition_num>'
+,'<condition_interval>',uasc.condition_interval,'</condition_interval>'
+,'</condition_data>'
+) separator '')
+,'</condition_list>'
+),'<condition_list/>'
+)
+from user_actuator_state_condition uasc
+where uasc.user_actuator_state_id=eStateId
+);
+end//
+DELIMITER ;
+
 -- Дамп структуры для функция things.s_get_task_data
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `s_get_task_data`(eTaskId int) RETURNS text CHARSET utf8
