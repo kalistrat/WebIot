@@ -109,7 +109,13 @@ implements addDeleteListenable {
                 } else {
                     ((TextField) ThatItem.getItemProperty(2).getValue()).setEnabled(false);
                     ((TextField) ThatItem.getItemProperty(3).getValue()).setEnabled(false);
-                    newActuatorStateInsert(iUserDeviceId,InputName,InputCode);
+                    int newStateId = newActuatorStateInsert(iUserDeviceId,InputName,InputCode);
+                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+                            newStateId
+                            , iParentContentLayout.iUserLog
+                            , "add"
+                            , "state"
+                    );
                     StatesContainerRefresh();
                     DeleteButton.setEnabled(true);
                     AddButton.setEnabled(true);
@@ -408,11 +414,13 @@ implements addDeleteListenable {
         }
     }
 
-    public void newActuatorStateInsert(
+    public Integer newActuatorStateInsert(
             int qUserDeviceId
             ,String qStateName
             ,String qStateCode
     ){
+        Integer newStateId = null;
+
         try {
 
             Class.forName(tUsefulFuctions.JDBC_DRIVER);
@@ -422,12 +430,14 @@ implements addDeleteListenable {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement Stmt = Con.prepareCall("{call p_insert_actuator_state(?, ?, ?)}");
+            CallableStatement Stmt = Con.prepareCall("{call p_insert_actuator_state(?, ?, ?, ?)}");
             Stmt.setInt(1, qUserDeviceId);
             Stmt.setString(2, qStateName);
             Stmt.setString(3, qStateCode);
-
+            Stmt.registerOutParameter(4,Types.INTEGER);
             Stmt.execute();
+
+            newStateId = Stmt.getInt(4);
 
             Con.close();
 
@@ -438,7 +448,7 @@ implements addDeleteListenable {
             //Handle errors for Class.forName
             e.printStackTrace();
         }
-
+        return newStateId;
     }
 
 

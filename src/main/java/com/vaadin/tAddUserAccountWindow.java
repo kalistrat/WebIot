@@ -65,6 +65,12 @@ public class tAddUserAccountWindow extends Window {
                 } else {
 
                     addNewUserProfile(qUserAttrs);
+                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+                            777
+                            , qUserAttrs.iLog
+                            , "add"
+                            , "server"
+                    );
 
                     Notification.show("Новый профиль добавлен!",
                             null,

@@ -6,10 +6,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * Created by kalistrat on 03.06.2017.
@@ -48,9 +45,16 @@ public class tActuatorStateDeleteWindow extends Window {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
 
-                ActuatorStateDelete(actuatorStateLayout.iUserDeviceId,eStateName);
+                int remStateId = ActuatorStateDelete(actuatorStateLayout.iUserDeviceId,eStateName);
                 actuatorStateLayout.StatesContainerRefresh();
                 actuatorStateLayout.Listener.afterDelete(eStateName);
+
+                tUsefulFuctions.sendMessAgeToSubcribeServer(
+                        remStateId
+                , actuatorStateLayout.iParentContentLayout.iUserLog
+                , "delete"
+                , "state"
+                );
 
                 Notification.show("Состояние удалёно!",
                         null,
@@ -105,10 +109,11 @@ public class tActuatorStateDeleteWindow extends Window {
         this.setModal(true);
     }
 
-    public void ActuatorStateDelete(
+    public Integer ActuatorStateDelete(
             int qUserDeviceId
             ,String qStateName
     ){
+        Integer removeStateId = null;
         try {
 
             Class.forName(tUsefulFuctions.JDBC_DRIVER);
@@ -118,11 +123,13 @@ public class tActuatorStateDeleteWindow extends Window {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement Stmt = Con.prepareCall("{call p_delete_actuator_state(?, ?)}");
+            CallableStatement Stmt = Con.prepareCall("{call p_delete_actuator_state(?, ?, ?)}");
             Stmt.setInt(1, qUserDeviceId);
             Stmt.setString(2, qStateName);
-
+            Stmt.registerOutParameter(3, Types.INTEGER);
             Stmt.execute();
+
+            removeStateId =  Stmt.getInt(3);
 
             Con.close();
 
@@ -133,6 +140,6 @@ public class tActuatorStateDeleteWindow extends Window {
             //Handle errors for Class.forName
             e.printStackTrace();
         }
-
+        return removeStateId;
     }
 }

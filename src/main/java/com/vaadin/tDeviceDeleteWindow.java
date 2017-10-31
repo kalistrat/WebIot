@@ -57,35 +57,35 @@ public class tDeviceDeleteWindow extends Window {
                 String sParentLeafName = iTreeContentLayout
                         .GetLeafNameById(iTreeContentLayout.GetParentLeafById(iLeafId));
 
-                if (iTreeContentLayout.getLeafIconCode(iLeafId).equals("TACHOMETER")) {
-
-//                    tUsefulFuctions.sendMessAgeToSubcribeServer(
-//                            iTreeContentLayout.getLeafUserDeviceId(iLeafId)
-//                            , iTreeContentLayout.iUserLog
-//                            , "delete"
-//                            , "sensor"
-//                    );
-
-                    List<Integer> tList = null;
-                    try {
-                        tList = getUsersTaskList();
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-
-                    for (Integer iTask : tList) {
-
-                        tUsefulFuctions.sendMessAgeToSubcribeServer(
-                                iTask
-                                , iTreeContentLayout.iUserLog
-                                , "delete"
-                                , "task"
-                        );
-                    }
-
-                }
+//                if (iTreeContentLayout.getLeafIconCode(iLeafId).equals("TACHOMETER")) {
+//
+//                    List<Integer> tList = null;
+//                    try {
+//                        tList = getUsersTaskList();
+//                    } catch (Throwable e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    for (Integer iTask : tList) {
+//
+//                        tUsefulFuctions.sendMessAgeToSubcribeServer(
+//                                iTask
+//                                , iTreeContentLayout.iUserLog
+//                                , "delete"
+//                                , "task"
+//                        );
+//                    }
+//
+//                }
 
                 tUsefulFuctions.deleteUserDevice(iTreeContentLayout.iUserLog,iLeafId);
+
+                tUsefulFuctions.sendMessAgeToSubcribeServer(
+                        777
+                        , iTreeContentLayout.iUserLog
+                        , "change"
+                        , "server"
+                );
 
                 iTreeContentLayout.reloadTreeContainer();
                 Integer iNewParentLeafId = iTreeContentLayout.getLeafIdByName(sParentLeafName);

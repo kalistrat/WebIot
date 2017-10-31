@@ -187,6 +187,14 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                         );
                     }
 
+                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+                            iAddActuatorStateId
+                            , iActuatorStatesLayout.iParentContentLayout.iUserLog
+                            , "change"
+                            , "state"
+                    );
+
+
                     Notification.show("Условие добавлено",
                             null,
                             Notification.Type.TRAY_NOTIFICATION);

@@ -1440,7 +1440,7 @@ DELIMITER ;
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_actuator_state`(IN `eUserDeviceId` int
 , IN `eActuatorName` VARCHAR(30)
-)
+, OUT `eRemStateId` INT)
 begin
 declare i_condition_id int;
 declare i_actuator_state_id int;
@@ -1482,9 +1482,11 @@ open cur1;
 
 close cur1;
 
+set eRemStateId := i_actuator_state_id;
 
 delete from user_actuator_state
 where user_actuator_state_id = i_actuator_state_id;
+
 
 end//
 DELIMITER ;
@@ -1837,11 +1839,10 @@ DELIMITER ;
 
 -- Дамп структуры для процедура things.p_insert_actuator_state
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_insert_actuator_state`(
-eUserDeviceId int
-,eActuatorName varchar(30)
-,eActuatorCode varchar(20)
-)
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_insert_actuator_state`(IN `eUserDeviceId` int
+, IN `eActuatorName` varchar(30)
+, IN `eActuatorCode` varchar(20)
+, OUT `oNewStateId` INT)
 begin
 
 insert into user_actuator_state(
@@ -1854,6 +1855,8 @@ eUserDeviceId
 ,eActuatorName
 ,eActuatorCode
 );
+
+select LAST_INSERT_ID() into oNewStateId;
 
 end//
 DELIMITER ;
@@ -2547,6 +2550,29 @@ end//
 DELIMITER ;
 
 
+-- Дамп структуры для функция things.s_get_state_message_data
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `s_get_state_message_data`(`eActuatorStateId` int) RETURNS text CHARSET utf8
+begin
+return(
+select concat('<device_message_data>'
+,'<control_log>',udt.control_log,'</control_log>'
+,'<control_pass>',udt.control_pass,'</control_pass>'
+,'<mqtt_topic_write>',ud.mqtt_topic_write,'</mqtt_topic_write>'
+,'<server_ip>',ms.server_ip,'</server_ip>'
+,'<actuator_message_code>',uas.actuator_message_code,'</actuator_message_code>'
+,'</device_message_data>'
+)
+from user_actuator_state uas
+join user_device ud on uas.user_device_id=ud.user_device_id
+join user_devices_tree udt on udt.user_device_id=ud.user_device_id
+join mqtt_servers ms on ms.server_id=ud.mqqt_server_id
+where uas.user_actuator_state_id = eActuatorStateId
+);
+end//
+DELIMITER ;
+
+
 -- Дамп структуры для функция things.s_get_task_data
 DELIMITER //
 CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `s_get_task_data`(eTaskId int) RETURNS text CHARSET utf8
@@ -2607,6 +2633,48 @@ join mqtt_servers ms on ms.user_id=u.user_id
 group by u.user_id
 ,u.user_log
 ) t
+);
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для функция things.s_get_user_state_list
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `s_get_user_state_list`(eUserLog varchar(50)) RETURNS text CHARSET utf8
+begin
+return(
+select concat('<actuator_state_list>'
+,group_concat(
+concat(
+'<user_actuator_state_id>',uas.user_actuator_state_id,'</user_actuator_state_id>'
+) separator '')
+,'</actuator_state_list>'
+)
+from user_actuator_state uas
+join user_device ud on ud.user_device_id=uas.user_device_id
+join users u on u.user_id=ud.user_id
+where u.user_log = eUserLog
+);
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для функция things.s_get_user_task_list
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `s_get_user_task_list`(eUserLog varchar(50)) RETURNS text CHARSET utf8
+begin
+return(
+select concat('<user_device_task_list>'
+,group_concat(
+concat(
+'<user_device_task_id>',tas.user_device_task_id,'</user_device_task_id>'
+) separator '')
+,'</user_device_task_list>'
+)
+from user_device_task tas
+join user_device ud on ud.user_device_id=tas.user_device_id
+join users u on u.user_id=ud.user_id
+where u.user_log = eUserLog
 );
 end//
 DELIMITER ;
@@ -3208,7 +3276,7 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   KEY `INDX_DEVICEID_STATENAME` (`user_device_id`,`actuator_state_name`) USING BTREE,
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_actuator_state: ~8 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
@@ -3634,8 +3702,8 @@ CREATE TABLE IF NOT EXISTS `user_device_state_notification` (
   PRIMARY KEY (`user_state_notification_id`),
   KEY `FK_user_device_state_notification_notification_type` (`notification_type_id`),
   KEY `FK_user_device_state_notification_user_actuator_state` (`user_actuator_state_id`),
-  CONSTRAINT `FK_user_device_state_notification_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`),
-  CONSTRAINT `FK_user_device_state_notification_notification_type` FOREIGN KEY (`notification_type_id`) REFERENCES `notification_type` (`notification_type_id`)
+  CONSTRAINT `FK_user_device_state_notification_notification_type` FOREIGN KEY (`notification_type_id`) REFERENCES `notification_type` (`notification_type_id`),
+  CONSTRAINT `FK_user_device_state_notification_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_device_state_notification: ~2 rows (приблизительно)
@@ -3659,14 +3727,15 @@ CREATE TABLE IF NOT EXISTS `user_device_task` (
   KEY `FK_user_device_task_task_type` (`task_type_id`),
   CONSTRAINT `FK_user_device_task_task_type` FOREIGN KEY (`task_type_id`) REFERENCES `task_type` (`task_type_id`),
   CONSTRAINT `FK_user_device_task_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_task: ~2 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_task: ~3 rows (приблизительно)
 DELETE FROM `user_device_task`;
 /*!40000 ALTER TABLE `user_device_task` DISABLE KEYS */;
 INSERT INTO `user_device_task` (`user_device_task_id`, `user_device_id`, `task_type_id`, `task_interval`, `interval_type`) VALUES
 	(1, 2, 1, 1, 'DAYS'),
-	(3, 43, 1, 1, 'DAYS');
+	(3, 43, 1, 1, 'DAYS'),
+	(4, 44, 1, 5, 'SECONDS');
 /*!40000 ALTER TABLE `user_device_task` ENABLE KEYS */;
 
 
