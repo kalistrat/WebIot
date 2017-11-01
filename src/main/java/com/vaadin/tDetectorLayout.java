@@ -26,6 +26,7 @@ public class tDetectorLayout extends VerticalLayout {
     tPeriodMeasuresLayout DeviceMeasuresLayout;
     tDetectorLastMeasureLayout DeviceLastMeasure;
     tDetectorMeasuresJournalLayout DeviceMeasureJournal;
+    tNotificationDetectorLayout notificationDetectorLayout;
 
     public tDetectorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
 
@@ -128,6 +129,8 @@ public class tDetectorLayout extends VerticalLayout {
 
         DeviceMeasureJournal = new tDetectorMeasuresJournalLayout(iUserDeviceId);
 
+        notificationDetectorLayout = new tNotificationDetectorLayout(iUserDeviceId,tParentContentLayout);
+
         tUsefulFuctions.getUserDetectorData(
                 iUserDeviceId
                 ,DeviceDataLayout
@@ -138,6 +141,7 @@ public class tDetectorLayout extends VerticalLayout {
         VerticalLayout ContentPrefLayout = new VerticalLayout(
                 DeviceDataLayout
                 ,DeviceUnitsLayout
+                ,notificationDetectorLayout
                 ,DeviceDescription
         );
 

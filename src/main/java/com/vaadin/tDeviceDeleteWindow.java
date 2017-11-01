@@ -27,7 +27,7 @@ public class tDeviceDeleteWindow extends Window {
 
     public tDeviceDeleteWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
-    ) throws Throwable {
+    ) {
         iLeafId = eLeafId;
         iTreeContentLayout = eParentContentLayout;
 
