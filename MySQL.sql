@@ -1484,6 +1484,9 @@ close cur1;
 
 set eRemStateId := i_actuator_state_id;
 
+delete from user_device_state_notification
+where user_actuator_state_id = i_actuator_state_id;
+
 delete from user_actuator_state
 where user_actuator_state_id = i_actuator_state_id;
 
@@ -1494,10 +1497,9 @@ DELIMITER ;
 
 -- Дамп структуры для процедура things.p_delete_state_condition
 DELIMITER //
-CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_state_condition`(
-eUserDeviceId int
-,eStateName varchar(30)
-,eConditionNum int
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_state_condition`(IN `eUserDeviceId` int
+, IN `eStateName` varchar(30)
+, IN `eConditionNum` int
 )
 begin
 declare i_condition_id int;
@@ -3276,7 +3278,7 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   KEY `INDX_DEVICEID_STATENAME` (`user_device_id`,`actuator_state_name`) USING BTREE,
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.user_actuator_state: ~10 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
@@ -3833,6 +3835,24 @@ join (select @num1:=0) t
 where uas.user_device_id = eUserDeviceId
 ) t
 
+);
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для функция things.w_get_notifi_type_list
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `w_get_notifi_type_list`() RETURNS text CHARSET utf8
+begin
+return(
+select concat('<notification_type_list>'
+,group_concat(
+'<notification_code>',nt.notification_code,'</notification_code>'
+separator ''
+)
+,'</notification_type_list>'
+)
+from notification_type nt
 );
 end//
 DELIMITER ;

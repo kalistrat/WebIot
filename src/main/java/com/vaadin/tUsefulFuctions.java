@@ -35,13 +35,16 @@ public class tUsefulFuctions {
         int k = 0;
         String iDevidedString = DevidedString;
 
-        while (!iDevidedString.equals("")) {
-            int Pos = iDevidedString.indexOf(Devider);
-            StrPieces.add(iDevidedString.substring(0, Pos));
-            iDevidedString = iDevidedString.substring(Pos + 1);
-            k = k + 1;
-            if (k > 100000) {
-                iDevidedString = "";
+        if (DevidedString.contains(Devider)) {
+
+            while (!iDevidedString.equals("")) {
+                int Pos = iDevidedString.indexOf(Devider);
+                StrPieces.add(iDevidedString.substring(0, Pos));
+                iDevidedString = iDevidedString.substring(Pos + 1);
+                k = k + 1;
+                if (k > 100000) {
+                    iDevidedString = "";
+                }
             }
         }
 

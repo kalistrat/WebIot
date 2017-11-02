@@ -12982,6 +12982,15 @@ div.v-layout.v-horizontal.v-widget {
 	margin-top: 10px;
 }
 
+.mytheme .CriteriaTextLabel {
+	margin-top: 14px;
+}
+
+.mytheme .CriteriaLayout {
+	margin-top: 1px;
+	margin-bottom: 1px;
+}
+
 .mytheme .TableLabel {
 	margin-top: 9px;
 }
