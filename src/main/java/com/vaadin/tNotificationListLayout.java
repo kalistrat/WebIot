@@ -92,4 +92,14 @@ public class tNotificationListLayout extends VerticalLayout {
         }
     }
 
+    public String getValuesStr(){
+        String s = "";
+        for (CheckBox iChb: checkBoxes) {
+            if (iChb.getValue()){
+                s = s + iChb.getCaption() + "|";
+            }
+        }
+        return  s;
+    }
+
 }

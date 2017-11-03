@@ -2,6 +2,8 @@ package com.vaadin;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.data.util.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -9,7 +11,8 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
 import java.sql.*;
-import java.util.List;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Created by kalistrat on 01.11.2017.
@@ -44,10 +47,123 @@ public class tNotificationDetectorLayout extends VerticalLayout {
         SaveButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         SaveButton.setEnabled(false);
 
+        SaveButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                Item ThatItem = (Item) clickEvent.getButton().getData();
+
+                String conditionName = (String) ((tNotificationConditionSelect) ThatItem.getItemProperty(2).getValue()).getValue();
+                String valueFrom = ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).valueFromField.getValue();
+                String valueTill = ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).valueTillField.getValue();
+                boolean conditionType = ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).isInterval;
+                String valueTimeInt = ((TextField) ThatItem.getItemProperty(4).getValue()).getValue();
+                String valueNotifyList = ((tNotificationListLayout) ThatItem.getItemProperty(5).getValue()).getValuesStr();
+
+                String sErrorMessage = "";
+
+                if (conditionName == null){
+                    sErrorMessage = "Условие оповещения не задано\n";
+                }
+
+                if (conditionName.equals("")){
+                    sErrorMessage = sErrorMessage + "Условие оповещения не задано\n";
+                }
+
+                if (tUsefulFuctions.ParseDouble(valueFrom) == null){
+                    sErrorMessage = sErrorMessage + "Значение критерия оповещения не является численным\n";
+                }
+
+                if (conditionType){
+                    if (tUsefulFuctions.ParseDouble(valueTill) == null){
+                        sErrorMessage = sErrorMessage + "Значение критерия оповещения не является численным\n";
+                    }
+                }
+
+                if (tUsefulFuctions.StrToIntValue(valueTimeInt) == null){
+                    sErrorMessage = sErrorMessage + "Значение длительности выполнения критерия не является целочисленным\n";
+                }
+
+                if (valueNotifyList.equals("")){
+                    sErrorMessage = sErrorMessage + "Не отмечено ни одного источника оповещения (MAIL,WHATSUP)\n";
+                }
+
+                if (!sErrorMessage.equals("")){
+                    Notification.show("Ошибка сохранения:",
+                            sErrorMessage,
+                            Notification.Type.TRAY_NOTIFICATION);
+                } else {
+
+                    ((tNotificationConditionSelect) ThatItem.getItemProperty(2).getValue()).setEnabled(false);
+                    ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).valueFromField.setEnabled(false);
+                    ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).valueTillField.setEnabled(false);
+                    ((TextField) ThatItem.getItemProperty(4).getValue()).setEnabled(false);
+                    ((tNotificationListLayout) ThatItem.getItemProperty(5).getValue()).setEnabledFalse();
+
+                    int iNewStateId = addNewNotification(
+                    Integer.parseInt(valueTimeInt)
+                    ,valueFrom
+                    ,valueTill
+                    ,iUserDeviceId
+                    ,conditionName
+                    ,valueNotifyList
+                    );
+
+                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+                            iNewStateId
+                            , iParentContentLayout.iUserLog
+                            , "add"
+                            , "state"
+                    );
+
+                    NotificationContainerRefresh();
+                    DeleteButton.setEnabled(true);
+                    AddButton.setEnabled(true);
+                    SaveButton.setEnabled(false);
+
+
+                }
+            }
+        });
+
         AddButton = new Button();
         AddButton.setIcon(VaadinIcons.PLUS);
         AddButton.addStyleName(ValoTheme.BUTTON_SMALL);
         AddButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+
+        AddButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                DeleteButton.setEnabled(false);
+                AddButton.setEnabled(false);
+
+                int NewItemNum = iNotificationContainer.size()+1;
+
+                Item AddedItem = iNotificationContainer.addItem(NewItemNum);
+
+                AddedItem.getItemProperty(1).setValue(NewItemNum);
+                tNotificationCriteriaField creField = new tNotificationCriteriaField();
+                tNotificationConditionSelect condSel = new tNotificationConditionSelect(creField);
+
+                condSel.select("Измеряемая величина > критического значения");
+                AddedItem.getItemProperty(2).setValue(condSel);
+
+                AddedItem.getItemProperty(3).setValue(creField);
+                TextField timeInt = new TextField();
+                timeInt.setWidth("50px");
+                timeInt.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+                timeInt.setValue("");
+                timeInt.setInputPrompt("5.00");
+
+                AddedItem.getItemProperty(4).setValue(timeInt);
+                tNotificationListLayout noteListLay = new tNotificationListLayout();
+                AddedItem.getItemProperty(5).setValue(noteListLay);
+                iNotificationTable.setPageLength(iNotificationContainer.size());
+                SaveButton.setData(AddedItem);
+                SaveButton.setEnabled(true);
+                DeleteButton.setEnabled(false);
+
+            }
+        });
 
         DeleteButton = new Button();
         DeleteButton.setIcon(VaadinIcons.CLOSE_CIRCLE);
@@ -86,7 +202,7 @@ public class tNotificationDetectorLayout extends VerticalLayout {
         iNotificationContainer.addContainerProperty(1, Integer.class, null);
         iNotificationContainer.addContainerProperty(2, tNotificationConditionSelect.class, null);
         iNotificationContainer.addContainerProperty(3, tNotificationCriteriaField.class, null);
-        iNotificationContainer.addContainerProperty(4, Integer.class, null);
+        iNotificationContainer.addContainerProperty(4, TextField.class, null);
         iNotificationContainer.addContainerProperty(5, tNotificationListLayout.class, null);
 
         setNotificationContainer();
@@ -121,6 +237,13 @@ public class tNotificationDetectorLayout extends VerticalLayout {
         ContentLayout.setHeightUndefined();
 
         this.addComponent(ContentLayout);
+
+    }
+
+    public void NotificationContainerRefresh(){
+        iNotificationContainer.removeAllItems();
+        setNotificationContainer();
+        iNotificationTable.setPageLength(iNotificationContainer.size());
 
     }
 
@@ -176,22 +299,27 @@ public class tNotificationDetectorLayout extends VerticalLayout {
 
                 Item newItem = iNotificationContainer.addItem(DataRs.getInt(1));
                 newItem.getItemProperty(1).setValue(DataRs.getInt(1));
-                tNotificationConditionSelect condSel = new tNotificationConditionSelect();
+                tNotificationCriteriaField creField = new tNotificationCriteriaField();
+                creField.setFieldsValues(DataRs.getString(3));
+                tNotificationConditionSelect condSel = new tNotificationConditionSelect(creField);
                 condSel.select(DataRs.getString(2));
                 condSel.setEnabled(false);
                 newItem.getItemProperty(2).setValue(condSel);
-                tNotificationCriteriaField creField = new tNotificationCriteriaField(DataRs.getString(3));
                 creField.valueFromField.setEnabled(false);
                 creField.valueTillField.setEnabled(false);
                 newItem.getItemProperty(3).setValue(creField);
-                newItem.getItemProperty(4).setValue(DataRs.getInt(4));
+                TextField timeInt = new TextField();
+                timeInt.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+                timeInt.setValue(String.valueOf(DataRs.getInt(4)));
+                timeInt.setEnabled(false);
+                timeInt.setWidth("50px");
+                newItem.getItemProperty(4).setValue(timeInt);
                 tNotificationListLayout noteListLay = new tNotificationListLayout();
                 noteListLay.setEnabledFalse();
                 for (String iNoteType : tUsefulFuctions.GetListFromString(DataRs.getString(5),"|")) {
                     noteListLay.markNotification(iNoteType);
                 }
                 newItem.getItemProperty(5).setValue(noteListLay);
-
 
             }
 
@@ -205,6 +333,41 @@ public class tNotificationDetectorLayout extends VerticalLayout {
             //Handle errors for Class.forName
             e13.printStackTrace();
         }
+    }
+
+    private int addNewNotification(
+        int eTransTime
+        ,String eValueFrom
+        ,String eValueTill
+        ,int eUserDeviceId
+        ,String eStateName
+        ,String eNotifyListStr
+    ){
+        int iNewNotify = 0;
+        try{
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement procStmt = Con.prepareCall("call p_add_notification(?,?,?,?,?,?,?)");
+            procStmt.registerOutParameter(1,Types.INTEGER);
+            procStmt.setInt(2,eTransTime);
+            procStmt.setString(3,eValueFrom);
+            procStmt.setString(4,eValueTill);
+            procStmt.setInt(5,eUserDeviceId);
+            procStmt.setString(6,eStateName);
+            procStmt.setString(7,eNotifyListStr);
+            procStmt.execute();
+            iNewNotify = procStmt.getInt(1);
+            Con.close();
+
+        } catch (SQLException|ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        return iNewNotify;
     }
 
 }
