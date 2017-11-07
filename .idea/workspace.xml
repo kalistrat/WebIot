@@ -3,13 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="fb44adc8-b759-4f7e-9775-efa68dd97484" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationConditionSelect.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationConditionSelect.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationCriteriaField.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationCriteriaField.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationDetectorLayout.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationDetectorLayout.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationListLayout.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationListLayout.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/vaadin/tUsefulFuctions.java" afterPath="$PROJECT_DIR$/src/main/java/com/vaadin/tUsefulFuctions.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/webapp/VAADIN/themes/mytheme/mytheme.scss" afterPath="$PROJECT_DIR$/src/main/webapp/VAADIN/themes/mytheme/mytheme.scss" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/webapp/VAADIN/themes/mytheme/styles.css" afterPath="$PROJECT_DIR$/src/main/webapp/VAADIN/themes/mytheme/styles.css" />
     </list>
     <ignored path="things.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -39,7 +32,8 @@
             <state vertical-scroll-proportion="0.0">
               <caret line="380" column="5" selection-start-line="380" selection-start-column="5" selection-end-line="380" selection-end-column="5" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="e#16692#16693#0" expanded="false" />
+                <element signature="e#16732#16733#0" expanded="false" />
                 <marker date="1509465947418" expanded="true" signature="11349:11913" placeholder="select @num1... " />
               </folding>
             </state>
@@ -52,7 +46,6 @@
             <state vertical-scroll-proportion="0.0">
               <caret line="99" column="73" selection-start-line="99" selection-start-column="73" selection-end-line="99" selection-end-column="73" />
               <folding>
-                <element signature="imports" expanded="true" />
                 <marker date="1509723006942" expanded="true" signature="10530:11772" placeholder="select @num1... " />
               </folding>
             </state>
@@ -62,8 +55,8 @@
       <file leaf-file-name="tNotificationCriteriaField.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationCriteriaField.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.19407009">
-              <caret line="74" column="35" selection-start-line="74" selection-start-column="35" selection-end-line="74" selection-end-column="35" />
+            <state vertical-scroll-proportion="1.3234501">
+              <caret line="80" column="31" selection-start-line="80" selection-start-column="31" selection-end-line="80" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -75,6 +68,7 @@
             <state vertical-scroll-proportion="0.0">
               <caret line="133" column="28" selection-start-line="133" selection-start-column="28" selection-end-line="133" selection-end-column="28" />
               <folding>
+                <element signature="imports" expanded="false" />
                 <marker date="1509715540447" expanded="true" signature="8034:8987" placeholder="select ud.de... user_device" />
                 <marker date="1509715540447" expanded="true" signature="14073:14137" placeholder="select s.ser... mqtt_servers" />
                 <marker date="1509715540447" expanded="true" signature="18238:18306" placeholder="select tz.ti... timezones" />
@@ -89,6 +83,7 @@
             <state vertical-scroll-proportion="0.0">
               <caret line="100" column="9" selection-start-line="100" selection-start-column="9" selection-end-line="100" selection-end-column="9" />
               <folding>
+                <element signature="imports" expanded="false" />
                 <marker date="1509714408603" expanded="true" signature="1141:1220" placeholder="select nt.no... notification_type" />
               </folding>
             </state>
@@ -294,8 +289,8 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="PackagesPane" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -1060,11 +1055,12 @@
       <workItem from="1509537594910" duration="5444000" />
       <workItem from="1509620025050" duration="14904000" />
       <workItem from="1509696671054" duration="16932000" />
+      <workItem from="1510048928268" duration="1611000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="990057000" />
+    <option name="totallyTimeSpent" value="991668000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1168" height="696" extended-state="6" />
@@ -1305,7 +1301,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.030411448">
           <caret line="191" column="79" selection-start-line="191" selection-start-column="79" selection-end-line="191" selection-end-column="79" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1327,7 +1322,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="120" column="19" selection-start-line="120" selection-start-column="19" selection-end-line="120" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1363,7 +1357,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="572" column="49" selection-start-line="572" selection-start-column="49" selection-end-line="572" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1385,7 +1378,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3292978">
           <caret line="52" column="29" selection-start-line="52" selection-start-column="29" selection-end-line="52" selection-end-column="29" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1393,7 +1385,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.27845037">
           <caret line="72" column="22" selection-start-line="72" selection-start-column="22" selection-end-line="72" selection-end-column="22" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1401,7 +1392,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="29" column="6" selection-start-line="29" selection-start-column="6" selection-end-line="29" selection-end-column="6" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1409,9 +1399,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="143" column="43" selection-start-line="143" selection-start-column="43" selection-end-line="143" selection-end-column="43" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1419,10 +1406,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="56" column="52" selection-start-line="56" selection-start-column="8" selection-end-line="56" selection-end-column="52" />
-          <folding>
-            <marker date="1509355140112" expanded="true" signature="11143:11215" placeholder="select at.ac... action_type" />
-            <marker date="1509355140112" expanded="true" signature="12164:12396" placeholder="select udt.c... user_devices_tree" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1430,7 +1413,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.65384614">
           <caret line="87" column="17" selection-start-line="87" selection-start-column="17" selection-end-line="87" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1438,9 +1420,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.22911051">
           <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1448,9 +1427,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="113" column="58" selection-start-line="113" selection-start-column="58" selection-end-line="113" selection-end-column="58" />
-          <folding>
-            <marker date="1509466385157" expanded="true" signature="20515:21205" placeholder="select uas.a... user_actuator_state" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1458,7 +1434,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="35" selection-end-column="97" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1467,6 +1442,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="100" column="9" selection-start-line="100" selection-start-column="9" selection-end-line="100" selection-end-column="9" />
           <folding>
+            <element signature="imports" expanded="false" />
             <marker date="1509714408603" expanded="true" signature="1141:1220" placeholder="select nt.no... notification_type" />
           </folding>
         </state>
@@ -1477,6 +1453,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="133" column="28" selection-start-line="133" selection-start-column="28" selection-end-line="133" selection-end-column="28" />
           <folding>
+            <element signature="imports" expanded="false" />
             <marker date="1509715540447" expanded="true" signature="8034:8987" placeholder="select ud.de... user_device" />
             <marker date="1509715540447" expanded="true" signature="14073:14137" placeholder="select s.ser... mqtt_servers" />
             <marker date="1509715540447" expanded="true" signature="18238:18306" placeholder="select tz.ti... timezones" />
@@ -1489,7 +1466,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="380" column="5" selection-start-line="380" selection-start-column="5" selection-end-line="380" selection-end-column="5" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#16692#16693#0" expanded="false" />
+            <element signature="e#16732#16733#0" expanded="false" />
             <marker date="1509465947418" expanded="true" signature="11349:11913" placeholder="select @num1... " />
           </folding>
         </state>
@@ -1500,7 +1478,6 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="99" column="73" selection-start-line="99" selection-start-column="73" selection-end-line="99" selection-end-column="73" />
           <folding>
-            <element signature="imports" expanded="true" />
             <marker date="1509723006942" expanded="true" signature="10530:11772" placeholder="select @num1... " />
           </folding>
         </state>
@@ -1508,8 +1485,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/vaadin/tNotificationCriteriaField.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.19407009">
-          <caret line="74" column="35" selection-start-line="74" selection-start-column="35" selection-end-line="74" selection-end-column="35" />
+        <state vertical-scroll-proportion="1.3234501">
+          <caret line="80" column="31" selection-start-line="80" selection-start-column="31" selection-end-line="80" selection-end-column="31" />
           <folding />
         </state>
       </provider>
