@@ -5,12 +5,7 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

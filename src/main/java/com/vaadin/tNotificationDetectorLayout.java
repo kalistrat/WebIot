@@ -53,8 +53,8 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                 Item ThatItem = (Item) clickEvent.getButton().getData();
 
                 String conditionName = (String) ((tNotificationConditionSelect) ThatItem.getItemProperty(2).getValue()).getValue();
-                String valueFrom = ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).valueFromField.getValue();
-                String valueTill = ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).valueTillField.getValue();
+                String valueFrom = ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).valueFromField.getValue().replace(",",".");
+                String valueTill = ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).valueTillField.getValue().replace(",",".");
                 boolean conditionType = ((tNotificationCriteriaField) ThatItem.getItemProperty(3).getValue()).isInterval;
                 String valueTimeInt = ((TextField) ThatItem.getItemProperty(4).getValue()).getValue();
                 String valueNotifyList = ((tNotificationListLayout) ThatItem.getItemProperty(5).getValue()).getValuesStr();
@@ -69,18 +69,43 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                     sErrorMessage = sErrorMessage + "Условие оповещения не задано\n";
                 }
 
-                if (tUsefulFuctions.ParseDouble(valueFrom) == null){
-                    sErrorMessage = sErrorMessage + "Значение критерия оповещения не является численным\n";
+                if (!valueFrom.equals("")) {
+                    if (tUsefulFuctions.ParseDouble(valueFrom) == null) {
+                        sErrorMessage = sErrorMessage + "Значение критерия не является численным\n";
+                    }
+                } else {
+                    sErrorMessage = sErrorMessage + "Значение критерия не задано\n";
                 }
 
                 if (conditionType){
                     if (tUsefulFuctions.ParseDouble(valueTill) == null){
-                        sErrorMessage = sErrorMessage + "Значение критерия оповещения не является численным\n";
+                        sErrorMessage = sErrorMessage + "Крайнее значение интервала не число или не задано\n";
+                    }
+                }
+
+                if (conditionType){
+                    if (tUsefulFuctions.ParseDouble(valueTill) != null && tUsefulFuctions.ParseDouble(valueFrom) != null){
+                        if (tUsefulFuctions.ParseDouble(valueTill)<tUsefulFuctions.ParseDouble(valueFrom)) {
+                            sErrorMessage = sErrorMessage + "Начальное значение интервала превышает его конечное значение\n";
+                        }
+                        if (isNotificationExists(conditionName,valueFrom,valueTill,conditionType)){
+                            sErrorMessage = sErrorMessage + "Добавляемое оповещение уже существует\n";
+                        }
+                    }
+                } else {
+                    if (tUsefulFuctions.ParseDouble(valueFrom) != null){
+                        if (isNotificationExists(conditionName,valueFrom,valueTill,conditionType)){
+                            sErrorMessage = sErrorMessage + "Добавляемое оповещение уже существует\n";
+                        }
                     }
                 }
 
                 if (tUsefulFuctions.StrToIntValue(valueTimeInt) == null){
                     sErrorMessage = sErrorMessage + "Значение длительности выполнения критерия не является целочисленным\n";
+                }
+
+                if (tUsefulFuctions.StrToIntValue(valueTimeInt) < 5){
+                    sErrorMessage = sErrorMessage + "Значение длительности выполнения критерия не может быть менее 5 секунд\n";
                 }
 
                 if (valueNotifyList.equals("")){
@@ -152,7 +177,7 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                 timeInt.setWidth("50px");
                 timeInt.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
                 timeInt.setValue("");
-                timeInt.setInputPrompt("5.00");
+                timeInt.setInputPrompt("0.00");
 
                 AddedItem.getItemProperty(4).setValue(timeInt);
                 tNotificationListLayout noteListLay = new tNotificationListLayout();
@@ -170,6 +195,32 @@ public class tNotificationDetectorLayout extends VerticalLayout {
         DeleteButton.addStyleName(ValoTheme.BUTTON_SMALL);
         DeleteButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         DeleteButton.setData(this);
+
+        DeleteButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                int SelectedItemId = 0;
+                for (int i=0; i<iNotificationContainer.size();i++){
+                    if (iNotificationTable.isSelected(i+1)) {
+                        SelectedItemId = i+1;
+                    }
+                }
+
+                if (SelectedItemId>0) {
+                    tNotificationConditionSelect conSel = (tNotificationConditionSelect) iNotificationContainer.getItem(SelectedItemId).getItemProperty(2).getValue();
+                    String selectedName = (String) conSel.getValue();
+                    tNotificationCriteriaField creFi = (tNotificationCriteriaField) iNotificationContainer.getItem(SelectedItemId).getItemProperty(3).getValue();
+                    String valFrom = creFi.valueFromField.getValue();
+                    String valTill = creFi.valueTillField.getValue();
+
+                } else {
+                    Notification.show("Удаление невозможно:",
+                            "Не выбрано ни одной строки",
+                            Notification.Type.TRAY_NOTIFICATION);
+                }
+
+            }
+        });
 
 
         HorizontalLayout HeaderButtons = new HorizontalLayout(
@@ -355,8 +406,12 @@ public class tNotificationDetectorLayout extends VerticalLayout {
             CallableStatement procStmt = Con.prepareCall("call p_add_notification(?,?,?,?,?,?,?)");
             procStmt.registerOutParameter(1,Types.INTEGER);
             procStmt.setInt(2,eTransTime);
-            procStmt.setString(3,eValueFrom);
-            procStmt.setString(4,eValueTill);
+            procStmt.setString(3,String.valueOf(tUsefulFuctions.ParseDouble(eValueFrom)));
+            if (eStateName.equals("Измеряемая величина > критического значения")) {
+                procStmt.setString(4, String.valueOf(tUsefulFuctions.ParseDouble(eValueTill)));
+            } else {
+                procStmt.setString(4, eValueTill);
+            }
             procStmt.setInt(5,eUserDeviceId);
             procStmt.setString(6,eStateName);
             procStmt.setString(7,eNotifyListStr);
@@ -368,6 +423,50 @@ public class tNotificationDetectorLayout extends VerticalLayout {
             e.printStackTrace();
         }
         return iNewNotify;
+    }
+
+    private boolean isNotificationExists(String addName
+    ,String addValFrom
+    ,String addValTill
+                                         ,boolean addIsInterval
+    ){
+        boolean isE = false;
+
+
+        for (int i=0; i<iNotificationContainer.size()-1; i++){
+            tNotificationConditionSelect conSel = (tNotificationConditionSelect) iNotificationContainer.getItem(i+1).getItemProperty(2).getValue();
+            String selectedName = (String) conSel.getValue();
+            tNotificationCriteriaField creFi = (tNotificationCriteriaField) iNotificationContainer.getItem(i+1).getItemProperty(3).getValue();
+            double valFrom = tUsefulFuctions.ParseDouble(creFi.valueFromField.getValue());
+
+//            System.out.println("isNotificationExists : selectedName+valFrom : " + selectedName + " " + addValFrom);
+//            System.out.println("isNotificationExists : item id : " + i);
+
+            if (creFi.isInterval && addIsInterval){
+                double valTill = tUsefulFuctions.ParseDouble(creFi.valueTillField.getValue());
+
+                if (addName.equals(selectedName)
+                        && valFrom == tUsefulFuctions.ParseDouble(addValFrom)
+                        && valTill == tUsefulFuctions.ParseDouble(addValTill)){
+                    isE = true;
+//                    System.out.println("isNotificationExists : addValFrom : " + addValFrom);
+//                    System.out.println("isNotificationExists : addValTill : " + addValTill);
+//                    System.out.println("isNotificationExists : valFrom : " + valFrom);
+//                    System.out.println("isNotificationExists : valTill : " + valTill);
+
+                    break;
+                }
+            } else {
+                if (addName.equals(selectedName) && valFrom == tUsefulFuctions.ParseDouble(addValFrom)){
+                    isE = true;
+//                    System.out.println("isNotificationExists : addValFrom : " + addValFrom);
+//                    System.out.println("isNotificationExists : valFrom : " + valFrom);
+                    break;
+                }
+            }
+        }
+
+        return  isE;
     }
 
 }

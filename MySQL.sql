@@ -1024,7 +1024,7 @@ CREATE TABLE IF NOT EXISTS `notification_type` (
   `notification_code` varchar(50) DEFAULT NULL,
   `notification_name` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`notification_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.notification_type: ~2 rows (приблизительно)
 DELETE FROM `notification_type`;
@@ -1679,6 +1679,115 @@ where user_actuator_state_id = i_actuator_state_id;
 delete from user_actuator_state
 where user_actuator_state_id = i_actuator_state_id;
 
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_delete_conditions
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_conditions`(eStateId int)
+begin
+declare row_cnt int;
+declare i int default 0;
+declare i_condition_id int;
+
+declare cur1 cursor for 
+select uasc.actuator_state_condition_id
+from user_actuator_state_condition uasc
+where uasc.user_actuator_state_id = eStateId;
+
+
+select count(*) into row_cnt
+from user_actuator_state_condition uasc
+where uasc.user_actuator_state_id = eStateId;
+
+open cur1;
+
+	while i<row_cnt do
+	
+		fetch cur1 into i_condition_id;
+		
+			delete from user_state_condition_vars
+			where actuator_state_condition_id = i_condition_id;
+		
+			delete from user_actuator_state_condition
+			where actuator_state_condition_id = i_condition_id;
+			
+		set i = i + 1;
+	
+	end while;
+
+close cur1;
+
+end//
+DELIMITER ;
+
+
+-- Дамп структуры для процедура things.p_delete_detector_notification
+DELIMITER //
+CREATE DEFINER=`kalistrat`@`localhost` PROCEDURE `p_delete_detector_notification`(
+in eStateName varchar(50)
+,in eValFrom varchar(50)
+,in eValTill varchar(50)
+,in eUserDiviceId int
+,out oStateId int
+)
+begin
+declare rem_state_id int;
+
+if (eStateName = 'Измеряемая величина > критического значения') then
+
+	select t.user_actuator_state_id into rem_state_id
+	from (
+	select uas.user_actuator_state_id
+	,(
+	select uasc.right_part_expression
+	from user_actuator_state_condition uasc
+	where uasc.user_actuator_state_id=uas.user_actuator_state_id
+	and uasc.sign_expression='>'
+	) valFrom
+	,(
+	select uasc.right_part_expression
+	from user_actuator_state_condition uasc
+	where uasc.user_actuator_state_id=uas.user_actuator_state_id
+	and uasc.sign_expression='<'
+	) valTill
+	from user_actuator_state uas
+	where uas.user_device_id=1
+	and uas.actuator_state_name='Измеряемая величина находится в интервале значений'
+	) t
+	where t.valFrom = eValFrom
+	and t.valTill = eValTill;
+
+else
+
+	select t.user_actuator_state_id into rem_state_id
+	from (
+	select uas.user_actuator_state_id
+	,(
+	select uasc.right_part_expression
+	from user_actuator_state_condition uasc
+	where uasc.user_actuator_state_id=uas.user_actuator_state_id
+	and uasc.sign_expression='>'
+	) valFrom
+	from user_actuator_state uas
+	where uas.user_device_id=1
+	and uas.actuator_state_name='Измеряемая величина находится в интервале значений'
+	) t
+	where t.valFrom = eValFrom;
+
+end if;
+
+call p_delete_conditions(rem_state_id);
+
+delete from user_device_state_notification
+where user_actuator_state_id = rem_state_id;
+
+delete from user_actuator_state
+where user_actuator_state_id = rem_state_id;
+
+set oStateId = rem_state_id;
 
 end//
 DELIMITER ;
@@ -3420,7 +3529,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `subject_inn` varchar(50) DEFAULT NULL,
   `subject_kpp` varchar(50) DEFAULT NULL,
   `post_index` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`user_id`)
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `USER_LOG` (`user_log`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы things.users: ~6 rows (приблизительно)
@@ -3467,9 +3577,9 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   KEY `INDX_DEVICEID_STATENAME` (`user_device_id`,`actuator_state_name`) USING BTREE,
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state: ~12 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state: ~18 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
 /*!40000 ALTER TABLE `user_actuator_state` DISABLE KEYS */;
 INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `actuator_state_name`, `actuator_message_code`, `transition_time`) VALUES
@@ -3486,7 +3596,11 @@ INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `
 	(40, 1, 'Измеряемая величина > критического значения', 'LARGER', 6),
 	(41, 1, 'Измеряемая величина < критического значения', 'LESS', 6),
 	(42, 1, 'Измеряемая величина находится в интервале значений', 'INTERVAL', 6),
-	(43, 42, 'Измеряемая величина > критического значения', 'LARGER', 7);
+	(43, 42, 'Измеряемая величина > критического значения', 'LARGER', 7),
+	(44, 42, 'Измеряемая величина > критического значения', 'LARGER', 6),
+	(45, 42, 'Измеряемая величина находится в интервале значений', 'INTERVAL', 77),
+	(46, 42, 'Измеряемая величина > критического значения', 'LARGER', 7),
+	(47, 42, 'Измеряемая величина < критического значения', 'LESS', 56);
 /*!40000 ALTER TABLE `user_actuator_state` ENABLE KEYS */;
 
 
@@ -3502,9 +3616,9 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state_condition` (
   PRIMARY KEY (`actuator_state_condition_id`),
   KEY `FK_user_actuator_state_condition_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_actuator_state_condition_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state_condition: ~6 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state_condition: ~16 rows (приблизительно)
 DELETE FROM `user_actuator_state_condition`;
 /*!40000 ALTER TABLE `user_actuator_state_condition` DISABLE KEYS */;
 INSERT INTO `user_actuator_state_condition` (`actuator_state_condition_id`, `user_actuator_state_id`, `left_part_expression`, `sign_expression`, `right_part_expression`, `condition_num`, `condition_interval`) VALUES
@@ -3518,7 +3632,12 @@ INSERT INTO `user_actuator_state_condition` (`actuator_state_condition_id`, `use
 	(11, 41, 'a', '<', '333', 1, 6),
 	(12, 42, 'a', '>', '356', 1, 6),
 	(13, 42, 'a', '<', '756', 2, 6),
-	(14, 43, 'a', '>', '56.8', 1, 7);
+	(14, 43, 'a', '>', '56.8', 1, 7),
+	(15, 44, 'a', '>', '56,7', 1, 6),
+	(16, 45, 'a', '>', '34.8', 1, 77),
+	(17, 45, 'a', '<', '35,6', 2, 77),
+	(18, 46, 'a', '>', '56.70', 1, 7),
+	(19, 47, 'a', '<', '56.80', 1, 56);
 /*!40000 ALTER TABLE `user_actuator_state_condition` ENABLE KEYS */;
 
 
@@ -3909,9 +4028,9 @@ CREATE TABLE IF NOT EXISTS `user_device_state_notification` (
   KEY `FK_user_device_state_notification_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_device_state_notification_notification_type` FOREIGN KEY (`notification_type_id`) REFERENCES `notification_type` (`notification_type_id`),
   CONSTRAINT `FK_user_device_state_notification_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_state_notification: ~7 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_state_notification: ~15 rows (приблизительно)
 DELETE FROM `user_device_state_notification`;
 /*!40000 ALTER TABLE `user_device_state_notification` DISABLE KEYS */;
 INSERT INTO `user_device_state_notification` (`user_state_notification_id`, `notification_type_id`, `user_actuator_state_id`) VALUES
@@ -3925,7 +4044,11 @@ INSERT INTO `user_device_state_notification` (`user_state_notification_id`, `not
 	(10, 2, 41),
 	(12, 1, 42),
 	(13, 2, 42),
-	(15, 1, 43);
+	(15, 1, 43),
+	(16, 2, 44),
+	(17, 2, 45),
+	(18, 2, 46),
+	(19, 1, 47);
 /*!40000 ALTER TABLE `user_device_state_notification` ENABLE KEYS */;
 
 
@@ -3964,9 +4087,9 @@ CREATE TABLE IF NOT EXISTS `user_state_condition_vars` (
   KEY `FK_user_state_condition_vars_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_state_condition_vars: ~8 rows (приблизительно)
+-- Дамп данных таблицы things.user_state_condition_vars: ~18 rows (приблизительно)
 DELETE FROM `user_state_condition_vars`;
 /*!40000 ALTER TABLE `user_state_condition_vars` DISABLE KEYS */;
 INSERT INTO `user_state_condition_vars` (`state_condition_vars_id`, `actuator_state_condition_id`, `var_code`, `user_device_id`) VALUES
@@ -3982,7 +4105,12 @@ INSERT INTO `user_state_condition_vars` (`state_condition_vars_id`, `actuator_st
 	(15, 11, 'a', 1),
 	(16, 12, 'a', 1),
 	(17, 13, 'a', 1),
-	(18, 14, 'a', 42);
+	(18, 14, 'a', 42),
+	(19, 15, 'a', 42),
+	(20, 16, 'a', 42),
+	(21, 17, 'a', 42),
+	(22, 18, 'a', 42),
+	(23, 19, 'a', 42);
 /*!40000 ALTER TABLE `user_state_condition_vars` ENABLE KEYS */;
 
 
