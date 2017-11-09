@@ -61,6 +61,10 @@ implements addDeleteListenable {
                 String InputName = ((TextField) ThatItem.getItemProperty(2).getValue()).getValue();
                 String InputCode = ((TextField) ThatItem.getItemProperty(3).getValue()).getValue();
 
+                String valueTimeInt = ((TextField) ThatItem.getItemProperty(5).getValue()).getValue();
+                String valueNotifyList = ((tNotificationListLayout) ThatItem.getItemProperty(6).getValue()).getValuesStr();
+
+
                 //System.out.println("InputName :" + InputName);
                 //System.out.println("InputCode :" + InputCode);
 
@@ -102,6 +106,14 @@ implements addDeleteListenable {
                     sErrorMessage = sErrorMessage + "Указанный код недопустим. Он должен состоять из букв латиницы и цифр\n";
                 }
 
+                if (tUsefulFuctions.StrToIntValue(valueTimeInt) == null) {
+                    sErrorMessage = sErrorMessage + "Значение длительности изменения состояния не задано или не является числом\n";
+                } else {
+                    if (tUsefulFuctions.StrToIntValue(valueTimeInt) < 5) {
+                        sErrorMessage = sErrorMessage + "Значение длительности изменения состояния не может быть менее 5 секунд\n";
+                    }
+                }
+
                 if (!sErrorMessage.equals("")){
                     Notification.show("Ошибка сохранения:",
                             sErrorMessage,
@@ -109,7 +121,20 @@ implements addDeleteListenable {
                 } else {
                     ((TextField) ThatItem.getItemProperty(2).getValue()).setEnabled(false);
                     ((TextField) ThatItem.getItemProperty(3).getValue()).setEnabled(false);
-                    int newStateId = newActuatorStateInsert(iUserDeviceId,InputName,InputCode);
+                    ((TextField) ThatItem.getItemProperty(5).getValue()).setEnabled(false);
+                    ((tNotificationListLayout) ThatItem.getItemProperty(6).getValue()).setEnabledFalse();
+
+                    if (valueNotifyList.equals("")){
+                        valueNotifyList = "NONOT";
+                    }
+
+                    int newStateId = newActuatorStateInsert(iUserDeviceId
+                            ,InputName
+                            ,InputCode
+                            ,tUsefulFuctions.StrToIntValue(valueTimeInt)
+                            ,valueNotifyList
+                    );
+
                     tUsefulFuctions.sendMessAgeToSubcribeServer(
                             newStateId
                             , iParentContentLayout.iUserLog
@@ -147,12 +172,15 @@ implements addDeleteListenable {
                 AddedNameTF.setValue("");
                 AddedNameTF.addStyleName(ValoTheme.TEXTFIELD_TINY);
                 AddedNameTF.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+                AddedNameTF.setWidth("150px");
                 AddedItem.getItemProperty(2).setValue(AddedNameTF);
 
                 TextField AddedCodeTF = new TextField();
                 AddedCodeTF.setValue("");
                 AddedCodeTF.addStyleName(ValoTheme.TEXTFIELD_TINY);
                 AddedCodeTF.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+                AddedCodeTF.setWidth("100px");
+
                 AddedItem.getItemProperty(3).setValue(AddedCodeTF);
 
                 Button mqttCommitButton = new Button();
@@ -161,6 +189,18 @@ implements addDeleteListenable {
                 mqttCommitButton.setIcon(VaadinIcons.PLAY_CIRCLE);
 
                 AddedItem.getItemProperty(4).setValue(mqttCommitButton);
+
+                TextField timeInt = new TextField();
+                timeInt.setWidth("50px");
+                timeInt.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+                timeInt.setValue("");
+                timeInt.setInputPrompt("0");
+
+                AddedItem.getItemProperty(5).setValue(timeInt);
+
+                tNotificationListLayout noteListLay = new tNotificationListLayout();
+
+                AddedItem.getItemProperty(6).setValue(noteListLay);
 
                 SaveButton.setData(AddedItem);
                 SaveButton.setEnabled(true);
@@ -230,16 +270,20 @@ implements addDeleteListenable {
         StatesTable = new Table();
         StatesTable.setWidth("100%");
 
-        StatesTable.setColumnHeader(1, "№<br/>состояния");
+        StatesTable.setColumnHeader(1, "№");
         StatesTable.setColumnHeader(2, "Наименование<br/>состояния");
         StatesTable.setColumnHeader(3, "Код<br/>сообщения");
-        StatesTable.setColumnHeader(4, "Выполнить");
+        StatesTable.setColumnHeader(4, "");
+        StatesTable.setColumnHeader(5, "Δt, с");
+        StatesTable.setColumnHeader(6, "Системы<br/>оповещения");
 
         StatesContainer = new IndexedContainer();
         StatesContainer.addContainerProperty(1, Integer.class, null);
         StatesContainer.addContainerProperty(2, TextField.class, null);
         StatesContainer.addContainerProperty(3, TextField.class, null);
         StatesContainer.addContainerProperty(4, Button.class, null);
+        StatesContainer.addContainerProperty(5, TextField.class, null);
+        StatesContainer.addContainerProperty(6, tNotificationListLayout.class, null);
 
         setStatesContainer();
 
@@ -303,8 +347,14 @@ implements addDeleteListenable {
             String DataSql = "select @num1:=@num1+1 num\n" +
                     ",uas.actuator_state_name\n" +
                     ",uas.actuator_message_code\n" +
-                    ",ud.mqtt_topic_read\n" +
-                    ",ser.server_ip mqtt_server_host\n" +
+                    ",uas.user_actuator_state_id\n" +
+                    ",(\n" +
+                    "select concat(group_concat(nt.notification_code separator '|'),'|')\n" +
+                    "from user_device_state_notification uno\n" +
+                    "join notification_type nt on nt.notification_type_id=uno.notification_type_id\n" +
+                    "where uno.user_actuator_state_id=uas.user_actuator_state_id\n" +
+                    ") notification_codes\n" +
+                    ",uas.transition_time\n" +
                     "from user_actuator_state uas\n" +
                     "join user_device ud on ud.user_device_id=uas.user_device_id\n" +
                     "join mqtt_servers ser on ser.server_id=ud.mqqt_server_id\n" +
@@ -325,38 +375,55 @@ implements addDeleteListenable {
                 NameTF.setEnabled(false);
                 NameTF.addStyleName(ValoTheme.TEXTFIELD_TINY);
                 NameTF.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+                NameTF.setWidth("150px");
 
                 TextField CodeTF = new TextField();
                 CodeTF.setValue(DataRs.getString(3));
                 CodeTF.setEnabled(false);
                 CodeTF.addStyleName(ValoTheme.TEXTFIELD_TINY);
                 CodeTF.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+                CodeTF.setWidth("100px");
 
                 Button mqttCommitButton = new Button();
                 mqttCommitButton.addStyleName(ValoTheme.BUTTON_SMALL);
                 mqttCommitButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
                 mqttCommitButton.setIcon(VaadinIcons.PLAY_CIRCLE);
-                mqttCommitButton.setData(DataRs.getString(3)
-                        +"|" + DataRs.getString(4)
-                        +"|" + DataRs.getString(5) + "|"
-                );
+                mqttCommitButton.setData(DataRs.getInt(4));
                 mqttCommitButton.addClickListener(new Button.ClickListener() {
                     @Override
                     public void buttonClick(Button.ClickEvent clickEvent) {
-                        String mqttStrAttr = (String) clickEvent.getButton().getData();
-                        List<String> mqttAttrs = tUsefulFuctions.GetListFromString(mqttStrAttr,"|");
-                        commitActuatorMessageCode(
-                                mqttAttrs.get(0)
-                                ,mqttAttrs.get(1)
-                                ,mqttAttrs.get(2)
+                        int iStateId = (int) clickEvent.getButton().getData();
+                        tUsefulFuctions.sendMessAgeToSubcribeServer(
+                                iStateId
+                                , iParentContentLayout.iUserLog
+                                , "add"
+                                , "state_message"
                         );
                     }
                 });
+
+                TextField timeInt = new TextField();
+                timeInt.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+                timeInt.setValue(String.valueOf(DataRs.getInt(6)));
+                timeInt.setEnabled(false);
+                timeInt.setWidth("50px");
+
+                tNotificationListLayout noteListLay = new tNotificationListLayout();
+                noteListLay.setEnabledFalse();
+
+                if (DataRs.getString(5) != null) {
+                    for (String iNoteType : tUsefulFuctions.GetListFromString(DataRs.getString(5), "|")) {
+                        noteListLay.markNotification(iNoteType);
+                    }
+                }
 
                 newItem.getItemProperty(1).setValue(DataRs.getInt(1));
                 newItem.getItemProperty(2).setValue(NameTF);
                 newItem.getItemProperty(3).setValue(CodeTF);
                 newItem.getItemProperty(4).setValue(mqttCommitButton);
+                newItem.getItemProperty(5).setValue(timeInt);
+                newItem.getItemProperty(6).setValue(noteListLay);
+
 
             }
 
@@ -418,6 +485,8 @@ implements addDeleteListenable {
             int qUserDeviceId
             ,String qStateName
             ,String qStateCode
+            ,int qTrTime
+            ,String qNoteList
     ){
         Integer newStateId = null;
 
@@ -430,14 +499,16 @@ implements addDeleteListenable {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement Stmt = Con.prepareCall("{call p_insert_actuator_state(?, ?, ?, ?)}");
+            CallableStatement Stmt = Con.prepareCall("{call p_insert_actuator_state(?, ?, ?, ?, ?, ?)}");
             Stmt.setInt(1, qUserDeviceId);
             Stmt.setString(2, qStateName);
             Stmt.setString(3, qStateCode);
-            Stmt.registerOutParameter(4,Types.INTEGER);
+            Stmt.setInt(4, qTrTime);
+            Stmt.setString(5, qNoteList);
+            Stmt.registerOutParameter(6,Types.INTEGER);
             Stmt.execute();
 
-            newStateId = Stmt.getInt(4);
+            newStateId = Stmt.getInt(6);
 
             Con.close();
 

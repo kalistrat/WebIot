@@ -12,6 +12,8 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import java.sql.*;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -27,6 +29,17 @@ public class tNotificationDetectorLayout extends VerticalLayout {
     int iUserDeviceId;
     tTreeContentLayout iParentContentLayout;
 
+    class stateIdMap{
+        int itemId;
+        int stateId;
+        public stateIdMap(int itId,int stId){
+            itemId = itId;
+            stateId = stId;
+        }
+    }
+
+    List<stateIdMap> statesList;
+
     public tNotificationDetectorLayout(
             int eUserDeviceId
             ,tTreeContentLayout eParentContentLayout
@@ -34,6 +47,7 @@ public class tNotificationDetectorLayout extends VerticalLayout {
 
         iUserDeviceId = eUserDeviceId;
         iParentContentLayout = eParentContentLayout;
+        statesList = new ArrayList<>();
 
         Label Header = new Label();
         Header.setContentMode(ContentMode.HTML);
@@ -100,12 +114,13 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                     }
                 }
 
-                if (tUsefulFuctions.StrToIntValue(valueTimeInt) == null){
-                    sErrorMessage = sErrorMessage + "Значение длительности выполнения критерия не является целочисленным\n";
-                }
 
-                if (tUsefulFuctions.StrToIntValue(valueTimeInt) < 5){
-                    sErrorMessage = sErrorMessage + "Значение длительности выполнения критерия не может быть менее 5 секунд\n";
+                if (tUsefulFuctions.StrToIntValue(valueTimeInt) == null) {
+                    sErrorMessage = sErrorMessage + "Значение длительности выполнения критерия не задано или не является числом\n";
+                } else {
+                    if (tUsefulFuctions.StrToIntValue(valueTimeInt) < 5) {
+                        sErrorMessage = sErrorMessage + "Значение длительности выполнения критерия не может быть менее 5 секунд\n";
+                    }
                 }
 
                 if (valueNotifyList.equals("")){
@@ -144,7 +159,9 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                     DeleteButton.setEnabled(true);
                     AddButton.setEnabled(true);
                     SaveButton.setEnabled(false);
-
+                    Notification.show("Оповещение добавлено!",
+                            null,
+                            Notification.Type.TRAY_NOTIFICATION);
 
                 }
             }
@@ -177,7 +194,7 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                 timeInt.setWidth("50px");
                 timeInt.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
                 timeInt.setValue("");
-                timeInt.setInputPrompt("0.00");
+                timeInt.setInputPrompt("0");
 
                 AddedItem.getItemProperty(4).setValue(timeInt);
                 tNotificationListLayout noteListLay = new tNotificationListLayout();
@@ -207,11 +224,18 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                 }
 
                 if (SelectedItemId>0) {
-                    tNotificationConditionSelect conSel = (tNotificationConditionSelect) iNotificationContainer.getItem(SelectedItemId).getItemProperty(2).getValue();
-                    String selectedName = (String) conSel.getValue();
-                    tNotificationCriteriaField creFi = (tNotificationCriteriaField) iNotificationContainer.getItem(SelectedItemId).getItemProperty(3).getValue();
-                    String valFrom = creFi.valueFromField.getValue();
-                    String valTill = creFi.valueTillField.getValue();
+                    int removeStateId = getDbIdByItemId(SelectedItemId);
+                    removeStateFromDb(removeStateId);
+                    tUsefulFuctions.sendMessAgeToSubcribeServer(
+                            removeStateId
+                            , iParentContentLayout.iUserLog
+                            , "delete"
+                            , "state"
+                    );
+                    NotificationContainerRefresh();
+                    Notification.show("Оповещение удалёно!",
+                            null,
+                            Notification.Type.TRAY_NOTIFICATION);
 
                 } else {
                     Notification.show("Удаление невозможно:",
@@ -306,6 +330,7 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                     , tUsefulFuctions.USER
                     , tUsefulFuctions.PASS
             );
+            statesList.clear();
 
             String DataSql = "select @num1:=@num1+1 notification_condition_num\n" +
                     ",uas.actuator_state_name notification_condition_name\n" +
@@ -337,6 +362,7 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                     "join notification_type nt on nt.notification_type_id=uno.notification_type_id\n" +
                     "where uno.user_actuator_state_id=uas.user_actuator_state_id\n" +
                     ") notification_codes\n" +
+                    ",uas.user_actuator_state_id\n" +
                     "from user_actuator_state uas\n" +
                     "join (select @num1:=0) t\n" +
                     "where uas.user_device_id = ?";
@@ -371,6 +397,8 @@ public class tNotificationDetectorLayout extends VerticalLayout {
                     noteListLay.markNotification(iNoteType);
                 }
                 newItem.getItemProperty(5).setValue(noteListLay);
+
+                statesList.add(new stateIdMap(DataRs.getInt(1),DataRs.getInt(6)));
 
             }
 
@@ -467,6 +495,35 @@ public class tNotificationDetectorLayout extends VerticalLayout {
         }
 
         return  isE;
+    }
+
+    private Integer getDbIdByItemId(int checkItemId){
+        Integer dbId = null;
+        for (stateIdMap iSt : statesList){
+            if (iSt.itemId == checkItemId) {
+                dbId = iSt.stateId;
+            }
+        }
+        return  dbId;
+    }
+
+    private void removeStateFromDb(int remStateId){
+        try{
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            CallableStatement procStmt = Con.prepareCall("call p_delete_state_by_id(?)");
+            procStmt.setInt(1,remStateId);
+            procStmt.execute();
+            Con.close();
+
+        } catch (SQLException|ClassNotFoundException e){
+            e.printStackTrace();
+        }
     }
 
 }

@@ -118,6 +118,8 @@ public class tActuatorLayout extends VerticalLayout {
         TopLayout.setSizeFull();
         TopLayout.setMargin(new MarginInfo(false, true, false, true));
 
+
+
         DeviceDescription = new tDescriptionLayout(iUserDeviceId);
         ActuatorStatesLayout = new tActuatorStatesLayout(iUserDeviceId
                 ,tParentContentLayout
@@ -129,15 +131,40 @@ public class tActuatorLayout extends VerticalLayout {
                 ,tCurrentLeafId
         );
 
-        VerticalLayout ContentLayout = new VerticalLayout(
-                ActuatorDataFormLayout
-                ,ActuatorStatesLayout
+        VerticalLayout ContentStatesLayout = new VerticalLayout(
+                ActuatorStatesLayout
                 ,ActuatorStateConditionLayout
+        );
+
+        VerticalLayout ContentImageStatesLayout = new VerticalLayout(
+                ActuatorDataFormLayout
                 ,DeviceDescription
         );
 
+        ContentStatesLayout.setMargin(true);
+        ContentStatesLayout.setSpacing(true);
+        ContentStatesLayout.setWidth("100%");
+        ContentStatesLayout.setHeightUndefined();
 
-        ContentLayout.setMargin(true);
+        ContentImageStatesLayout.setMargin(true);
+        ContentImageStatesLayout.setSpacing(true);
+        ContentImageStatesLayout.setWidth("100%");
+        ContentImageStatesLayout.setHeightUndefined();
+
+        TabSheet ActuatorTabSheet = new TabSheet();
+        ActuatorTabSheet.addTab(ContentImageStatesLayout, "Журнал состояний актуатора", VaadinIcons.CHART,0);
+        ActuatorTabSheet.addTab(ContentStatesLayout, "Настройка состояний актуатора", VaadinIcons.COGS,1);
+        ActuatorTabSheet.addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
+        ActuatorTabSheet.addStyleName(ValoTheme.TABSHEET_FRAMED);
+        ActuatorTabSheet.setSizeFull();
+        ActuatorTabSheet.addStyleName("TabSheetSmall");
+
+        VerticalLayout ContentLayout = new VerticalLayout(
+                ActuatorTabSheet
+        );
+
+
+        ContentLayout.setMargin(false);
         ContentLayout.setSpacing(true);
         ContentLayout.setWidth("100%");
         ContentLayout.setHeightUndefined();

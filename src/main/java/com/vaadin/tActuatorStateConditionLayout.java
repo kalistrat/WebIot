@@ -36,7 +36,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
         Integer SignItemId;
         Integer RightSideItemId;
         Integer VarsItemId;
-        Integer TimeItemId;
+        //Integer TimeItemId;
         Integer ActuatorStateId;
 
         ConditionIds(
@@ -46,7 +46,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                 ,Integer signItemId
                 ,Integer rightSideItemId
                 ,Integer varsItemId
-                ,Integer timeItemId
+                //,Integer timeItemId
         ){
             ActuatorStateId = actuatorStateId;
             ConditionNum = conditionNum;
@@ -54,7 +54,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
             SignItemId = signItemId;
             RightSideItemId = rightSideItemId;
             VarsItemId = varsItemId;
-            TimeItemId = timeItemId;
+            //TimeItemId = timeItemId;
         }
     }
 
@@ -97,10 +97,10 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                         (tSignConditionLayout) StatesConditionContainer
                                 .getItem(conditionIds.SignItemId)
                                 .getItemProperty(2).getValue();
-                tTimeConditionLayout TimeLayout =
-                        (tTimeConditionLayout) StatesConditionContainer
-                                .getItem(conditionIds.TimeItemId)
-                                .getItemProperty(2).getValue();
+//                tTimeConditionLayout TimeLayout =
+//                        (tTimeConditionLayout) StatesConditionContainer
+//                                .getItem(conditionIds.TimeItemId)
+//                                .getItemProperty(2).getValue();
                 tVarConditionLayout VarsLayout =
                         (tVarConditionLayout) StatesConditionContainer
                                 .getItem(conditionIds.VarsItemId)
@@ -111,7 +111,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                 String LeftExpr = leftSideLayout.textfield.getValue();
                 String RightExpr = rightSideLayout.textfield.getValue();
                 String SignExpr = (String) SignLayout.SignValueSelect.getValue();
-                String TimeInterval = TimeLayout.TimeIntervalTextField.getValue();
+                //String TimeInterval = TimeLayout.TimeIntervalTextField.getValue();
 
                 String sErrorMessage = "";
 
@@ -153,15 +153,15 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                     }
                 }
 
-                if (tUsefulFuctions.StrToIntValue(TimeInterval) == null) {
-                    sErrorMessage = sErrorMessage + "Не задан интервал реализации условия\n";
-                } else {
-
-                    if ((tUsefulFuctions.StrToIntValue(TimeInterval).intValue() < 5)
-                            || (tUsefulFuctions.StrToIntValue(TimeInterval).intValue() > 3600)) {
-                        sErrorMessage = sErrorMessage + "Не задан интервал реализации условия\n";
-                    }
-                }
+//                if (tUsefulFuctions.StrToIntValue(TimeInterval) == null) {
+//                    sErrorMessage = sErrorMessage + "Не задан интервал реализации условия\n";
+//                } else {
+//
+//                    if ((tUsefulFuctions.StrToIntValue(TimeInterval).intValue() < 5)
+//                            || (tUsefulFuctions.StrToIntValue(TimeInterval).intValue() > 3600)) {
+//                        sErrorMessage = sErrorMessage + "Не задан интервал реализации условия\n";
+//                    }
+//                }
 
                 if (!sErrorMessage.equals("")){
                     Notification.show("Ошибка сохранения:",
@@ -175,7 +175,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                     , SignExpr
                     , RightExpr
                     , iNewConditionNum
-                    , Integer.parseInt(TimeInterval)
+                    //, Integer.parseInt(TimeInterval)
                     );
 
                     for (tVarNativeSelect iLi : VarsLayout.VarList) {
@@ -294,14 +294,14 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
 
                         StatesConditionContainer.setParent(nit + 4, nit);
 
-                        int TimeItemId = nit + 5;
-
-                        Item TimeItem = StatesConditionContainer.addItem(nit + 5);
-                        tTimeConditionLayout TimeLayout = new tTimeConditionLayout("",true);
-                        TimeItem.getItemProperty(1).setValue("Интервал реализации условия");
-                        TimeItem.getItemProperty(2).setValue(TimeLayout);
-
-                        StatesConditionContainer.setParent(nit + 5, nit);
+//                        int TimeItemId = nit + 5;
+//
+//                        Item TimeItem = StatesConditionContainer.addItem(nit + 5);
+//                        tTimeConditionLayout TimeLayout = new tTimeConditionLayout("",true);
+//                        TimeItem.getItemProperty(1).setValue("Интервал реализации условия");
+//                        TimeItem.getItemProperty(2).setValue(TimeLayout);
+//
+//                        StatesConditionContainer.setParent(nit + 5, nit);
 
                         SaveButton.setData(new ConditionIds(
                                 iActuatorStateId
@@ -310,7 +310,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                                 ,SignItemItemId
                                 ,RightSideItemId
                                 ,VarsItemId
-                                ,TimeItemId
+                                //,TimeItemId
                         ));
 
                         for (Object itemId: StatesConditionTable.getContainerDataSource()
@@ -517,35 +517,35 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
 
                 if (DataRs.getInt(2)!= 0) {
 
-                    k = k + 7;
+                    k = k + 6;//Remove TimeInterval
 
-                    Item HeaderItem = StatesConditionContainer.addItem(k - 6);
+                    Item HeaderItem = StatesConditionContainer.addItem(k - 5);
                     HeaderItem.getItemProperty(1).setValue(DataRs.getString(1));
                     HeaderItem.getItemProperty(2).setValue(null);
 
-                    Item SubHeaderItem = StatesConditionContainer.addItem(k - 5);
+                    Item SubHeaderItem = StatesConditionContainer.addItem(k - 4);
                     SubHeaderItem.getItemProperty(1).setValue("Условие № " + DataRs.getString(6));
                     SubHeaderItem.getItemProperty(2).setValue(null);
-                    StatesConditionContainer.setParent(k - 5, k - 6);
+                    StatesConditionContainer.setParent(k - 4, k - 5);
 
-                    Item LeftSideItem = StatesConditionContainer.addItem(k - 4);
+                    Item LeftSideItem = StatesConditionContainer.addItem(k - 3);
                     tButtonTextFieldLayout LeftSideFieldLayout = new tButtonTextFieldLayout(DataRs.getString(3),false);
                     LeftSideItem.getItemProperty(1).setValue("Левая часть выражения");
                     LeftSideItem.getItemProperty(2).setValue(LeftSideFieldLayout);
-                    StatesConditionContainer.setParent(k - 4, k - 5);
+                    StatesConditionContainer.setParent(k - 3, k - 4);
 
-                    Item SignItem = StatesConditionContainer.addItem(k - 3);
+                    Item SignItem = StatesConditionContainer.addItem(k - 2);
                     SignItem.getItemProperty(1).setValue("Знак выражения");
                     SignItem.getItemProperty(2).setValue(new tSignConditionLayout(DataRs.getString(4),false));
-                    StatesConditionContainer.setParent(k - 3, k - 5);
+                    StatesConditionContainer.setParent(k - 2, k - 4);
 
-                    Item RightSideItem = StatesConditionContainer.addItem(k - 2);
+                    Item RightSideItem = StatesConditionContainer.addItem(k - 1);
                     tButtonTextFieldLayout RightSideFieldLayout = new tButtonTextFieldLayout(DataRs.getString(5),false);
                     RightSideItem.getItemProperty(1).setValue("Правая часть выражения");
                     RightSideItem.getItemProperty(2).setValue(RightSideFieldLayout);
-                    StatesConditionContainer.setParent(k - 2, k - 5);
+                    StatesConditionContainer.setParent(k - 1, k - 4);
 
-                    Item VarsItem = StatesConditionContainer.addItem(k - 1);
+                    Item VarsItem = StatesConditionContainer.addItem(k);
                     VarsItem.getItemProperty(1).setValue("Соответствие переменных");
                     VarsItem.getItemProperty(2).setValue(
                             new tVarConditionLayout(
@@ -556,15 +556,15 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                                     , false
                             )
                     );
-                    StatesConditionContainer.setParent(k - 1, k - 5);
+                    StatesConditionContainer.setParent(k, k - 4);
 
-                    Item TimeItem = StatesConditionContainer.addItem(k);
-                    TimeItem.getItemProperty(1).setValue("Интервал реализации условия");
-                    TimeItem.getItemProperty(2).setValue(new tTimeConditionLayout(
-                            String.valueOf(DataRs.getInt(7))
-                            ,false)
-                    );
-                    StatesConditionContainer.setParent(k, k - 5);
+//                    Item TimeItem = StatesConditionContainer.addItem(k);
+//                    TimeItem.getItemProperty(1).setValue("Интервал реализации условия");
+//                    TimeItem.getItemProperty(2).setValue(new tTimeConditionLayout(
+//                            String.valueOf(DataRs.getInt(7))
+//                            ,false)
+//                    );
+//                    StatesConditionContainer.setParent(k, k - 5);
 
 
                 } else {
@@ -697,7 +697,7 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
         , String qSignExpression
         , String qRightPartExpression
         , int qConditionNum
-        , int qConditionInterval
+        //, int qConditionInterval
     ){
         try {
 
@@ -708,14 +708,14 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement dataStmt = Con.prepareCall("{? = call f_insert_actuator_state_condition(?, ?, ?, ?, ?, ?)}");
+            CallableStatement dataStmt = Con.prepareCall("{? = call f_insert_actuator_state_condition(?, ?, ?, ?, ?)}");
             dataStmt.registerOutParameter(1, Types.INTEGER);
             dataStmt.setInt(2, qUserActuatorStateId);
             dataStmt.setString(3, qLeftPartExpression);
             dataStmt.setString(4, qSignExpression);
             dataStmt.setString(5, qRightPartExpression);
             dataStmt.setInt(6, qConditionNum);
-            dataStmt.setInt(7, qConditionInterval);
+            //dataStmt.setInt(7, qConditionInterval);
             dataStmt.execute();
             Integer iActuatorStateConditionId = dataStmt.getInt(1);
             Con.close();
