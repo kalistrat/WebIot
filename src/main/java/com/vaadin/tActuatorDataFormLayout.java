@@ -15,19 +15,19 @@ import java.text.SimpleDateFormat;
  */
 public class tActuatorDataFormLayout extends VerticalLayout {
 
-    Button SaveButton;
-    Button EditButton;
+    //Button SaveButton;
+    //Button EditButton;
     int iUserDeviceId;
 
     TextField NameTextField;
     TextField DetectorAddDate;
     TextField InTopicNameField;
-    TextField OutTopicNameField;
+    //TextField OutTopicNameField;
     //NativeSelect MqttServerSelect;
-    TextField MqttServerTextField;
+    //TextField MqttServerTextField;
 
-    TextField DeviceLoginTextField;
-    TextField DevicePassWordTextField;
+    //TextField DeviceLoginTextField;
+    //TextField DevicePassWordTextField;
 
     public tActuatorDataFormLayout(int eUserDeviceId) {
 
@@ -39,98 +39,98 @@ public class tActuatorDataFormLayout extends VerticalLayout {
         Header.addStyleName(ValoTheme.LABEL_COLORED);
         Header.addStyleName(ValoTheme.LABEL_SMALL);
 
-        SaveButton = new Button();
-        SaveButton.setIcon(FontAwesome.SAVE);
-        SaveButton.addStyleName(ValoTheme.BUTTON_SMALL);
-        SaveButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-        SaveButton.setEnabled(false);
+//        SaveButton = new Button();
+//        SaveButton.setIcon(FontAwesome.SAVE);
+//        SaveButton.addStyleName(ValoTheme.BUTTON_SMALL);
+//        SaveButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+//        SaveButton.setEnabled(false);
+//
+//        SaveButton.addClickListener(new Button.ClickListener() {
+//            @Override
+//            public void buttonClick(Button.ClickEvent clickEvent) {
+//
+//                String sErrorMessage = "";
+//                String sDeviceLog = DeviceLoginTextField.getValue();
+//                String sDevicePass = DevicePassWordTextField.getValue();
+//
+//                if (sDeviceLog == null){
+//                    sErrorMessage = "Логин устройства не задан\n";
+//                }
+//
+//                if (sDeviceLog.equals("")){
+//                    sErrorMessage = sErrorMessage + "Логин устройства не задан\n";
+//                }
+//
+//                if (sDeviceLog.length() > 25){
+//                    sErrorMessage = sErrorMessage + "Длина логина превышает 25 символов\n";
+//                }
+//
+//                if (sDevicePass == null){
+//                    sErrorMessage = "Пароль устройства не задан\n";
+//                }
+//
+//                if (sDevicePass.equals("")){
+//                    sErrorMessage = sErrorMessage + "Пароль устройства не задан\n";
+//                }
+//
+//                if (sDevicePass.length() > 25){
+//                    sErrorMessage = sErrorMessage + "Длина пароля превышает 25 символов\n";
+//                }
+//
+//                if (!tUsefulFuctions.IsLatinAndDigits(sDeviceLog)){
+//                    sErrorMessage = sErrorMessage + "Указанный логин недопустим. Он должен состоять из букв латиницы и цифр\n";
+//                }
+//
+//                if (!tUsefulFuctions.IsLatinAndDigits(sDevicePass)){
+//                    sErrorMessage = sErrorMessage + "Указанный пароль недопустим. Он должен состоять из букв латиницы и цифр\n";
+//                }
+//
+//                if (!sErrorMessage.equals("")){
+//                    Notification.show("Ошибка сохранения:",
+//                            sErrorMessage,
+//                            Notification.Type.TRAY_NOTIFICATION);
+//                } else {
+//                    tUsefulFuctions.updateActuatorLoginPassWord(iUserDeviceId,sDeviceLog,sDevicePass);
+//                    SaveButton.setEnabled(false);
+//                    EditButton.setEnabled(true);
+//                    DeviceLoginTextField.setEnabled(false);
+//                    DevicePassWordTextField.setEnabled(false);
+//
+//                }
+//            }
+//        });
+//
+//        EditButton = new Button();
+//        EditButton.setIcon(VaadinIcons.EDIT);
+//        EditButton.addStyleName(ValoTheme.BUTTON_SMALL);
+//        EditButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+//
+//        EditButton.addClickListener(new Button.ClickListener() {
+//            @Override
+//            public void buttonClick(Button.ClickEvent clickEvent) {
+//                SaveButton.setEnabled(true);
+//                EditButton.setEnabled(false);
+//                DeviceLoginTextField.setEnabled(true);
+//                DevicePassWordTextField.setEnabled(true);
+//            }
+//        });
 
-        SaveButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
 
-                String sErrorMessage = "";
-                String sDeviceLog = DeviceLoginTextField.getValue();
-                String sDevicePass = DevicePassWordTextField.getValue();
-
-                if (sDeviceLog == null){
-                    sErrorMessage = "Логин устройства не задан\n";
-                }
-
-                if (sDeviceLog.equals("")){
-                    sErrorMessage = sErrorMessage + "Логин устройства не задан\n";
-                }
-
-                if (sDeviceLog.length() > 25){
-                    sErrorMessage = sErrorMessage + "Длина логина превышает 25 символов\n";
-                }
-
-                if (sDevicePass == null){
-                    sErrorMessage = "Пароль устройства не задан\n";
-                }
-
-                if (sDevicePass.equals("")){
-                    sErrorMessage = sErrorMessage + "Пароль устройства не задан\n";
-                }
-
-                if (sDevicePass.length() > 25){
-                    sErrorMessage = sErrorMessage + "Длина пароля превышает 25 символов\n";
-                }
-
-                if (!tUsefulFuctions.IsLatinAndDigits(sDeviceLog)){
-                    sErrorMessage = sErrorMessage + "Указанный логин недопустим. Он должен состоять из букв латиницы и цифр\n";
-                }
-
-                if (!tUsefulFuctions.IsLatinAndDigits(sDevicePass)){
-                    sErrorMessage = sErrorMessage + "Указанный пароль недопустим. Он должен состоять из букв латиницы и цифр\n";
-                }
-
-                if (!sErrorMessage.equals("")){
-                    Notification.show("Ошибка сохранения:",
-                            sErrorMessage,
-                            Notification.Type.TRAY_NOTIFICATION);
-                } else {
-                    tUsefulFuctions.updateActuatorLoginPassWord(iUserDeviceId,sDeviceLog,sDevicePass);
-                    SaveButton.setEnabled(false);
-                    EditButton.setEnabled(true);
-                    DeviceLoginTextField.setEnabled(false);
-                    DevicePassWordTextField.setEnabled(false);
-
-                }
-            }
-        });
-
-        EditButton = new Button();
-        EditButton.setIcon(VaadinIcons.EDIT);
-        EditButton.addStyleName(ValoTheme.BUTTON_SMALL);
-        EditButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-
-        EditButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                SaveButton.setEnabled(true);
-                EditButton.setEnabled(false);
-                DeviceLoginTextField.setEnabled(true);
-                DevicePassWordTextField.setEnabled(true);
-            }
-        });
-
-
-        HorizontalLayout FormHeaderButtons = new HorizontalLayout(
-                EditButton
-                ,SaveButton
-        );
-        FormHeaderButtons.setSpacing(true);
-        FormHeaderButtons.setSizeUndefined();
+//        HorizontalLayout FormHeaderButtons = new HorizontalLayout(
+//                EditButton
+//                ,SaveButton
+//        );
+//        FormHeaderButtons.setSpacing(true);
+//        FormHeaderButtons.setSizeUndefined();
 
         HorizontalLayout FormHeaderLayout = new HorizontalLayout(
                 Header
-                , FormHeaderButtons
+                //, FormHeaderButtons
         );
         FormHeaderLayout.setWidth("100%");
         FormHeaderLayout.setHeightUndefined();
         FormHeaderLayout.setComponentAlignment(Header, Alignment.MIDDLE_LEFT);
-        FormHeaderLayout.setComponentAlignment(FormHeaderButtons, Alignment.MIDDLE_RIGHT);
+        //FormHeaderLayout.setComponentAlignment(FormHeaderButtons, Alignment.MIDDLE_RIGHT);
 
         NameTextField = new TextField("Наименование устройства :");
         NameTextField.setEnabled(false);
@@ -138,20 +138,20 @@ public class tActuatorDataFormLayout extends VerticalLayout {
         DetectorAddDate.setEnabled(false);
         InTopicNameField = new TextField("mqtt-топик для записи :");
         InTopicNameField.setEnabled(false);
-        OutTopicNameField = new TextField("mqtt-топик для чтения :");
-        OutTopicNameField.setEnabled(false);
+//        OutTopicNameField = new TextField("mqtt-топик для чтения :");
+//        OutTopicNameField.setEnabled(false);
 
 //        MqttServerSelect = new NativeSelect("mqtt-сервер :");
 //        MqttServerSelect.setNullSelectionAllowed(false);
 //        MqttServerSelect.setEnabled(false);
 //        tUsefulFuctions.getMqttServerData(MqttServerSelect);
 
-        DeviceLoginTextField = new TextField("Логин устройства :");
-        DevicePassWordTextField = new TextField("Пароль устройства :");
-        MqttServerTextField = new TextField("mqtt-сервер :");
-        DeviceLoginTextField.setEnabled(false);
-        DevicePassWordTextField.setEnabled(false);
-        MqttServerTextField.setEnabled(false);
+//        DeviceLoginTextField = new TextField("Логин устройства :");
+//        DevicePassWordTextField = new TextField("Пароль устройства :");
+//        MqttServerTextField = new TextField("mqtt-сервер :");
+//        DeviceLoginTextField.setEnabled(false);
+//        DevicePassWordTextField.setEnabled(false);
+//        MqttServerTextField.setEnabled(false);
 
         setActuatorParameters();
 
@@ -160,11 +160,11 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                 NameTextField
                 , DetectorAddDate
                 , InTopicNameField
-                , OutTopicNameField
+                //, OutTopicNameField
                 //, MqttServerSelect
-                , MqttServerTextField
-                , DeviceLoginTextField
-                , DevicePassWordTextField
+                //, MqttServerTextField
+                //, DeviceLoginTextField
+                //, DevicePassWordTextField
         );
 
         ActuatorForm.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
@@ -225,11 +225,11 @@ public class tActuatorDataFormLayout extends VerticalLayout {
                     DetectorAddDate.setValue("");
                 }
                 InTopicNameField.setValue(DataRs.getString(3));
-                OutTopicNameField.setValue(DataRs.getString(4));
+                //OutTopicNameField.setValue(DataRs.getString(4));
                 //MqttServerSelect.select(DataRs.getString(5));
-                MqttServerTextField.setValue(DataRs.getString(5));
-                DeviceLoginTextField.setValue(DataRs.getString(6));
-                DevicePassWordTextField.setValue(DataRs.getString(7));
+                //MqttServerTextField.setValue(DataRs.getString(5));
+                //DeviceLoginTextField.setValue(DataRs.getString(6));
+                //DevicePassWordTextField.setValue(DataRs.getString(7));
 
             }
 

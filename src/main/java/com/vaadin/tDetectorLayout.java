@@ -125,9 +125,9 @@ public class tDetectorLayout extends VerticalLayout {
 
         DeviceDescription = new tDescriptionLayout(iUserDeviceId);
 
-        DeviceLastMeasure = new tDetectorLastMeasureLayout(iUserDeviceId);
+        DeviceLastMeasure = new tDetectorLastMeasureLayout(iUserDeviceId,"DETECTOR");
 
-        DeviceMeasureJournal = new tDetectorMeasuresJournalLayout(iUserDeviceId);
+        DeviceMeasureJournal = new tDetectorMeasuresJournalLayout(iUserDeviceId,"DETECTOR");
 
         notificationDetectorLayout = new tNotificationDetectorLayout(iUserDeviceId,tParentContentLayout);
 

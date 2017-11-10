@@ -22,13 +22,24 @@ public class tDetectorMeasuresJournalLayout extends VerticalLayout {
     Button RefreshButton;
 
 
-    public tDetectorMeasuresJournalLayout(int eUserDeviceId) {
+    public tDetectorMeasuresJournalLayout(int eUserDeviceId,String actionType) {
 
         iUserDeviceId = eUserDeviceId;
 
+        String headerTxt;
+        String MeasureDateName;
+
+        if (actionType.equals("ACTUATOR")) {
+            headerTxt = "Журнал состояний устройства";
+            MeasureDateName = "Дата<br/>состояния";
+        } else {
+            headerTxt = "Журнал показаний устройства";
+            MeasureDateName = "Дата<br/>показания";
+        }
+
         Label Header = new Label();
         Header.setContentMode(ContentMode.HTML);
-        Header.setValue(VaadinIcons.TABLE.getHtml() + "  " + "Журнал показаний устройства");
+        Header.setValue(VaadinIcons.TABLE.getHtml() + "  " + headerTxt);
         Header.addStyleName(ValoTheme.LABEL_COLORED);
         Header.addStyleName(ValoTheme.LABEL_SMALL);
 
@@ -64,8 +75,8 @@ public class tDetectorMeasuresJournalLayout extends VerticalLayout {
         MeasuresTable = new Table();
         MeasuresTable.setWidth("100%");
 
-        MeasuresTable.setColumnHeader(1, "№<br/>показания");
-        MeasuresTable.setColumnHeader(2, "Дата<br/>показания");
+        MeasuresTable.setColumnHeader(1, "№");
+        MeasuresTable.setColumnHeader(2, MeasureDateName);
         MeasuresTable.setColumnHeader(3, "Текстовое<br/>значение");
         MeasuresTable.setColumnHeader(4, "Числовое<br/>значение");
         MeasuresTable.setColumnHeader(5, "Временное<br/>значение");

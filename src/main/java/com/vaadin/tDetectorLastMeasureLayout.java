@@ -20,13 +20,26 @@ public class tDetectorLastMeasureLayout extends VerticalLayout {
     TextField MeasureDateTextField;
     int iUserDeviceId;
 
-    public tDetectorLastMeasureLayout(int eUserDeviceId) {
+    public tDetectorLastMeasureLayout(int eUserDeviceId,String actionType) {
 
         iUserDeviceId = eUserDeviceId;
+        String headerTxt;
+        String lastMeasureValName;
+        String lastMeasureDateName;
+
+        if (actionType.equals("ACTUATOR")) {
+            headerTxt = "Последнее состояние устройства";
+            lastMeasureValName = "Код состояния :";
+            lastMeasureDateName = "Дата состояния :";
+        } else {
+            headerTxt = "Последнее измерение устройства";
+            lastMeasureValName = "Величина измерения :";
+            lastMeasureDateName = "Дата измерения :";
+        }
 
         Label Header = new Label();
         Header.setContentMode(ContentMode.HTML);
-        Header.setValue(VaadinIcons.SPARK_LINE.getHtml() + "  " + "Последнее измерение устройства");
+        Header.setValue(VaadinIcons.SPARK_LINE.getHtml() + "  " + headerTxt);
         Header.addStyleName(ValoTheme.LABEL_COLORED);
         Header.addStyleName(ValoTheme.LABEL_SMALL);
 
@@ -60,10 +73,10 @@ public class tDetectorLastMeasureLayout extends VerticalLayout {
         FormHeaderLayout.setComponentAlignment(FormHeaderButtons, Alignment.MIDDLE_RIGHT);
 
 
-        MeasureValueTextField = new TextField("Величина измерения :");
+        MeasureValueTextField = new TextField(lastMeasureValName);
         MeasureValueTextField.setEnabled(false);
 
-        MeasureDateTextField = new TextField("Дата измерения :");
+        MeasureDateTextField = new TextField(lastMeasureDateName);
         MeasureDateTextField.setEnabled(false);
 
         getDetectorLastMeasure();

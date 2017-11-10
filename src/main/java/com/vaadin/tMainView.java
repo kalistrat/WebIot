@@ -19,6 +19,7 @@ public class tMainView extends CustomComponent implements View {
 
     String CurrentUsr;
     tTreeContentLayout TreeContentUsr;
+    tUserDataFormLayout dataUserFormLayout;
 
     Button LogOutButton = new Button("Выйти", new Button.ClickListener() {
         @Override
@@ -87,10 +88,15 @@ public class tMainView extends CustomComponent implements View {
         Tab1Cont.setMargin(true);
         Tab1Cont.addComponent(MidSec);
         // Tab 2 content
-        Label Tab2Cont = new Label("Здесь будет что-то");
-        //Tab2Cont.setMargin(true);
-        //Tab2Cont.addComponent(new Label("Здесь будет настройка"));
-        // Tab 3 content
+
+        VerticalLayout Tab2Cont = new VerticalLayout();
+        Tab2Cont.setMargin(true);
+        Tab2Cont.setSizeFull();
+        dataUserFormLayout = new tUserDataFormLayout(CurrentUsr);
+        dataUserFormLayout.setSizeUndefined();
+        Tab2Cont.addComponent(dataUserFormLayout);
+        Tab2Cont.setComponentAlignment(dataUserFormLayout,Alignment.MIDDLE_CENTER);
+
         VerticalLayout Tab3Cont = new VerticalLayout();
         Tab3Cont.setMargin(true);
         Tab3Cont.addComponent(new Label("Здесь будет архив,а может что-то другое"));
@@ -101,7 +107,7 @@ public class tMainView extends CustomComponent implements View {
         //t.setWidth("400px");
 
         t.addTab(Tab1Cont, "Дерево устройств", VaadinIcons.FILE_TREE);
-        t.addTab(Tab2Cont, "Архив показаний", VaadinIcons.ARCHIVE);
+        t.addTab(Tab2Cont, "Личные данные", VaadinIcons.USER_CARD);
         t.addTab(Tab3Cont, "Руководство пользователя", FontAwesome.QUESTION_CIRCLE);
         //t.addListener(this);
         t.setSizeFull();

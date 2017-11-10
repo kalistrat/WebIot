@@ -25,6 +25,8 @@ public class tActuatorLayout extends VerticalLayout {
     tDescriptionLayout DeviceDescription;
     tActuatorStatesLayout ActuatorStatesLayout;
     tActuatorStateConditionLayout ActuatorStateConditionLayout;
+    tDetectorLastMeasureLayout DeviceLastState;
+    tDetectorMeasuresJournalLayout MeasureJournal;
 
     public tActuatorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
 
@@ -121,6 +123,9 @@ public class tActuatorLayout extends VerticalLayout {
 
 
         DeviceDescription = new tDescriptionLayout(iUserDeviceId);
+        DeviceLastState = new tDetectorLastMeasureLayout(iUserDeviceId,"ACTUATOR");
+        MeasureJournal = new tDetectorMeasuresJournalLayout(iUserDeviceId,"ACTUATOR");
+
         ActuatorStatesLayout = new tActuatorStatesLayout(iUserDeviceId
                 ,tParentContentLayout
                 ,tCurrentLeafId
@@ -138,6 +143,8 @@ public class tActuatorLayout extends VerticalLayout {
 
         VerticalLayout ContentImageStatesLayout = new VerticalLayout(
                 ActuatorDataFormLayout
+                ,DeviceLastState
+                ,MeasureJournal
                 ,DeviceDescription
         );
 
