@@ -99,7 +99,10 @@ public class tMainView extends CustomComponent implements View {
 
         VerticalLayout Tab3Cont = new VerticalLayout();
         Tab3Cont.setMargin(true);
-        Tab3Cont.addComponent(new Label("Здесь будет архив,а может что-то другое"));
+        Tab2Cont.setSizeFull();
+        tTestDiagram testDiagram = new tTestDiagram();
+        Tab3Cont.addComponent(testDiagram);
+        Tab3Cont.setComponentAlignment(testDiagram,Alignment.MIDDLE_CENTER);
 
         t = new TabSheet();
         //t.addStyleName(ValoTheme.TABSH);
