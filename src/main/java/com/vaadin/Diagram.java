@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by kalistrat on 13.11.2017.
  */
-@JavaScript({"d3.v3.js","com_example_vaadind3test_Diagram.js"})
+@JavaScript({"d3.min.js","diagram_connector.js"})
 
 public class Diagram extends AbstractJavaScriptComponent {
     public void setCoords(final List<Integer> coords) {
