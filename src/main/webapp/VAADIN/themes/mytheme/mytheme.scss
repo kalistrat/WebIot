@@ -136,6 +136,19 @@ $v-component-group-spacing: 6px;
     }
   }
 
+  .diagram{
+    .area {
+      fill: steelblue;
+      clip-path: url(#clip);
+    }
+
+    .zoom {
+      cursor: move;
+      fill: none;
+      pointer-events: all;
+    }
+  }
+
 
 
   //.ThinBorder{

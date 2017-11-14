@@ -11,8 +11,8 @@ import java.util.List;
 @JavaScript({"d3.min.js","diagram_connector.js"})
 
 public class Diagram extends AbstractJavaScriptComponent {
-    public void setCoords(final List<Integer> coords) {
-        getState().setCoords(coords);
+    public void setFileData(String fileName) {
+        getState().setGraphFileName(fileName);
     }
 
     @Override

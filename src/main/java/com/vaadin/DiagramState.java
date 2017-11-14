@@ -8,13 +8,13 @@ import java.util.List;
  * Created by kalistrat on 13.11.2017.
  */
 public class DiagramState extends JavaScriptComponentState {
-    private List<Integer> coords;
+    private String graphFileName;
 
-    public List<Integer> getCoords() {
-        return coords;
+    public String getGraphFileName() {
+        return graphFileName;
     }
 
-    public void setCoords(final List<Integer> coords) {
-        this.coords = coords;
+    public void setGraphFileName(String fileName) {
+        this.graphFileName = fileName;
     }
 }

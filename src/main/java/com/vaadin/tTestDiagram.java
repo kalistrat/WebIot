@@ -1,10 +1,13 @@
 package com.vaadin;
 
+import com.vaadin.data.Item;
 import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.*;
+import com.vaadin.ui.themes.ValoTheme;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,39 +16,111 @@ import java.util.List;
  */
 public class tTestDiagram extends VerticalLayout {
 
-    final TextField xCoordField = new TextField("X");
-    final TextField yCoordField = new TextField("Y");
-    final Button button = new Button("move circle");
-    final Diagram diagram = new Diagram();
-    final List<Integer> coords = new ArrayList<>();
+    Button RefreshButton;
+    int iUserDeviceId;
+    Diagram diagram;
 
     public tTestDiagram(){
-        configureIntegerField(xCoordField);     //not interesting, just adding converter/validator to the textFields
-        configureIntegerField(yCoordField);
 
-        button.addClickListener(new Button.ClickListener() {   //ATTENTION! Here we get the coordinates from the textfields and apply them to our Diagram via calling diagram.setCoords()
+        iUserDeviceId = 12;
+        String actionType = "DETECTOR";
+        String headerTxt;
+        String lastMeasureValName;
+        String lastMeasureDateName;
+
+        if (actionType.equals("ACTUATOR")) {
+            headerTxt = "Последнее состояние устройства";
+            lastMeasureValName = "Код состояния :";
+            lastMeasureDateName = "Дата состояния :";
+        } else {
+            headerTxt = "Последнее измерение устройства";
+            lastMeasureValName = "Величина измерения :";
+            lastMeasureDateName = "Дата измерения :";
+        }
+
+        Label Header = new Label();
+        Header.setContentMode(ContentMode.HTML);
+        Header.setValue(VaadinIcons.SPARK_LINE.getHtml() + "  " + headerTxt);
+        Header.addStyleName(ValoTheme.LABEL_COLORED);
+        Header.addStyleName(ValoTheme.LABEL_SMALL);
+
+        RefreshButton = new Button();
+        RefreshButton.setIcon(VaadinIcons.REFRESH);
+        RefreshButton.addStyleName(ValoTheme.BUTTON_SMALL);
+        RefreshButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        RefreshButton.setEnabled(true);
+
+        RefreshButton.addClickListener(new Button.ClickListener() {
             @Override
-            public void buttonClick(Button.ClickEvent event) {
-                if(xCoordField.isValid() && yCoordField.isValid()){
-                    coords.clear();
-                    coords.add(Integer.parseInt(xCoordField.getValue()));
-                    coords.add(Integer.parseInt(yCoordField.getValue()));
-                    diagram.setCoords(coords);
-                }
+            public void buttonClick(Button.ClickEvent clickEvent) {
+
             }
         });
-        //now we build the layout.
-        setSpacing(true);
-        addComponent(xCoordField);
-        addComponent(yCoordField);
-        addComponent(button);
-        addComponent(diagram);     //add the diagram like any other vaadin component, cool!
+
+
+        HorizontalLayout FormHeaderButtons = new HorizontalLayout(
+                RefreshButton
+        );
+        FormHeaderButtons.setSpacing(true);
+        FormHeaderButtons.setSizeUndefined();
+
+        HorizontalLayout FormHeaderLayout = new HorizontalLayout(
+                Header
+                , FormHeaderButtons
+        );
+        FormHeaderLayout.setWidth("100%");
+        FormHeaderLayout.setHeightUndefined();
+        FormHeaderLayout.setComponentAlignment(Header, Alignment.MIDDLE_LEFT);
+        FormHeaderLayout.setComponentAlignment(FormHeaderButtons, Alignment.MIDDLE_RIGHT);
+
+        diagram = new Diagram();
+        //diagram.setFileData("");
+        diagram.addStyleName("diagram");
+
+        VerticalLayout ContentLayout = new VerticalLayout(
+                FormHeaderLayout
+                ,diagram
+        );
+        ContentLayout.setSpacing(true);
+        ContentLayout.setWidth("100%");
+        ContentLayout.setHeightUndefined();
+
+        this.addComponent(ContentLayout);
     }
 
-    private void configureIntegerField(final TextField integerField) {
-        integerField.setConverter(Integer.class);
-        integerField.addValidator(new IntegerRangeValidator("only integer, 0-500", 0, 500));
-        integerField.setRequired(true);
-        integerField.setImmediate(true);
-    }
+//    private void setDiagramData(){
+//        try {
+//            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+//            Connection Con = DriverManager.getConnection(
+//                    tUsefulFuctions.DB_URL
+//                    , tUsefulFuctions.USER
+//                    , tUsefulFuctions.PASS
+//            );
+//
+//            String DataSql = "";
+//
+//            PreparedStatement DataStmt = Con.prepareStatement(DataSql);
+//            DataStmt.setInt(1,iUserDeviceId);
+//
+//            ResultSet DataRs = DataStmt.executeQuery();
+//
+//            while (DataRs.next()) {
+//
+//
+//            }
+//
+//
+//            Con.close();
+//
+//        } catch (SQLException se3) {
+//            //Handle errors for JDBC
+//            se3.printStackTrace();
+//        } catch (Exception e13) {
+//            //Handle errors for Class.forName
+//            e13.printStackTrace();
+//        }
+//
+//    }
+
+
 }
