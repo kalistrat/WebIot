@@ -34,6 +34,7 @@
           <element id="library" level="project" name="Maven: org.vaadin.addons:canvas:2.1" />
           <element id="library" level="project" name="Maven: org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1" />
           <element id="library" level="project" name="Maven: com.vaadin.addon:vaadin-context-menu:0.7.5" />
+          <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.2" />
         </element>
       </element>
       <element id="directory" name="META-INF">

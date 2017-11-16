@@ -8,13 +8,13 @@ import java.util.List;
  * Created by kalistrat on 13.11.2017.
  */
 public class DiagramState extends JavaScriptComponentState {
-    private List<tDetectorDiagramData> measuresData;
+    private String coords;
 
-    public List<tDetectorDiagramData> getGraphData() {
-        return measuresData;
+    public String getCoords() {
+        return coords;
     }
 
-    public void setGraphData(List<tDetectorDiagramData> listData) {
-        this.measuresData = listData;
+    public void setCoords(final String coords) {
+        this.coords = coords;
     }
 }

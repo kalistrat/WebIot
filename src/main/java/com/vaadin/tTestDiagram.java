@@ -1,5 +1,6 @@
 package com.vaadin;
 
+import com.google.gson.Gson;
 import com.vaadin.data.Item;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.icons.VaadinIcons;
@@ -19,6 +20,7 @@ public class tTestDiagram extends VerticalLayout {
     Button RefreshButton;
     int iUserDeviceId;
     Diagram diagram;
+    String jSonData;
 
     public tTestDiagram(){
 
@@ -73,8 +75,21 @@ public class tTestDiagram extends VerticalLayout {
         FormHeaderLayout.setComponentAlignment(Header, Alignment.MIDDLE_LEFT);
         FormHeaderLayout.setComponentAlignment(FormHeaderButtons, Alignment.MIDDLE_RIGHT);
 
+
         diagram = new Diagram();
-        //diagram.setFileData("");
+        List<tDetectorDiagramData> dList = new ArrayList<>();
+        dList.add(new tDetectorDiagramData("01.01.2000 12:01:33",1394.46));
+        dList.add(new tDetectorDiagramData("01.02.2000 23:14:33",1366.42));
+        dList.add(new tDetectorDiagramData("01.03.2000 03:30:63",1498.58));
+        dList.add(new tDetectorDiagramData("01.04.2000 10:01:33",1452.43));
+        dList.add(new tDetectorDiagramData("01.05.2000 08:30:53",1420.6));
+        dList.add(new tDetectorDiagramData("01.06.2000 15:22:13",1454.6));
+        dList.add(new tDetectorDiagramData("01.06.2001 15:22:13",454.6));
+
+        diagram.setCoords((new Gson()).toJson(dList));
+
+        //System.out.println("diagram.getState().getGraphData() : " + diagram.getState().getCoords());
+
         diagram.addStyleName("diagram");
 
         VerticalLayout ContentLayout = new VerticalLayout(

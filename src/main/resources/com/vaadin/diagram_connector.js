@@ -13,16 +13,8 @@ com_vaadin_Diagram  = function () {
     //}
 
     var diagramElement = this.getElement();
+    var data = JSON.parse(this.getState().coords);
 
-    var data = [
-        {date: "01.01.2000 12:01:33", price: 1394.46},
-        {date: "01.02.2000 23:14:33", price: 1366.42},
-        {date: "01.03.2000 03:30:63", price: 1498.58},
-        {date: "01.04.2000 10:01:33", price: 1452.43},
-        {date: "01.05.2000 08:30:53", price: 1420.6},
-        {date: "01.06.2000 15:22:13", price: 1454.6},
-        {date: "01.06.2001 15:22:13", price: 454.6}
-    ];
 
     var svg = d3.select(diagramElement).append("svg:svg").attr("width", 960).attr("height", 500),
         margin = {top: 20, right: 20, bottom: 110, left: 40},
@@ -74,13 +66,13 @@ com_vaadin_Diagram  = function () {
         .curve(d3.curveMonotoneX)
         .x(function(d) { return x(parseDate(d.date)); })
         .y0(height)
-        .y1(function(d) { return y(d.price); });
+        .y1(function(d) { return y(d.value); });
 
     var area2 = d3.area()
         .curve(d3.curveMonotoneX)
         .x(function(d) { return x2(parseDate(d.date)); })
         .y0(height2)
-        .y1(function(d) { return y2(d.price); });
+        .y1(function(d) { return y2(d.value); });
 
     svg.append("defs").append("clipPath")
         .attr("id", "clip")
@@ -99,7 +91,7 @@ com_vaadin_Diagram  = function () {
 
         x.domain(d3.extent(data, function(d) { return parseDate(d.date); }));
     //alert(d3.extent(data, function(d) { return d.date; }));
-        y.domain([d3.min(data, function(d) { return d.price; }), d3.max(data, function(d) { return d.price; })]);
+        y.domain([d3.min(data, function(d) { return d.value; }), d3.max(data, function(d) { return d.value; })]);
         x2.domain(x.domain());
         y2.domain(y.domain());
 
@@ -161,7 +153,7 @@ com_vaadin_Diagram  = function () {
 
     function type(d) {
         d.date = parseDate(d.date);
-        d.price = +d.price;
+        d.value = +d.value;
         return d;
     }
 }
