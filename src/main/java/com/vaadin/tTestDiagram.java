@@ -78,13 +78,13 @@ public class tTestDiagram extends VerticalLayout {
 
         diagram = new Diagram();
         List<tDetectorDiagramData> dList = new ArrayList<>();
-        dList.add(new tDetectorDiagramData("01.01.2000 12:01:33",1394.46));
-        dList.add(new tDetectorDiagramData("01.02.2000 23:14:33",1366.42));
-        dList.add(new tDetectorDiagramData("01.03.2000 03:30:63",1498.58));
-        dList.add(new tDetectorDiagramData("01.04.2000 10:01:33",1452.43));
-        dList.add(new tDetectorDiagramData("01.05.2000 08:30:53",1420.6));
-        dList.add(new tDetectorDiagramData("01.06.2000 15:22:13",1454.6));
-        dList.add(new tDetectorDiagramData("01.06.2001 15:22:13",454.6));
+        dList.add(new tDetectorDiagramData("01.01.2000 12:01:33",1,"m1"));
+        dList.add(new tDetectorDiagramData("01.02.2000 23:14:33",4,"m4"));
+        dList.add(new tDetectorDiagramData("01.03.2000 03:30:63",0,"m0"));
+        dList.add(new tDetectorDiagramData("01.04.2000 10:01:33",1,"m1"));
+        dList.add(new tDetectorDiagramData("01.05.2000 08:30:53",4,"m4"));
+        dList.add(new tDetectorDiagramData("01.06.2000 15:22:13",3,"m3"));
+        dList.add(new tDetectorDiagramData("01.06.2001 15:22:13",3,"m3"));
 
         diagram.setCoords((new Gson()).toJson(dList));
 

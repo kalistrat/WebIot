@@ -17,4 +17,5 @@ public class DiagramState extends JavaScriptComponentState {
     public void setCoords(final String coords) {
         this.coords = coords;
     }
+
 }

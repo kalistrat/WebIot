@@ -6,8 +6,13 @@ package com.vaadin;
 public class tDetectorDiagramData {
     String date;
     Double value;
-    public tDetectorDiagramData(String mdate,double mval){
+    String tvalue;
+    public tDetectorDiagramData(String mdate
+            ,double mval
+    ,String mmark
+    ){
         date = mdate;
         value = mval;
+        tvalue = mmark;
     }
 }

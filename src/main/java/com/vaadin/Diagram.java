@@ -15,6 +15,7 @@ public class Diagram extends AbstractJavaScriptComponent {
         getState().setCoords(coords);
     }
 
+
     @Override
     public DiagramState getState() {
         return (DiagramState) super.getState();
