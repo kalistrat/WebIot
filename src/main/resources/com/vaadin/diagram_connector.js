@@ -17,10 +17,9 @@ com_vaadin_Diagram  = function () {
     var dataType;
 
 
-
     var svg = d3.select(diagramElement).append("svg:svg").attr("width", 960).attr("height", 500),
-        margin = {top: 20, right: 20, bottom: 110, left: 40},
-        margin2 = {top: 430, right: 20, bottom: 30, left: 40},
+        margin = {top: 20, right: 20, bottom: 110, left: 120},
+        margin2 = {top: 430, right: 20, bottom: 30, left: 120},
         width = +svg.attr("width") - margin.left - margin.right,
         height = +svg.attr("height") - margin.top - margin.bottom,
         height2 = +svg.attr("height") - margin2.top - margin2.bottom;
@@ -44,13 +43,9 @@ com_vaadin_Diagram  = function () {
 
     if (data[0].tvalue == "") {
         dataType = "numeric";
-    } else if (data[0].tvalue == "дата") {
-        dataType = "date";
     } else {
         dataType = "textual";
     }
-
-    //alert("dataType :" + dataType);
 
 
     var x = d3.scaleTime().range([0, width]),

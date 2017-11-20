@@ -8,7 +8,10 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,24 +23,20 @@ public class tTestDiagram extends VerticalLayout {
     Button RefreshButton;
     int iUserDeviceId;
     Diagram diagram;
-    String jSonData;
+    List<tDetectorDiagramData> dList;
+    String mesDataType;
 
     public tTestDiagram(){
 
-        iUserDeviceId = 12;
+        iUserDeviceId = 45;
         String actionType = "DETECTOR";
         String headerTxt;
-        String lastMeasureValName;
-        String lastMeasureDateName;
+        mesDataType = "число";
 
         if (actionType.equals("ACTUATOR")) {
-            headerTxt = "Последнее состояние устройства";
-            lastMeasureValName = "Код состояния :";
-            lastMeasureDateName = "Дата состояния :";
+            headerTxt = "Состояния за ближайший период";
         } else {
-            headerTxt = "Последнее измерение устройства";
-            lastMeasureValName = "Величина измерения :";
-            lastMeasureDateName = "Дата измерения :";
+            headerTxt = "Показания за ближайший период";
         }
 
         Label Header = new Label();
@@ -77,14 +76,8 @@ public class tTestDiagram extends VerticalLayout {
 
 
         diagram = new Diagram();
-        List<tDetectorDiagramData> dList = new ArrayList<>();
-        dList.add(new tDetectorDiagramData("01.01.2000 12:01:33",1,"m1"));
-        dList.add(new tDetectorDiagramData("01.02.2000 23:14:33",4,"m4"));
-        dList.add(new tDetectorDiagramData("01.03.2000 03:30:63",0,"m0"));
-        dList.add(new tDetectorDiagramData("01.04.2000 10:01:33",1,"m1"));
-        dList.add(new tDetectorDiagramData("01.05.2000 08:30:53",4,"m4"));
-        dList.add(new tDetectorDiagramData("01.06.2000 15:22:13",3,"m3"));
-        dList.add(new tDetectorDiagramData("01.06.2001 15:22:13",3,"m3"));
+        dList = new ArrayList<>();
+        setDiagramData();
 
         diagram.setCoords((new Gson()).toJson(dList));
 
@@ -103,39 +96,85 @@ public class tTestDiagram extends VerticalLayout {
         this.addComponent(ContentLayout);
     }
 
-//    private void setDiagramData(){
-//        try {
-//            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-//            Connection Con = DriverManager.getConnection(
-//                    tUsefulFuctions.DB_URL
-//                    , tUsefulFuctions.USER
-//                    , tUsefulFuctions.PASS
-//            );
-//
-//            String DataSql = "";
-//
-//            PreparedStatement DataStmt = Con.prepareStatement(DataSql);
-//            DataStmt.setInt(1,iUserDeviceId);
-//
-//            ResultSet DataRs = DataStmt.executeQuery();
-//
-//            while (DataRs.next()) {
-//
-//
-//            }
-//
-//
-//            Con.close();
-//
-//        } catch (SQLException se3) {
-//            //Handle errors for JDBC
-//            se3.printStackTrace();
-//        } catch (Exception e13) {
-//            //Handle errors for Class.forName
-//            e13.printStackTrace();
-//        }
-//
-//    }
+    private void setDiagramData(){
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
+        try {
+            Class.forName(tUsefulFuctions.JDBC_DRIVER);
+            Connection Con = DriverManager.getConnection(
+                    tUsefulFuctions.DB_URL
+                    , tUsefulFuctions.USER
+                    , tUsefulFuctions.PASS
+            );
+
+            String DataSql = "\n" +
+                    "select a.*\n" +
+                    ",b.*\n" +
+                    "from (\n" +
+                    "select udm.measure_date\n" +
+                    ",case when ud.measure_data_type = 'число' then CAST(udm.measure_value AS CHAR(30))\n" +
+                    "when ud.measure_data_type='дата' then DATE_FORMAT(udm.measure_date_value, '%d.%m.%Y %H:%i:%s')\n" +
+                    "else udm.measure_mess end value\n" +
+                    "from user_device_measures udm\n" +
+                    "join user_device ud on ud.user_device_id=udm.user_device_id\n" +
+                    "where udm.user_device_id=?\n" +
+                    ") a\n" +
+                    "join (\n" +
+                    "select @num:=@num+1 rn\n" +
+                    ",t.tvalue\n" +
+                    "from (\n" +
+                    "select case when ud.measure_data_type = 'число' then CAST(udm.measure_value AS CHAR(30))\n" +
+                    "when ud.measure_data_type='дата' then DATE_FORMAT(udm.measure_date_value, '%d.%m.%Y %H:%i:%s')\n" +
+                    "else udm.measure_mess end tvalue\n" +
+                    "from user_device_measures udm\n" +
+                    "join user_device ud on ud.user_device_id=udm.user_device_id\n" +
+                    "where udm.user_device_id=?\n" +
+                    "group by case when ud.measure_data_type = 'число' then CAST(udm.measure_value AS CHAR(30))\n" +
+                    "when ud.measure_data_type='дата' then DATE_FORMAT(udm.measure_date_value, '%d.%m.%Y %H:%i:%s')\n" +
+                    "else udm.measure_mess end\n" +
+                    ") t\n" +
+                    "join (select @num:=0) nt\n" +
+                    ") b on a.value=b.tvalue\n" +
+                    "order by a.measure_date";
+
+            PreparedStatement DataStmt = Con.prepareStatement(DataSql);
+            DataStmt.setInt(1,iUserDeviceId);
+            DataStmt.setInt(2,iUserDeviceId);
+
+            ResultSet DataRs = DataStmt.executeQuery();
+
+            if (mesDataType.equals("число")) {
+                while (DataRs.next()) {
+                    if (tUsefulFuctions.ParseDouble(DataRs.getString(2)) != null) {
+                        dList.add(new tDetectorDiagramData(
+                                df.format(new Date(DataRs.getTimestamp(1).getTime()))
+                                , tUsefulFuctions.ParseDouble(DataRs.getString(2))
+                                , ""
+                        ));
+                    }
+                }
+            } else {
+                while (DataRs.next()) {
+                        dList.add(new tDetectorDiagramData(
+                                df.format(new Date(DataRs.getTimestamp(1).getTime()))
+                                , tUsefulFuctions.ParseDouble(DataRs.getString(3))
+                                , DataRs.getString(4)
+                        ));
+                }
+            }
+
+
+            Con.close();
+
+        } catch (SQLException se3) {
+            //Handle errors for JDBC
+            se3.printStackTrace();
+        } catch (Exception e13) {
+            //Handle errors for Class.forName
+            e13.printStackTrace();
+        }
+
+    }
 
 
 }
