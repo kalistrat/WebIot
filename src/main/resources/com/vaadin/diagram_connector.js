@@ -13,8 +13,13 @@ com_vaadin_Diagram  = function () {
     //}
 
     var diagramElement = this.getElement();
+
     var data = JSON.parse(this.getState().coords);
     var dataType;
+
+    if (data.length <= 1){
+        data.push({date: "01.01.2000 12:01:33", value: 1, tvalue: "0"});
+    }
 
 
     var svg = d3.select(diagramElement).append("svg:svg").attr("width", 960).attr("height", 500),

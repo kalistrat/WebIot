@@ -28,7 +28,7 @@ public class tTestDiagram extends VerticalLayout {
 
     public tTestDiagram(){
 
-        iUserDeviceId = 45;
+        iUserDeviceId = 12;
         String actionType = "DETECTOR";
         String headerTxt;
         mesDataType = "число";
