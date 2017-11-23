@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by kalistrat on 13.11.2017.
  */
-public class tTestDiagram extends VerticalLayout {
+public class tDiagramLayout extends VerticalLayout {
 
     Button RefreshButton;
     int iUserDeviceId;
@@ -26,12 +26,12 @@ public class tTestDiagram extends VerticalLayout {
     List<tDetectorDiagramData> dList;
     String mesDataType;
 
-    public tTestDiagram(){
+    public tDiagramLayout(int userDeviceId, String actType, String messageDataType){
 
-        iUserDeviceId = 12;
-        String actionType = "DETECTOR";
+        iUserDeviceId = userDeviceId;
+        String actionType = actType;
         String headerTxt;
-        mesDataType = "число";
+        mesDataType = messageDataType;
 
         if (actionType.equals("ACTUATOR")) {
             headerTxt = "Состояния за ближайший период";
@@ -41,7 +41,7 @@ public class tTestDiagram extends VerticalLayout {
 
         Label Header = new Label();
         Header.setContentMode(ContentMode.HTML);
-        Header.setValue(VaadinIcons.SPARK_LINE.getHtml() + "  " + headerTxt);
+        Header.setValue(VaadinIcons.CHART.getHtml() + "  " + headerTxt);
         Header.addStyleName(ValoTheme.LABEL_COLORED);
         Header.addStyleName(ValoTheme.LABEL_SMALL);
 
@@ -153,6 +153,7 @@ public class tTestDiagram extends VerticalLayout {
                         ));
                     }
                 }
+                //System.out.println("mesDataType.equals(\"число\") : iUserDeviceId : " + iUserDeviceId);
             } else {
                 while (DataRs.next()) {
                         dList.add(new tDetectorDiagramData(
@@ -161,6 +162,7 @@ public class tTestDiagram extends VerticalLayout {
                                 , DataRs.getString(4)
                         ));
                 }
+                //System.out.println("mesDataType.equals(\"текст\") : iUserDeviceId : " + iUserDeviceId);
             }
 
 

@@ -5,8 +5,6 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Sizeable;
-import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -100,9 +98,9 @@ public class tMainView extends CustomComponent implements View {
         VerticalLayout Tab3Cont = new VerticalLayout();
         Tab3Cont.setMargin(true);
         Tab2Cont.setSizeFull();
-        tTestDiagram testDiagram = new tTestDiagram();
-        Tab3Cont.addComponent(testDiagram);
-        Tab3Cont.setComponentAlignment(testDiagram,Alignment.MIDDLE_CENTER);
+        //tDiagramLayout testDiagram = new tDiagramLayout();
+        Tab3Cont.addComponent(new Label("123123"));
+        //Tab3Cont.setComponentAlignment(testDiagram,Alignment.MIDDLE_CENTER);
 
         t = new TabSheet();
         //t.addStyleName(ValoTheme.TABSH);

@@ -22,7 +22,12 @@ com_vaadin_Diagram  = function () {
     }
 
 
-    var svg = d3.select(diagramElement).append("svg:svg").attr("width", 960).attr("height", 500),
+    //for(var ii = 0; ii < data.length; ii++) {
+    //    alert("data.value : " + data[ii].tvalue);
+    //}
+
+
+    var svg = d3.select(diagramElement).append("svg").attr("width", 640).attr("height", 500),
         margin = {top: 20, right: 20, bottom: 110, left: 120},
         margin2 = {top: 430, right: 20, bottom: 30, left: 120},
         width = +svg.attr("width") - margin.left - margin.right,
@@ -63,6 +68,7 @@ com_vaadin_Diagram  = function () {
     var xAxis = d3.axisBottom(x),
         xAxis2 = d3.axisBottom(x2),
         yAxis = d3.axisLeft(y);
+
 
     if (dataType.valueOf() == "textual") {
 

@@ -23,7 +23,7 @@ public class tDetectorLayout extends VerticalLayout {
     tDetectorFormLayout DeviceDataLayout;
     tDetectorUnitsLayout DeviceUnitsLayout;
     tDescriptionLayout DeviceDescription;
-    tPeriodMeasuresLayout DeviceMeasuresLayout;
+    tDiagramLayout DeviceMeasuresLayout;
     tDetectorLastMeasureLayout DeviceLastMeasure;
     tDetectorMeasuresJournalLayout DeviceMeasureJournal;
     tNotificationDetectorLayout notificationDetectorLayout;
@@ -121,7 +121,6 @@ public class tDetectorLayout extends VerticalLayout {
         TopLayout.setSizeFull();
         TopLayout.setMargin(new MarginInfo(false, true, false, true));
 
-        DeviceMeasuresLayout = new tPeriodMeasuresLayout(iUserDeviceId);
 
         DeviceDescription = new tDescriptionLayout(iUserDeviceId);
 
@@ -136,6 +135,12 @@ public class tDetectorLayout extends VerticalLayout {
                 ,DeviceDataLayout
                 //,DeviceDescription
                 ,DeviceUnitsLayout
+        );
+
+        DeviceMeasuresLayout = new tDiagramLayout(
+                iUserDeviceId
+                ,"DETECTOR"
+                ,(String) DeviceDataLayout.ArrivedDataTypeSelect.getValue()
         );
 
         VerticalLayout ContentPrefLayout = new VerticalLayout(
@@ -172,13 +177,13 @@ public class tDetectorLayout extends VerticalLayout {
         DetectorTabSheet.addSelectedTabChangeListener(new TabSheet.SelectedTabChangeListener() {
             @Override
             public void selectedTabChange(TabSheet.SelectedTabChangeEvent selectedTabChangeEvent) {
-                Component c = DetectorTabSheet.getSelectedTab();
-                TabSheet.Tab tb = DetectorTabSheet.getTab(c);
-                String capt = tb.getCaption();
-                //System.out.println("Selected TabCaption :" + capt);
-                if (capt.equals("Показания датчика")) {
-                    DeviceMeasuresLayout.reDrawGraphByPeriod((String) DeviceMeasuresLayout.tPeriodCB.getValue());
-                }
+//                Component c = DetectorTabSheet.getSelectedTab();
+//                TabSheet.Tab tb = DetectorTabSheet.getTab(c);
+//                String capt = tb.getCaption();
+//                //System.out.println("Selected TabCaption :" + capt);
+//                if (capt.equals("Показания датчика")) {
+//                    DeviceMeasuresLayout.reDrawGraphByPeriod((String) DeviceMeasuresLayout.tPeriodCB.getValue());
+//                }
 
             }
         });
@@ -200,7 +205,7 @@ public class tDetectorLayout extends VerticalLayout {
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);
 
-        SplPanel.setHeight("900px");
+        SplPanel.setHeight("1200px");
         //SplPanel.setWidth("1000px");
 
         this.addComponent(SplPanel);
