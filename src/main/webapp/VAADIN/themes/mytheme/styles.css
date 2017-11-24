@@ -13029,3 +13029,13 @@ div.v-layout.v-horizontal.v-widget {
 	fill: none;
 	pointer-events: all;
 }
+
+.mytheme .diagram .grid line {
+	stroke: black;
+	stroke-opacity: 0.7;
+	shape-rendering: crispEdges;
+}
+
+.mytheme .diagram .grid path {
+	stroke-width: 0;
+}

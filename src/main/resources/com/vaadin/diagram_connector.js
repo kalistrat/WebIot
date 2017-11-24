@@ -179,6 +179,14 @@ com_vaadin_Diagram  = function () {
         .call(brush)
         .call(brush.move, x.range());
 
+    svg.append("g")
+        .attr("class", "grid")
+        .attr("transform", "translate(120," + "20" + ")")
+        .call(make_y_gridlines()
+            .tickSize(-width)
+            .tickFormat("")
+        );
+
     svg.append("rect")
         .attr("class", "zoom")
         .attr("width", width)
@@ -210,5 +218,10 @@ com_vaadin_Diagram  = function () {
         d.date = parseDate(d.date);
         d.value = +d.value;
         return d;
+    }
+
+    // gridlines in y axis function
+    function make_y_gridlines() {
+        return yAxis.ticks(5)
     }
 }

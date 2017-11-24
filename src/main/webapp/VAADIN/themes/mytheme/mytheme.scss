@@ -147,6 +147,16 @@ $v-component-group-spacing: 6px;
       fill: none;
       pointer-events: all;
     }
+
+    .grid line {
+      stroke: black;
+      stroke-opacity: 0.7;
+      shape-rendering: crispEdges;
+    }
+
+    .grid path {
+      stroke-width: 0;
+    }
   }
 
 
