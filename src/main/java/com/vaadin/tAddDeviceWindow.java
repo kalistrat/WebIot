@@ -467,17 +467,17 @@ public class tAddDeviceWindow extends Window {
                     , tUsefulFuctions.PASS
             );
 
-            CallableStatement addDeviceTaskStmt = Con.prepareCall("{call p_add_task(?, ?, ?, ?, ?)}");
+            CallableStatement addDeviceTaskStmt = Con.prepareCall("{call p_add_task(?, ?, ?, ?, ?, ?)}");
             addDeviceTaskStmt.setInt(1, qUserDeviceId);
             addDeviceTaskStmt.setString(2, eTaskTypeName);
             addDeviceTaskStmt.setInt(3, eTaskInterval);
             addDeviceTaskStmt.setString(4, eIntervalType);
-            addDeviceTaskStmt.registerOutParameter(5, Types.INTEGER);
+            addDeviceTaskStmt.setNull(5,Types.VARCHAR);
+            addDeviceTaskStmt.registerOutParameter(6, Types.INTEGER);
 
             addDeviceTaskStmt.execute();
 
-            iTaskId = addDeviceTaskStmt.getInt(5);
-
+            iTaskId = addDeviceTaskStmt.getInt(6);
 
             Con.close();
 
