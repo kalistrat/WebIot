@@ -151,7 +151,7 @@ public class tAddDeviceWindow extends Window {
                         int DevSyncDaysInterval = GetSyncIntervalDays(iNewUserDeviceId);
                         int NewTaskId;
 
-                        if (DevSyncDaysInterval > 0) {
+                        if (DevSyncDaysInterval > 0 && DeviceActionType.getValue().equals("Измерительное устройство")) {
                             NewTaskId = addUserDeviceTask(
                                     iNewUserDeviceId
                             , "SYNCTIME"

@@ -860,6 +860,13 @@ CREATE DEFINER=`kalistrat`@`localhost` FUNCTION `f_user_device_insert`(`eDeviceN
 , `eMqttServerId` INT, `eDeviceLog` VARCHAR(50), `eDevicePass` VARCHAR(50), `eInTopicName` VARCHAR(150)) RETURNS int(11)
 begin
 declare i_user_device_id int;
+declare i_measure_data_type varchar(50);
+
+if (eActionTypeId = 1) then
+set i_measure_data_type = 'число';
+else 
+set i_measure_data_type = 'текст';
+end if;
 
 insert into user_device(
 user_id
@@ -889,7 +896,7 @@ eUserId
 ,'не задано'
 ,eDeviceLog
 ,eDevicePass
-,'текст'
+,i_measure_data_type
 );
 
 select LAST_INSERT_ID() into i_user_device_id;
@@ -1492,7 +1499,7 @@ user_device_id
 ,user_actuator_state_id
 ) values(
 eUserDeviceId
-,3
+,i_task_type_id
 ,eTaskInterval
 ,eIntervalType
 ,i_state_id
@@ -1625,6 +1632,8 @@ declare i_user_device_id int;
 declare i_actuator_state_name varchar(30);
 declare i int default 0;
 declare row_cnt int;
+declare oStateId int;
+
 
 declare cur1 cursor for 
 select uas.user_device_id
@@ -1641,7 +1650,7 @@ open cur1;
 	while i<row_cnt do
 	
 		fetch cur1 into i_user_device_id,i_actuator_state_name;
-		call p_delete_actuator_state(i_user_device_id,i_actuator_state_name);
+		call p_delete_actuator_state(i_user_device_id,i_actuator_state_name,oStateId);
 		set i = i + 1;
 	
 	end while;
@@ -2894,6 +2903,7 @@ begin
 declare i_state_data_str text;
 declare i_state_notif_str text;
 SET session group_concat_max_len=25000;
+
 select ifnull(concat('<state_data>'
 ,'<actuator_message_code>',uas.actuator_message_code,'</actuator_message_code>'
 ,'<transition_time>',uas.transition_time,'</transition_time>'
@@ -3674,9 +3684,9 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state` (
   KEY `FK_user_actuator_state_user_device` (`user_device_id`),
   KEY `INDX_DEVICEID_STATENAME` (`user_device_id`,`actuator_state_name`) USING BTREE,
   CONSTRAINT `FK_user_actuator_state_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state: ~21 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state: ~23 rows (приблизительно)
 DELETE FROM `user_actuator_state`;
 /*!40000 ALTER TABLE `user_actuator_state` DISABLE KEYS */;
 INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `actuator_state_name`, `actuator_message_code`, `transition_time`) VALUES
@@ -3695,9 +3705,6 @@ INSERT INTO `user_actuator_state` (`user_actuator_state_id`, `user_device_id`, `
 	(43, 42, 'Измеряемая величина > критического значения', 'LARGER', 7),
 	(47, 42, 'Измеряемая величина < критического значения', 'LESS', 56),
 	(53, 3, 'state1', 'st1', 6),
-	(55, 46, 'deviceOn', 'On', 5),
-	(56, 46, 'deviceOff', 'Off', 7),
-	(57, 46, 'deviceOn50', 'On50', 8),
 	(58, 3, 'etryrt', 'rty', 7),
 	(59, 4, 'SDSD', 'SDSD', 7),
 	(60, 39, 'ert', 'ert', 6);
@@ -3716,9 +3723,9 @@ CREATE TABLE IF NOT EXISTS `user_actuator_state_condition` (
   PRIMARY KEY (`actuator_state_condition_id`),
   KEY `FK_user_actuator_state_condition_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_actuator_state_condition_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_actuator_state_condition: ~15 rows (приблизительно)
+-- Дамп данных таблицы things.user_actuator_state_condition: ~16 rows (приблизительно)
 DELETE FROM `user_actuator_state_condition`;
 /*!40000 ALTER TABLE `user_actuator_state_condition` DISABLE KEYS */;
 INSERT INTO `user_actuator_state_condition` (`actuator_state_condition_id`, `user_actuator_state_id`, `left_part_expression`, `sign_expression`, `right_part_expression`, `condition_num`, `condition_interval`) VALUES
@@ -3734,8 +3741,6 @@ INSERT INTO `user_actuator_state_condition` (`actuator_state_condition_id`, `use
 	(14, 43, 'a', '>', '56.8', 1, 7),
 	(19, 47, 'a', '<', '56.80', 1, 56),
 	(21, 34, 'ast', '>', '5', 1, NULL),
-	(23, 55, 'd', '>', '2', 1, NULL),
-	(24, 56, 'h', '=', '34', 1, NULL),
 	(25, 60, 'b', '>', '12', 1, NULL);
 /*!40000 ALTER TABLE `user_actuator_state_condition` ENABLE KEYS */;
 
@@ -3772,9 +3777,9 @@ CREATE TABLE IF NOT EXISTS `user_device` (
   CONSTRAINT `FK_user_device_unit` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
   CONSTRAINT `FK_user_device_unit_factor` FOREIGN KEY (`factor_id`) REFERENCES `unit_factor` (`factor_id`),
   CONSTRAINT `FK_user_device_users` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device: ~13 rows (приблизительно)
+-- Дамп данных таблицы things.user_device: ~19 rows (приблизительно)
 DELETE FROM `user_device`;
 /*!40000 ALTER TABLE `user_device` DISABLE KEYS */;
 INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `user_device_mode`, `user_device_measure_period`, `user_device_date_from`, `action_type_id`, `device_units`, `mqtt_topic_write`, `mqtt_topic_read`, `mqqt_server_id`, `unit_id`, `factor_id`, `description`, `device_log`, `device_pass`, `measure_data_type`) VALUES
@@ -3786,11 +3791,8 @@ INSERT INTO `user_device` (`user_device_id`, `user_id`, `device_user_name`, `use
 	(39, 1, 'wer', NULL, 'не задано', '2017-07-12 14:52:19', 2, 'Ед', '/garage1/wer1', '', 3, 96, 64, 'wer', 'garage1', '123123123', 'текст'),
 	(42, 1, 'qwer2', NULL, 'не задано', '2017-07-12 15:43:06', 1, 'Ед', '/kalistrat1/wer1', '42', 3, 96, 64, 'qwer2', 'kalistrat1', '7345345', 'текст'),
 	(43, 1, 'Измеритель1', NULL, 'не задано', '2017-07-19 16:59:57', 1, 'Ед', '/garage1/measurer1', '43', 3, 96, 64, 'Измеритель1', 'garage1', '123123123', 'число'),
-	(44, 1, 'tes1', NULL, 'не задано', '2017-10-27 01:35:27', 1, 'Ед', '/testable/tes1', '44', 3, 96, 64, 'tes1', 'testable', 'testable', 'текст'),
-	(45, 1, 'numeric', NULL, 'не задано', '2017-11-20 16:24:28', 1, 'Ед', '/asdfg/num', '45', 3, 96, 64, 'numeric', 'asdfg', 'asdfg', 'число'),
-	(46, 1, 'textual', NULL, 'не задано', '2017-11-20 16:24:49', 2, 'Ед', '/asdfg/textual', '46', 3, 96, 64, 'textual', 'asdfg', 'asdfg', 'текст'),
-	(47, 1, 'datedev', NULL, 'не задано', '2017-11-20 16:25:10', 1, 'Ед', '/asdfg/datedev', '47', 3, 96, 64, 'datedev', 'asdfg', 'asdfg', 'дата'),
-	(48, 1, 'textsns', NULL, 'не задано', '2017-11-20 16:25:31', 1, 'Ед', '/asdfg/textsns', '48', 3, 96, 64, 'textsns', 'asdfg', 'asdfg', 'текст');
+	(48, 1, 'textsns', NULL, 'не задано', '2017-11-20 16:25:31', 1, 'Ед', '/asdfg/textsns', '48', 3, 96, 64, 'textsns', 'asdfg', 'asdfg', 'текст'),
+	(59, 1, 'zxca', NULL, 'не задано', '2017-11-28 18:30:14', 2, 'Ед', '/zxczxc/zxca', '59', 4, 96, 64, 'zxca', 'zxczxc', 'zxczxc', 'текст');
 /*!40000 ALTER TABLE `user_device` ENABLE KEYS */;
 
 
@@ -3819,9 +3821,9 @@ CREATE TABLE IF NOT EXISTS `user_devices_tree` (
   CONSTRAINT `FK_user_devices_tree_timezones` FOREIGN KEY (`timezone_id`) REFERENCES `timezones` (`timezone_id`),
   CONSTRAINT `FK_user_devices_tree_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FK_user_devices_tree_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_devices_tree: ~24 rows (приблизительно)
+-- Дамп данных таблицы things.user_devices_tree: ~29 rows (приблизительно)
 DELETE FROM `user_devices_tree`;
 /*!40000 ALTER TABLE `user_devices_tree` DISABLE KEYS */;
 INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf_id`, `user_device_id`, `leaf_name`, `user_id`, `timezone_id`, `mqtt_server_id`, `time_topic`, `sync_interval`, `control_log`, `control_pass`, `control_pass_sha`) VALUES
@@ -3842,13 +3844,8 @@ INSERT INTO `user_devices_tree` (`user_devices_tree_id`, `leaf_id`, `parent_leaf
 	(181, 1, NULL, NULL, 'Устройства', 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	(182, 1, NULL, NULL, 'Устройства', 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	(184, 11, 7, 43, 'Измеритель1', 1, 17, 3, '/garage1/synctime', 1, 'garage1', '123123123', '932f3c1b56257ce8539ac269d7aab42550dacf8818d075f0bdf1990562aae3ef'),
-	(185, 12, 1, NULL, 'testable', 1, 17, 3, '/testable/synctime', 1, 'testable', 'testable', '408bc0bc6063c1add7d79404087b90dec06235915649d1073b0e872a5a80eedc'),
-	(186, 13, 12, 44, 'tes1', 1, 17, 3, '/testable/synctime', 0, 'testable', 'testable', '408bc0bc6063c1add7d79404087b90dec06235915649d1073b0e872a5a80eedc'),
-	(187, 14, 1, NULL, 'Проверка графиков', 1, 17, 3, '/asdfg/synctime', 1, 'asdfg', 'asdfg', 'f969fdbe811d8a66010d6f8973246763147a2a0914afc8087839e29b563a5af0'),
-	(188, 15, 14, 45, 'numeric', 1, 17, 3, '/asdfg/synctime', 1, 'asdfg', 'asdfg', 'f969fdbe811d8a66010d6f8973246763147a2a0914afc8087839e29b563a5af0'),
-	(189, 16, 14, 46, 'textual', 1, 17, 3, '/asdfg/synctime', 1, 'asdfg', 'asdfg', 'f969fdbe811d8a66010d6f8973246763147a2a0914afc8087839e29b563a5af0'),
-	(190, 17, 14, 47, 'datedev', 1, 17, 3, '/asdfg/synctime', 1, 'asdfg', 'asdfg', 'f969fdbe811d8a66010d6f8973246763147a2a0914afc8087839e29b563a5af0'),
-	(191, 18, 14, 48, 'textsns', 1, 17, 3, '/asdfg/synctime', 1, 'asdfg', 'asdfg', 'f969fdbe811d8a66010d6f8973246763147a2a0914afc8087839e29b563a5af0');
+	(203, 12, 1, NULL, 'zxc', 1, 17, 4, '/zxczxc/synctime', 3, 'zxczxc', 'zxczxc', 'a0ec06301bf1814970a70f89d1d373afdff9a36d1ba6675fc02f8a975f4efaeb'),
+	(204, 13, 12, 59, 'zxca', 1, 17, 4, '/zxczxc/synctime', 3, 'zxczxc', 'zxczxc', 'a0ec06301bf1814970a70f89d1d373afdff9a36d1ba6675fc02f8a975f4efaeb');
 /*!40000 ALTER TABLE `user_devices_tree` ENABLE KEYS */;
 
 
@@ -3863,9 +3860,9 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   PRIMARY KEY (`user_device_measure_id`),
   KEY `FK_user_device_measures_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10043 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10305 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_measures: ~271 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_measures: ~339 rows (приблизительно)
 DELETE FROM `user_device_measures`;
 /*!40000 ALTER TABLE `user_device_measures` DISABLE KEYS */;
 INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`, `measure_mess`, `measure_date_value`) VALUES
@@ -4123,23 +4120,99 @@ INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, 
 	(10014, 43, 123.00, '2017-10-26 23:40:26', NULL, NULL),
 	(10015, 43, 123.00, '2017-10-26 23:50:15', NULL, NULL),
 	(10016, 43, 456.00, '2017-10-26 23:50:25', NULL, NULL),
-	(10017, 45, 34.00, '2017-11-20 16:46:10', '34', NULL),
-	(10018, 45, 100.00, '2017-11-20 16:46:25', '35', NULL),
-	(10019, 45, 7.12, '2017-11-20 16:46:40', '7', NULL),
-	(10020, 45, 65.67, '2017-11-20 16:48:56', '65,67', NULL),
-	(10021, 46, 34.00, '2017-11-20 16:46:10', '34', NULL),
-	(10022, 46, 35.00, '2017-11-20 16:46:25', '35', NULL),
-	(10023, 46, 7.00, '2017-11-20 16:46:40', '7', NULL),
-	(10024, 46, 65.67, '2017-11-20 16:48:56', '65,67', NULL),
-	(10028, 47, 34.00, '2017-11-20 16:46:10', '2017-11-20 16:52:07', '2017-11-20 16:52:07'),
-	(10029, 47, 35.00, '2017-11-20 16:46:25', '2017-11-20 16:52:08', '2017-11-20 16:52:08'),
-	(10030, 47, 7.00, '2017-11-20 16:46:40', '2017-11-20 16:52:10', '2017-11-20 16:52:10'),
-	(10031, 47, 65.67, '2017-11-20 16:48:56', '2017-11-20 16:52:11', '2017-11-20 16:52:11'),
-	(10035, 48, 34.00, '2017-11-20 16:46:10', 'On', NULL),
-	(10036, 48, 35.00, '2017-11-20 16:46:25', 'Off', NULL),
-	(10037, 48, 7.00, '2017-11-20 16:46:40', 'On50', NULL),
-	(10038, 48, 65.67, '2017-11-20 16:48:56', 'Off', NULL),
-	(10042, 48, NULL, '2017-11-20 16:53:39', 'On', NULL);
+	(10043, 3, NULL, '2017-11-28 14:30:02', 'DeviceOff', NULL),
+	(10044, 39, NULL, '2017-11-28 14:35:03', 'ert', NULL),
+	(10045, 3, NULL, '2017-11-28 14:45:49', 'DeviceOff', NULL),
+	(10046, 39, NULL, '2017-11-28 14:45:59', 'ert', NULL),
+	(10047, 3, NULL, '2017-11-28 14:47:56', 'DeviceOff', NULL),
+	(10048, 3, NULL, '2017-11-28 15:20:19', 'DeviceOff', NULL),
+	(10049, 39, NULL, '2017-11-28 15:21:40', 'ert', NULL),
+	(10050, 3, NULL, '2017-11-28 15:21:40', 'DeviceOff', NULL),
+	(10051, 39, NULL, '2017-11-28 15:23:26', 'ert', NULL),
+	(10052, 3, NULL, '2017-11-28 15:23:26', 'DeviceOff', NULL),
+	(10053, 39, NULL, '2017-11-28 15:28:15', 'ert', NULL),
+	(10054, 3, NULL, '2017-11-28 15:28:15', 'DeviceOff', NULL),
+	(10055, 39, NULL, '2017-11-28 15:36:55', 'ert', NULL),
+	(10056, 3, NULL, '2017-11-28 15:36:55', 'DeviceOff', NULL),
+	(10057, 3, NULL, '2017-11-28 15:36:56', 'DeviceOff', NULL),
+	(10058, 3, NULL, '2017-11-28 15:36:56', 'DeviceOff', NULL),
+	(10059, 3, NULL, '2017-11-28 15:36:57', 'DeviceOff', NULL),
+	(10060, 3, NULL, '2017-11-28 15:36:58', 'DeviceOff', NULL),
+	(10061, 3, NULL, '2017-11-28 15:36:59', 'DeviceOff', NULL),
+	(10062, 3, NULL, '2017-11-28 15:37:00', 'DeviceOff', NULL),
+	(10063, 3, NULL, '2017-11-28 15:37:01', 'DeviceOff', NULL),
+	(10064, 3, NULL, '2017-11-28 15:37:02', 'DeviceOff', NULL),
+	(10065, 3, NULL, '2017-11-28 15:37:03', 'DeviceOff', NULL),
+	(10066, 3, NULL, '2017-11-28 15:37:04', 'DeviceOff', NULL),
+	(10067, 3, NULL, '2017-11-28 15:37:05', 'DeviceOff', NULL),
+	(10068, 3, NULL, '2017-11-28 15:37:06', 'DeviceOff', NULL),
+	(10069, 3, NULL, '2017-11-28 15:37:07', 'DeviceOff', NULL),
+	(10070, 3, NULL, '2017-11-28 15:37:08', 'DeviceOff', NULL),
+	(10071, 3, NULL, '2017-11-28 15:37:09', 'DeviceOff', NULL),
+	(10072, 3, NULL, '2017-11-28 15:37:10', 'DeviceOff', NULL),
+	(10073, 3, NULL, '2017-11-28 15:37:11', 'DeviceOff', NULL),
+	(10074, 3, NULL, '2017-11-28 15:37:12', 'DeviceOff', NULL),
+	(10075, 3, NULL, '2017-11-28 15:37:13', 'DeviceOff', NULL),
+	(10076, 3, NULL, '2017-11-28 15:37:14', 'DeviceOff', NULL),
+	(10077, 3, NULL, '2017-11-28 15:37:15', 'DeviceOff', NULL),
+	(10078, 3, NULL, '2017-11-28 15:37:16', 'DeviceOff', NULL),
+	(10079, 3, NULL, '2017-11-28 15:37:17', 'DeviceOff', NULL),
+	(10080, 3, NULL, '2017-11-28 15:37:18', 'DeviceOff', NULL),
+	(10081, 3, NULL, '2017-11-28 15:37:19', 'DeviceOff', NULL),
+	(10082, 3, NULL, '2017-11-28 15:37:20', 'DeviceOff', NULL),
+	(10083, 3, NULL, '2017-11-28 15:37:21', 'DeviceOff', NULL),
+	(10084, 3, NULL, '2017-11-28 15:37:22', 'DeviceOff', NULL),
+	(10085, 3, NULL, '2017-11-28 15:37:23', 'DeviceOff', NULL),
+	(10086, 3, NULL, '2017-11-28 15:37:24', 'DeviceOff', NULL),
+	(10087, 3, NULL, '2017-11-28 15:37:25', 'DeviceOff', NULL),
+	(10088, 3, NULL, '2017-11-28 15:37:26', 'DeviceOff', NULL),
+	(10089, 3, NULL, '2017-11-28 15:37:27', 'DeviceOff', NULL),
+	(10090, 3, NULL, '2017-11-28 15:37:28', 'DeviceOff', NULL),
+	(10091, 3, NULL, '2017-11-28 15:37:29', 'DeviceOff', NULL),
+	(10092, 3, NULL, '2017-11-28 15:37:30', 'DeviceOff', NULL),
+	(10093, 3, NULL, '2017-11-28 15:37:31', 'DeviceOff', NULL),
+	(10094, 3, NULL, '2017-11-28 15:37:32', 'DeviceOff', NULL),
+	(10095, 3, NULL, '2017-11-28 15:37:33', 'DeviceOff', NULL),
+	(10096, 3, NULL, '2017-11-28 15:37:34', 'DeviceOff', NULL),
+	(10097, 3, NULL, '2017-11-28 15:37:35', 'DeviceOff', NULL),
+	(10098, 3, NULL, '2017-11-28 15:37:36', 'DeviceOff', NULL),
+	(10099, 3, NULL, '2017-11-28 15:37:37', 'DeviceOff', NULL),
+	(10100, 3, NULL, '2017-11-28 15:37:38', 'DeviceOff', NULL),
+	(10101, 3, NULL, '2017-11-28 15:37:39', 'DeviceOff', NULL),
+	(10102, 39, NULL, '2017-11-28 15:37:40', 'ert', NULL),
+	(10103, 3, NULL, '2017-11-28 15:37:40', 'DeviceOff', NULL),
+	(10104, 3, NULL, '2017-11-28 15:37:41', 'DeviceOff', NULL),
+	(10105, 3, NULL, '2017-11-28 15:37:42', 'DeviceOff', NULL),
+	(10106, 3, NULL, '2017-11-28 15:37:43', 'DeviceOff', NULL),
+	(10107, 3, NULL, '2017-11-28 15:37:44', 'DeviceOff', NULL),
+	(10108, 39, NULL, '2017-11-28 15:38:24', 'ert', NULL),
+	(10109, 3, NULL, '2017-11-28 15:38:25', 'DeviceOff', NULL),
+	(10243, 39, NULL, '2017-11-28 17:31:10', 'ert', NULL),
+	(10244, 3, NULL, '2017-11-28 17:31:10', 'DeviceOff', NULL),
+	(10245, 39, NULL, '2017-11-28 17:33:34', 'ert', NULL),
+	(10246, 3, NULL, '2017-11-28 17:33:35', 'DeviceOff', NULL),
+	(10247, 39, NULL, '2017-11-28 17:38:28', 'ert', NULL),
+	(10248, 3, NULL, '2017-11-28 17:38:29', 'DeviceOff', NULL),
+	(10249, 3, NULL, '2017-11-28 17:55:13', 'DeviceOff', NULL),
+	(10250, 39, NULL, '2017-11-28 17:55:13', 'ert', NULL),
+	(10251, 3, NULL, '2017-11-28 17:55:51', 'DeviceOff', NULL),
+	(10252, 39, NULL, '2017-11-28 17:55:51', 'ert', NULL),
+	(10253, 39, NULL, '2017-11-28 18:01:19', 'ert', NULL),
+	(10254, 3, NULL, '2017-11-28 18:01:19', 'DeviceOff', NULL),
+	(10285, 3, NULL, '2017-11-28 18:06:07', 'DeviceOff', NULL),
+	(10286, 39, NULL, '2017-11-28 18:06:08', 'ert', NULL),
+	(10287, 39, NULL, '2017-11-28 18:07:25', 'ert', NULL),
+	(10288, 3, NULL, '2017-11-28 18:07:26', 'DeviceOff', NULL),
+	(10289, 39, NULL, '2017-11-28 18:09:23', 'ert', NULL),
+	(10290, 3, NULL, '2017-11-28 18:12:54', 'DeviceOff', NULL),
+	(10291, 39, NULL, '2017-11-28 18:12:54', 'ert', NULL),
+	(10292, 39, NULL, '2017-11-28 18:13:40', 'ert', NULL),
+	(10293, 3, NULL, '2017-11-28 18:13:40', 'DeviceOff', NULL),
+	(10294, 3, NULL, '2017-11-28 18:14:12', 'DeviceOff', NULL),
+	(10295, 39, NULL, '2017-11-28 18:14:13', 'ert', NULL),
+	(10296, 3, NULL, '2017-11-28 18:16:00', 'DeviceOff', NULL),
+	(10297, 39, NULL, '2017-11-28 18:16:00', 'ert', NULL),
+	(10304, 39, NULL, '2017-11-28 18:36:31', 'ert', NULL);
 /*!40000 ALTER TABLE `user_device_measures` ENABLE KEYS */;
 
 
@@ -4153,9 +4226,9 @@ CREATE TABLE IF NOT EXISTS `user_device_state_notification` (
   KEY `FK_user_device_state_notification_user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_device_state_notification_notification_type` FOREIGN KEY (`notification_type_id`) REFERENCES `notification_type` (`notification_type_id`),
   CONSTRAINT `FK_user_device_state_notification_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_state_notification: ~12 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_state_notification: ~13 rows (приблизительно)
 DELETE FROM `user_device_state_notification`;
 /*!40000 ALTER TABLE `user_device_state_notification` DISABLE KEYS */;
 INSERT INTO `user_device_state_notification` (`user_state_notification_id`, `notification_type_id`, `user_actuator_state_id`) VALUES
@@ -4169,8 +4242,7 @@ INSERT INTO `user_device_state_notification` (`user_state_notification_id`, `not
 	(13, 2, 42),
 	(15, 1, 43),
 	(19, 1, 47),
-	(26, 2, 53),
-	(28, 1, 56);
+	(26, 2, 53);
 /*!40000 ALTER TABLE `user_device_state_notification` ENABLE KEYS */;
 
 
@@ -4186,24 +4258,19 @@ CREATE TABLE IF NOT EXISTS `user_device_task` (
   KEY `FK_user_device_task_user_device` (`user_device_id`),
   KEY `FK_user_device_task_task_type` (`task_type_id`),
   KEY `FK_user_device_task_user_actuator_state` (`user_actuator_state_id`),
-  CONSTRAINT `FK_user_device_task_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_device_task_task_type` FOREIGN KEY (`task_type_id`) REFERENCES `task_type` (`task_type_id`),
+  CONSTRAINT `FK_user_device_task_user_actuator_state` FOREIGN KEY (`user_actuator_state_id`) REFERENCES `user_actuator_state` (`user_actuator_state_id`),
   CONSTRAINT `FK_user_device_task_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_task: ~9 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_task: ~13 rows (приблизительно)
 DELETE FROM `user_device_task`;
 /*!40000 ALTER TABLE `user_device_task` DISABLE KEYS */;
 INSERT INTO `user_device_task` (`user_device_task_id`, `user_device_id`, `task_type_id`, `task_interval`, `interval_type`, `user_actuator_state_id`) VALUES
 	(1, 2, 1, 1, 'DAYS', NULL),
 	(3, 43, 1, 1, 'DAYS', NULL),
-	(4, 44, 1, 5, 'SECONDS', NULL),
-	(5, 45, 1, 1, 'DAYS', NULL),
-	(6, 46, 1, 1, 'DAYS', NULL),
-	(7, 47, 1, 1, 'DAYS', NULL),
-	(8, 48, 1, 1, 'DAYS', NULL),
 	(10, 3, 3, 1, 'DAYS', 19),
-	(11, 39, 3, 45, 'HOURS', 60);
+	(11, 39, 3, 45, 'DAYS', 60);
 /*!40000 ALTER TABLE `user_device_task` ENABLE KEYS */;
 
 
@@ -4218,9 +4285,9 @@ CREATE TABLE IF NOT EXISTS `user_state_condition_vars` (
   KEY `FK_user_state_condition_vars_user_device` (`user_device_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_actuator_state_condition` FOREIGN KEY (`actuator_state_condition_id`) REFERENCES `user_actuator_state_condition` (`actuator_state_condition_id`),
   CONSTRAINT `FK_user_state_condition_vars_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_state_condition_vars: ~17 rows (приблизительно)
+-- Дамп данных таблицы things.user_state_condition_vars: ~20 rows (приблизительно)
 DELETE FROM `user_state_condition_vars`;
 /*!40000 ALTER TABLE `user_state_condition_vars` DISABLE KEYS */;
 INSERT INTO `user_state_condition_vars` (`state_condition_vars_id`, `actuator_state_condition_id`, `var_code`, `user_device_id`) VALUES
@@ -4238,8 +4305,6 @@ INSERT INTO `user_state_condition_vars` (`state_condition_vars_id`, `actuator_st
 	(18, 14, 'a', 42),
 	(23, 19, 'a', 42),
 	(25, 21, 'ast', 42),
-	(27, 23, 'd', 45),
-	(28, 24, 'h', 48),
 	(29, 25, 'b', 37);
 /*!40000 ALTER TABLE `user_state_condition_vars` ENABLE KEYS */;
 

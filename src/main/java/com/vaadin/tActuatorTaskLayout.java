@@ -109,7 +109,7 @@ public class tActuatorTaskLayout extends VerticalLayout {
                             , conditionName
                     );
 
-                    System.out.println("iNewTaskId : " + iNewTaskId);
+                    //System.out.println("iNewTaskId : " + iNewTaskId);
 
                     tUsefulFuctions.sendMessAgeToSubcribeServer(
                             iNewTaskId
@@ -343,11 +343,14 @@ public class tActuatorTaskLayout extends VerticalLayout {
                 timIntSelect.addItem("сутки");
                 timIntSelect.setNullSelectionAllowed(false);
 
-                if (DataRs.getString(2).equals("MINUTES")) {
+                //System.out.println("setTaskTableContainer :DataRs.getString(2) : " + DataRs.getString(2));
+                //System.out.println("setTaskTableContainer : iUserDeviceId : " + iUserDeviceId);
+
+                if (DataRs.getString(3).equals("MINUTES")) {
                     timIntSelect.select("минута");
-                } else if (DataRs.getString(2).equals("SECONDS")){
+                } else if (DataRs.getString(3).equals("SECONDS")){
                     timIntSelect.select("секунда");
-                } else if (DataRs.getString(2).equals("HOURS")){
+                } else if (DataRs.getString(3).equals("HOURS")){
                     timIntSelect.select("час");
                 } else {
                     timIntSelect.select("сутки");
