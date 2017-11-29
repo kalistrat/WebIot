@@ -241,58 +241,60 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
 
                     } else {
 
+                        if (getFolderDetectorCount() > 0) {
 
-                        int nit = StatesConditionContainer.size() + 1;
 
-                        String SelectedItemName = (String) StatesConditionContainer.getItem(SelectedItemId).getItemProperty(1).getValue();
+                            int nit = StatesConditionContainer.size() + 1;
 
-                        int NewConditionNum = getNewConditionNum(iUserDeviceId,SelectedItemName);
-                        int iActuatorStateId = getActuatorStateId(iUserDeviceId,SelectedItemName);
+                            String SelectedItemName = (String) StatesConditionContainer.getItem(SelectedItemId).getItemProperty(1).getValue();
 
-                        StatesConditionTable.setChildrenAllowed(SelectedItemId, true);
+                            int NewConditionNum = getNewConditionNum(iUserDeviceId, SelectedItemName);
+                            int iActuatorStateId = getActuatorStateId(iUserDeviceId, SelectedItemName);
 
-                        Item SubHeaderItem = StatesConditionContainer.addItem(nit);
-                        SubHeaderItem.getItemProperty(1).setValue("Условие № " + NewConditionNum);
-                        SubHeaderItem.getItemProperty(2).setValue(null);
-                        StatesConditionContainer.setParent(nit,SelectedItemId);
+                            StatesConditionTable.setChildrenAllowed(SelectedItemId, true);
 
-                        int LeftSideItemId = nit + 1;
-                        Item LeftSideItem = StatesConditionContainer.addItem(nit + 1);
+                            Item SubHeaderItem = StatesConditionContainer.addItem(nit);
+                            SubHeaderItem.getItemProperty(1).setValue("Условие № " + NewConditionNum);
+                            SubHeaderItem.getItemProperty(2).setValue(null);
+                            StatesConditionContainer.setParent(nit, SelectedItemId);
 
-                        tButtonTextFieldLayout LeftSideFieldLayout = new tButtonTextFieldLayout("",true);
-                        LeftSideItem.getItemProperty(1).setValue("Левая часть выражения");
-                        LeftSideItem.getItemProperty(2).setValue(LeftSideFieldLayout);
-                        StatesConditionContainer.setParent(nit + 1, nit);
+                            int LeftSideItemId = nit + 1;
+                            Item LeftSideItem = StatesConditionContainer.addItem(nit + 1);
 
-                        int SignItemItemId = nit + 2;
-                        Item SignItem = StatesConditionContainer.addItem(nit + 2);
+                            tButtonTextFieldLayout LeftSideFieldLayout = new tButtonTextFieldLayout("", true);
+                            LeftSideItem.getItemProperty(1).setValue("Левая часть выражения");
+                            LeftSideItem.getItemProperty(2).setValue(LeftSideFieldLayout);
+                            StatesConditionContainer.setParent(nit + 1, nit);
 
-                        tSignConditionLayout SignLayout = new tSignConditionLayout(">",true);
-                        SignItem.getItemProperty(1).setValue("Знак выражения");
-                        SignItem.getItemProperty(2).setValue(SignLayout);
-                        StatesConditionContainer.setParent(nit + 2, nit);
+                            int SignItemItemId = nit + 2;
+                            Item SignItem = StatesConditionContainer.addItem(nit + 2);
 
-                        int RightSideItemId = nit + 3;
-                        Item RightSideItem = StatesConditionContainer.addItem(nit + 3);
-                        tButtonTextFieldLayout RightSideFieldLayout = new tButtonTextFieldLayout("",true);
-                        RightSideItem.getItemProperty(1).setValue("Правая часть выражения");
-                        RightSideItem.getItemProperty(2).setValue(RightSideFieldLayout);
-                        StatesConditionContainer.setParent(nit + 3, nit);
+                            tSignConditionLayout SignLayout = new tSignConditionLayout(">", true);
+                            SignItem.getItemProperty(1).setValue("Знак выражения");
+                            SignItem.getItemProperty(2).setValue(SignLayout);
+                            StatesConditionContainer.setParent(nit + 2, nit);
 
-                        int VarsItemId = nit + 4;
-                        Item VarsItem = StatesConditionContainer.addItem(nit + 4);
-                        VarsItem.getItemProperty(1).setValue("Соответствие переменных");
-                        VarsItem.getItemProperty(2).setValue(
-                                new tVarConditionLayout(
-                                        0
-                                        , LeftSideFieldLayout.textfield
-                                        , RightSideFieldLayout.textfield
-                                        , iActuatorStatesLayout
-                                        , true
-                                )
-                        );
+                            int RightSideItemId = nit + 3;
+                            Item RightSideItem = StatesConditionContainer.addItem(nit + 3);
+                            tButtonTextFieldLayout RightSideFieldLayout = new tButtonTextFieldLayout("", true);
+                            RightSideItem.getItemProperty(1).setValue("Правая часть выражения");
+                            RightSideItem.getItemProperty(2).setValue(RightSideFieldLayout);
+                            StatesConditionContainer.setParent(nit + 3, nit);
 
-                        StatesConditionContainer.setParent(nit + 4, nit);
+                            int VarsItemId = nit + 4;
+                            Item VarsItem = StatesConditionContainer.addItem(nit + 4);
+                            VarsItem.getItemProperty(1).setValue("Соответствие переменных");
+                            VarsItem.getItemProperty(2).setValue(
+                                    new tVarConditionLayout(
+                                            0
+                                            , LeftSideFieldLayout.textfield
+                                            , RightSideFieldLayout.textfield
+                                            , iActuatorStatesLayout
+                                            , true
+                                    )
+                            );
+
+                            StatesConditionContainer.setParent(nit + 4, nit);
 
 //                        int TimeItemId = nit + 5;
 //
@@ -303,30 +305,36 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
 //
 //                        StatesConditionContainer.setParent(nit + 5, nit);
 
-                        SaveButton.setData(new ConditionIds(
-                                iActuatorStateId
-                                ,NewConditionNum
-                                ,LeftSideItemId
-                                ,SignItemItemId
-                                ,RightSideItemId
-                                ,VarsItemId
-                                //,TimeItemId
-                        ));
+                            SaveButton.setData(new ConditionIds(
+                                    iActuatorStateId
+                                    , NewConditionNum
+                                    , LeftSideItemId
+                                    , SignItemItemId
+                                    , RightSideItemId
+                                    , VarsItemId
+                                    //,TimeItemId
+                            ));
 
-                        for (Object itemId: StatesConditionTable.getContainerDataSource()
-                                .getItemIds()) {
-                            StatesConditionTable.setCollapsed(itemId, false);
+                            for (Object itemId : StatesConditionTable.getContainerDataSource()
+                                    .getItemIds()) {
+                                StatesConditionTable.setCollapsed(itemId, false);
 
-                            // Also disallow expanding leaves
-                            if (! StatesConditionTable.hasChildren(itemId))
-                                StatesConditionTable.setChildrenAllowed(itemId, false);
+                                // Also disallow expanding leaves
+                                if (!StatesConditionTable.hasChildren(itemId))
+                                    StatesConditionTable.setChildrenAllowed(itemId, false);
+                            }
+
+                            StatesConditionTable.setPageLength(StatesConditionContainer.size());
+
+                            AddButton.setEnabled(false);
+                            DeleteButton.setEnabled(false);
+                            SaveButton.setEnabled(true);
+
+                        } else {
+                            Notification.show("Добавление невозможно",
+                                    "В текущей папке нет ни одного,\n измерительного устройства",
+                                    Notification.Type.TRAY_NOTIFICATION);
                         }
-
-                        StatesConditionTable.setPageLength(StatesConditionContainer.size());
-
-                        AddButton.setEnabled(false);
-                        DeleteButton.setEnabled(false);
-                        SaveButton.setEnabled(true);
                     }
 
                 }
@@ -760,6 +768,27 @@ public class tActuatorStateConditionLayout extends VerticalLayout {
             //Handle errors for Class.forName
             e.printStackTrace();
         }
+    }
+
+    private int getFolderDetectorCount(){
+        int dCnt = 0;
+        for (Integer iLe : iActuatorStatesLayout
+                .iParentContentLayout
+                .getChildAllLeafsById(
+                        iActuatorStatesLayout
+                                .iParentContentLayout
+                                .GetParentLeafById(iActuatorStatesLayout.iCurrentLeafId)
+                )){
+            if (iActuatorStatesLayout
+                    .iParentContentLayout
+                    .getLeafActionTypeName(iLe).equals("Измерительное устройство")) {
+                dCnt = dCnt + 1;
+            }
+        }
+
+        //System.out.println("getFolderDetectorCount() : dCnt : " + dCnt);
+
+        return dCnt;
     }
 
 }

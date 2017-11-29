@@ -80,6 +80,12 @@ public class tTreeContentLayout extends VerticalLayout {
 
     }
 
+    public String getLeafActionTypeName(int eLeafId){
+
+        return (String) this.itTree.getItem(eLeafId).getItemProperty(7).getValue();
+
+    }
+
 
     public Integer getLeafIdByName(String eLeafName){
         Integer sLeafId = 0;
