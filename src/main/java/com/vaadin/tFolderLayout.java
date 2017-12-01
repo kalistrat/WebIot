@@ -233,9 +233,18 @@ public class tFolderLayout extends VerticalLayout {
             public void menuSelected(MenuBar.MenuItem selectedItem) {
 
                 if (selectedItem.getText().equals("Добавить контроллер")) {
-                    UI.getCurrent().addWindow(new tAddFolderWindow(tCurrentLeafId
-                            ,tParentContentLayout
-                    ));
+
+                    if (tCurrentLeafId == 1) {
+
+                        UI.getCurrent().addWindow(new tAddFolderWindow(tCurrentLeafId
+                                , tParentContentLayout
+                        ));
+
+                    } else {
+                        Notification.show(null,
+                                "Контроллеры можно добавлять только в корневой каталог",
+                                Notification.Type.TRAY_NOTIFICATION);
+                    }
 
                 }  else {
 

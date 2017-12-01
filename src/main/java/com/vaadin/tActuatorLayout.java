@@ -28,6 +28,7 @@ public class tActuatorLayout extends VerticalLayout {
     tDetectorLastMeasureLayout DeviceLastState;
     tDetectorMeasuresJournalLayout MeasureJournal;
     tActuatorTaskLayout actuatorTaskLayout;
+    tDiagramLayout actuatorGraphLayout;
 
     public tActuatorLayout(int eUserDeviceId, String eLeafName, int eLeafId,tTreeContentLayout eParentContentLayout){
 
@@ -126,7 +127,11 @@ public class tActuatorLayout extends VerticalLayout {
         DeviceDescription = new tDescriptionLayout(iUserDeviceId);
         DeviceLastState = new tDetectorLastMeasureLayout(iUserDeviceId,"ACTUATOR");
         MeasureJournal = new tDetectorMeasuresJournalLayout(iUserDeviceId,"ACTUATOR");
-
+        actuatorGraphLayout = new tDiagramLayout(
+                iUserDeviceId
+                ,"DETECTOR"
+                ,"текст"
+        );
         ActuatorStatesLayout = new tActuatorStatesLayout(iUserDeviceId
                 ,tParentContentLayout
                 ,tCurrentLeafId
@@ -148,6 +153,7 @@ public class tActuatorLayout extends VerticalLayout {
         VerticalLayout ContentImageStatesLayout = new VerticalLayout(
                 ActuatorDataFormLayout
                 ,DeviceLastState
+                ,actuatorGraphLayout
                 ,MeasureJournal
                 ,DeviceDescription
         );
@@ -187,7 +193,7 @@ public class tActuatorLayout extends VerticalLayout {
         SplPanel.setMaxSplitPosition(40, Unit.PIXELS);
         SplPanel.setMinSplitPosition(40,Unit.PIXELS);
 
-        SplPanel.setHeight("1200px");
+        SplPanel.setHeight("1400px");
         //SplPanel.setWidth("1000px");
 
         this.addComponent(SplPanel);

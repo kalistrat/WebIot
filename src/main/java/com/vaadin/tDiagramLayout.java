@@ -25,6 +25,7 @@ public class tDiagramLayout extends VerticalLayout {
     Diagram diagram;
     List<tDetectorDiagramData> dList;
     String mesDataType;
+    VerticalLayout ContentLayout;
 
     public tDiagramLayout(int userDeviceId, String actType, String messageDataType){
 
@@ -54,7 +55,14 @@ public class tDiagramLayout extends VerticalLayout {
         RefreshButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-
+                ContentLayout.removeComponent(diagram);
+                diagram = null;
+                diagram = new Diagram();
+                dList = new ArrayList<>();
+                setDiagramData();
+                diagram.setCoords((new Gson()).toJson(dList));
+                diagram.addStyleName("diagram");
+                ContentLayout.addComponent(diagram);
             }
         });
 
@@ -85,7 +93,7 @@ public class tDiagramLayout extends VerticalLayout {
 
         diagram.addStyleName("diagram");
 
-        VerticalLayout ContentLayout = new VerticalLayout(
+        ContentLayout = new VerticalLayout(
                 FormHeaderLayout
                 ,diagram
         );

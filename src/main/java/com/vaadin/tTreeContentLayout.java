@@ -127,5 +127,16 @@ public class tTreeContentLayout extends VerticalLayout {
         //itTree.TreeContainer.removeAllContainerFilters();
         tUsefulFuctions.refreshUserTree(iUserLog);
         itTree.tTreeGetData(iUserLog);
+
+        for (Object id : itTree.rootItemIds()) {
+            itTree.expandItemsRecursively(id);
+        }
+
+        for (Object id : itTree.TreeContainer.getItemIds()){
+            if (!itTree.TreeContainer.hasChildren(id))
+                itTree.TreeContainer.setChildrenAllowed(id, false);
+        }
+
+
     }
 }

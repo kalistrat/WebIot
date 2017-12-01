@@ -50,6 +50,13 @@ public class tTree extends Tree {
         //Разворачиваю дерево
         for (Object id : this.rootItemIds()) {
             this.expandItemsRecursively(id);
+
+        }
+
+
+        for (Object id : this.TreeContainer.getItemIds()){
+            if (!this.TreeContainer.hasChildren(id))
+                this.TreeContainer.setChildrenAllowed(id, false);
         }
 
         //this.expandItem(1);

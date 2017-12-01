@@ -90,9 +90,9 @@ public class tDeviceDeleteWindow extends Window {
                 iTreeContentLayout.reloadTreeContainer();
                 Integer iNewParentLeafId = iTreeContentLayout.getLeafIdByName(sParentLeafName);
 
-                for (Object id : iTreeContentLayout.itTree.rootItemIds()) {
-                    iTreeContentLayout.itTree.expandItemsRecursively(id);
-                }
+//                for (Object id : iTreeContentLayout.itTree.rootItemIds()) {
+//                    iTreeContentLayout.itTree.expandItemsRecursively(id);
+//                }
 
                 iTreeContentLayout.tTreeContentLayoutRefresh(iNewParentLeafId,0);
 

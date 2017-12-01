@@ -163,7 +163,10 @@ public class tAddFolderWindow extends Window {
                         newItem.getItemProperty(6).setValue(0);
                         newItem.getItemProperty(7).setValue(null);
 
+
+                        iTreeContentLayout.itTree.TreeContainer.setChildrenAllowed(iNewLeafId,false);
                         iTreeContentLayout.itTree.TreeContainer.setParent(iNewLeafId, iLeafId);
+
                         iTreeContentLayout.itTree.setItemIcon(iNewLeafId, VaadinIcons.FOLDER);
                         iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId,0);
                         iTreeContentLayout.itTree.expandItem(iLeafId);

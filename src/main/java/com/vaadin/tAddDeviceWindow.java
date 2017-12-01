@@ -177,9 +177,13 @@ public class tAddDeviceWindow extends Window {
                         newItem.getItemProperty(6).setValue(iNewUserDeviceId);
                         newItem.getItemProperty(7).setValue((String) DeviceActionType.getValue());
 
+                        //iTreeContentLayout.itTree.TreeContainer.setParent(iNewLeafId, iLeafId);
+                        iTreeContentLayout.itTree.TreeContainer.setChildrenAllowed(iNewLeafId,false);
+                        iTreeContentLayout.itTree.TreeContainer.setChildrenAllowed(iLeafId,true);
+
                         iTreeContentLayout.itTree.TreeContainer.setParent(iNewLeafId, iLeafId);
 
-                        if (iNewIconCode.equals("FOLDER")) {
+                    if (iNewIconCode.equals("FOLDER")) {
                             iTreeContentLayout.itTree.setItemIcon(iNewLeafId, VaadinIcons.FOLDER);
                         }
                         if (iNewIconCode.equals("TACHOMETER")) {
@@ -192,7 +196,10 @@ public class tAddDeviceWindow extends Window {
                         iTreeContentLayout.tTreeContentLayoutRefresh(iLeafId, 0);
                         iTreeContentLayout.itTree.expandItem(iLeafId);
 
-                        if (!addSubsribeRes.equals("")) {
+
+
+
+                    if (!addSubsribeRes.equals("")) {
                             Notification.show("Устройство добавлено c ошибкой",
                                     addSubsribeRes,
                                     Notification.Type.TRAY_NOTIFICATION);
