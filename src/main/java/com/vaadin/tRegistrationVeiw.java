@@ -3,6 +3,7 @@ package com.vaadin;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.vaadin.teemu.VaadinIcons;
@@ -25,6 +26,12 @@ public class tRegistrationVeiw extends CustomComponent implements View {
         ReturnLog.addStyleName(ValoTheme.BUTTON_SMALL);
         ReturnLog.setIcon(com.vaadin.icons.VaadinIcons.ENTER_ARROW);
 
+        ThemeResource resource = new ThemeResource("SNSLOG.png");
+        Image image = new Image(null,resource);
+        image.setWidth("300px");
+        image.setHeight("80px");
+        VerticalLayout emptLay = new VerticalLayout();
+
         ReturnLog.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
@@ -33,10 +40,11 @@ public class tRegistrationVeiw extends CustomComponent implements View {
         });
 
         HorizontalLayout TopSec = new HorizontalLayout(
-                ReturnLog
+                new Label(),image,ReturnLog
         );
         TopSec.setComponentAlignment(ReturnLog,Alignment.TOP_RIGHT);
-        TopSec.setHeight("70px");
+        TopSec.setComponentAlignment(image,Alignment.MIDDLE_CENTER);
+        TopSec.setHeight("90px");
         TopSec.setWidth("100%");
 
         tRegistrationFormLayout RegForm = new tRegistrationFormLayout();
@@ -52,9 +60,9 @@ public class tRegistrationVeiw extends CustomComponent implements View {
         VerticalSplitPanel ContentPanel = new VerticalSplitPanel();
         ContentPanel.setFirstComponent(TopSec);
         ContentPanel.setSecondComponent(BottomSec);
-        ContentPanel.setSplitPosition(70, Unit.PIXELS);
-        ContentPanel.setMaxSplitPosition(70, Unit.PIXELS);
-        ContentPanel.setMinSplitPosition(70,Unit.PIXELS);
+        ContentPanel.setSplitPosition(90, Unit.PIXELS);
+        ContentPanel.setMaxSplitPosition(90, Unit.PIXELS);
+        ContentPanel.setMinSplitPosition(90,Unit.PIXELS);
 
         ContentPanel.setHeight("800px");
 

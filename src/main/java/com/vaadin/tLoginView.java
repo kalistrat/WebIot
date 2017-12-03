@@ -2,12 +2,12 @@ package com.vaadin;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Page;
+import com.vaadin.server.*;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.vaadin.teemu.VaadinIcons;
 
+import java.io.File;
 import java.sql.*;
 
 /**
@@ -23,7 +23,7 @@ public class tLoginView extends CustomComponent implements View {
     Button RegButton = new Button("Регистрация");
 
     //Метка
-    Label LogInLabel = new Label("Авторизация");
+    //Label LogInLabel = new Label("Авторизация");
 
     //Поля
     TextField LogInField = new TextField("Имя пользователя");
@@ -40,19 +40,28 @@ public class tLoginView extends CustomComponent implements View {
 
         LogInField.setWidth("320px");
         LogInField.setIcon(FontAwesome.USER);
+        //LogInField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
         PassField.setWidth("320px");
         PassField.setIcon(FontAwesome.KEY);
+        //PassField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
 
+        ThemeResource resource = new ThemeResource("SNSLOG.png");
 
-        LogInLabel.setSizeUndefined();
-        LoginBox.addComponent(LogInLabel);
+        Image image = new Image(null,resource);
+        image.setWidth("300px");
+        image.setHeight("80px");
 
+        //LogInLabel.setSizeUndefined();
+        //LoginBox.addComponent(LogInLabel);
+        LoginBox.addComponent(image);
+        LoginBox.addComponent(new Label());
         LoginBox.addComponent(LogInField);
         LoginBox.addComponent(PassField);
 
-        LoginBox.setComponentAlignment(LogInLabel,Alignment.MIDDLE_CENTER);
-        LoginBox.setComponentAlignment(LogInField,Alignment.MIDDLE_LEFT);
-        LoginBox.setComponentAlignment(PassField,Alignment.MIDDLE_LEFT);
+        //LoginBox.setComponentAlignment(LogInLabel,Alignment.MIDDLE_CENTER);
+        LoginBox.setComponentAlignment(LogInField,Alignment.MIDDLE_CENTER);
+        LoginBox.setComponentAlignment(PassField,Alignment.MIDDLE_CENTER);
+        LoginBox.setComponentAlignment(image,Alignment.MIDDLE_CENTER);
 
         HorizontalLayout ButtonsBox = new HorizontalLayout();
         ButtonsBox.setSpacing(true);
@@ -60,15 +69,17 @@ public class tLoginView extends CustomComponent implements View {
 
         LogOnButton.setSizeUndefined();
         LogOnButton.setIcon(FontAwesome.SIGN_IN);
+        //LogOnButton.addStyleName(ValoTheme.BUTTON_SMALL);
 
         RemindPassButton.setSizeUndefined();
         RemindPassButton.setIcon(FontAwesome.QUESTION);
+        //RemindPassButton.addStyleName(ValoTheme.BUTTON_SMALL);
 
         RemindPassButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 //tRemindWindow RemWin = new tRemindWindow();
-                UI.getCurrent().addWindow(new tRemindWindow());
+                //UI.getCurrent().addWindow(new tRemindWindow());
             }
         });
 
@@ -134,7 +145,7 @@ public class tLoginView extends CustomComponent implements View {
         ButtonsBox.setComponentAlignment(RemindPassButton,Alignment.BOTTOM_RIGHT);
 
         LoginBox.addComponent(ButtonsBox);
-        LoginBox.setComponentAlignment(ButtonsBox,Alignment.MIDDLE_LEFT);
+        LoginBox.setComponentAlignment(ButtonsBox,Alignment.MIDDLE_CENTER);
         LoginBox.setSizeUndefined();
 
         RegButton.addStyleName(ValoTheme.BUTTON_LINK);

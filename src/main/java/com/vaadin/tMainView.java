@@ -5,6 +5,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -47,9 +48,21 @@ public class tMainView extends CustomComponent implements View {
         LogOutButton.addStyleName(ValoTheme.BUTTON_LINK);
         LogOutButton.addStyleName(ValoTheme.BUTTON_SMALL);
         LogOutButton.setIcon(FontAwesome.SIGN_OUT);
-        HorizontalLayout TopSec = new HorizontalLayout(LogOutButton);
+
+        ThemeResource resource = new ThemeResource("SNSLOG.png");
+
+        Image image = new Image(null,resource);
+        image.setWidth("300px");
+        image.setHeight("80px");
+        VerticalLayout emptLay = new VerticalLayout();
+        //emptLay.setWidth();
+
+        HorizontalLayout TopSec = new HorizontalLayout(emptLay,image,LogOutButton);
+        TopSec.setComponentAlignment(image,Alignment.MIDDLE_CENTER);
         TopSec.setComponentAlignment(LogOutButton,Alignment.TOP_RIGHT);
-        TopSec.setHeight("70px");
+
+
+        TopSec.setHeight("90px");
         TopSec.setWidth("100%");
         //TopSec.addStyleName(ValoTheme.LAYOUT_CARD);
         tMainViewContent.setSizeFull();
