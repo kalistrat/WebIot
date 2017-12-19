@@ -3806,7 +3806,7 @@ CREATE TABLE IF NOT EXISTS `user_device_measures` (
   CONSTRAINT `FK_user_device_measures_user_device` FOREIGN KEY (`user_device_id`) REFERENCES `user_device` (`user_device_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11734 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы things.user_device_measures: ~829 rows (приблизительно)
+-- Дамп данных таблицы things.user_device_measures: ~778 rows (приблизительно)
 DELETE FROM `user_device_measures`;
 /*!40000 ALTER TABLE `user_device_measures` DISABLE KEYS */;
 INSERT INTO `user_device_measures` (`user_device_measure_id`, `user_device_id`, `measure_value`, `measure_date`, `measure_mess`, `measure_date_value`) VALUES
