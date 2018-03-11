@@ -31,53 +31,19 @@ public class tFolderLayout extends VerticalLayout {
     Label TopLabel;
 
 
-    //int tLeafId;
-    //tTreeContentLayout tParentContentLayout;
-
     public  tFolderLayout(int LeafId, tTreeContentLayout ParentContentLayout){
 
         VerticalLayout FolderContentLayout = new VerticalLayout();
         this.tParentContentLayout = ParentContentLayout;
         this.tCurrentLeafId = LeafId;
 
-        //tLeafId = LeafId;
-        //tParentContentLayout = ParentContentLayout;
 
         int ncol = 0;
         int nrow = 0;
-//        HorizontalLayout FirstChildLeafRow = new HorizontalLayout();
-//        FirstChildLeafRow.setMargin(true);
-//        FirstChildLeafRow.setSpacing(true);
-//        //FirstChildLeafRow.setSizeFull();
-//        this.ChildLeafsRows.add(FirstChildLeafRow);
-//        this.ChildLeafs = ParentContentLayout.GetChildLeafsById(LeafId);
-//
-//        for (Integer Chids : this.ChildLeafs) {
-//            this.ChildLeafsRows.get(nrow).addComponent(new tLeafButton(Chids, ParentContentLayout));
-//            ncol = ncol + 1;
-//            if (ncol > 2) {
-//                HorizontalLayout ChildLeafRow = new HorizontalLayout();
-//                //ChildLeafRow.setSizeFull();
-//                ChildLeafRow.setMargin(true);
-//                ChildLeafRow.setSpacing(true);
-//                this.ChildLeafsRows.add(ChildLeafRow);
-//                ncol = 0;
-//                nrow = nrow + 1;
-//            }
-//        }
-//
-//        for (HorizontalLayout LeafsRows : this.ChildLeafsRows) {
-//            FolderContentLayout.addComponent(LeafsRows);
-//
-//            FolderContentLayout.setComponentAlignment(LeafsRows, Alignment.MIDDLE_CENTER);
-//        }
+
 
         tFolderTable = new Table();
-        //tFolderTable.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
         tFolderContainer = new IndexedContainer();
-//        tFolderContainer.addContainerProperty(1, tLeafButtonLayout.class, null);
-//        tFolderContainer.addContainerProperty(2, tLeafButtonLayout.class, null);
-//        tFolderContainer.addContainerProperty(3, tLeafButtonLayout.class, null);
 
         tFolderContainer.addContainerProperty(1, tTableNodeLayout.class, null);
         tFolderContainer.addContainerProperty(2, tTableNodeLayout.class, null);
@@ -87,11 +53,6 @@ public class tFolderLayout extends VerticalLayout {
 
         if (this.ChildLeafs.size() != 0) {
 
-//            int ChS = this.ChildLeafs.size();
-//            Double CntItems = Math.ceil(ChS/(double) 3);
-//            int CntItemsI = CntItems.intValue();
-//            System.out.println("this.ChildLeafs.size() " + this.ChildLeafs.size());
-//            System.out.println("CntItemsI " + CntItemsI);
 
             for (int i = 0; i< Math.ceil(this.ChildLeafs.size()/(double) 3); i++){
                 this.tFolderContainer.addItem();
@@ -115,25 +76,10 @@ public class tFolderLayout extends VerticalLayout {
 
             }
 
-//            this.tFolderContainer.addItem();
-//
-//            for (Integer Chids : this.ChildLeafs) {
-//                ncol = ncol + 1;
-//                this.tFolderContainer.getItem(this.tFolderContainer.getIdByIndex(this.tFolderContainer.size() - 1))
-//                        .getItemProperty(ncol).setValue(new tLeafButtonLayout(Chids, ParentContentLayout));
-//                if (ncol > 2) {
-//                    this.tFolderContainer.addItem();
-//                    ncol = 0;
-//
-//                }
-//
-//            }
 
             this.tFolderTable.setContainerDataSource(this.tFolderContainer);
             this.tFolderTable.setPageLength(this.tFolderContainer.size());
             this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_HEADER);
-            //this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-            //this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
             this.tFolderTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
             this.tFolderTable.setColumnAlignment(1,Table.Align.CENTER);
             this.tFolderTable.setColumnAlignment(2,Table.Align.CENTER);
@@ -155,11 +101,6 @@ public class tFolderLayout extends VerticalLayout {
         TopLabel.addStyleName("TopLabel");
 
 
-        //TopLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-        //TopLabel.setHeight("20px");
-
-
-
 
         tReturnParentFolderButton = new Button("Вверх");
         tReturnParentFolderButton.setIcon(FontAwesome.LEVEL_UP);
@@ -171,8 +112,6 @@ public class tFolderLayout extends VerticalLayout {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 Integer iParentLeafId = tParentContentLayout.GetParentLeafById(tCurrentLeafId);
-                //System.out.println("tCurrentLeafId: " + tCurrentLeafId);
-                //System.out.println("iParentLeafId: " + iParentLeafId);
                 if (iParentLeafId != 0){
                     tParentContentLayout.tTreeContentLayoutRefresh(iParentLeafId,0);
                 }
@@ -194,7 +133,7 @@ public class tFolderLayout extends VerticalLayout {
                     ));
                 } else {
                     Notification.show(null,
-                            "Корневой каталог не может быть изменён",
+                            "Корневой каталог не может быть удалён",
                             Notification.Type.TRAY_NOTIFICATION);
                 }
             }
@@ -232,40 +171,30 @@ public class tFolderLayout extends VerticalLayout {
         MenuBar.Command mycommand = new MenuBar.Command() {
             public void menuSelected(MenuBar.MenuItem selectedItem) {
 
-                if (selectedItem.getText().equals("Добавить контроллер")) {
+//                if (selectedItem.getText().equals("Добавить устройство")) {
+//
+//                    if (tParentContentLayout.GetParentLeafById(tCurrentLeafId)!=0) {
+//                        UI.getCurrent().addWindow(new tAddDeviceWindow(tCurrentLeafId
+//                                ,tParentContentLayout
+//                        ));
+//                    } else {
+//                        Notification.show(null,
+//                                "В корневой каталог нельзя добавлять устройства, только контроллеры",
+//                                Notification.Type.TRAY_NOTIFICATION);
+//                    }
+//                }
 
-                    if (tCurrentLeafId == 1) {
-
-                        UI.getCurrent().addWindow(new tAddFolderWindow(tCurrentLeafId
-                                , tParentContentLayout
-                        ));
-
-                    } else {
-                        Notification.show(null,
-                                "Контроллеры можно добавлять только в корневой каталог",
-                                Notification.Type.TRAY_NOTIFICATION);
-                    }
-
-                }  else {
-
-                    if (tParentContentLayout.GetParentLeafById(tCurrentLeafId)!=0) {
-                        UI.getCurrent().addWindow(new tAddDeviceWindow(tCurrentLeafId
-                                ,tParentContentLayout
-                        ));
-                    } else {
-                        Notification.show(null,
-                                "В корневой каталог нельзя добавлять устройства, только контроллеры",
-                                Notification.Type.TRAY_NOTIFICATION);
-                    }
-                }
+                UI.getCurrent().addWindow(new tAddDeviceWindow(tCurrentLeafId
+                        ,tParentContentLayout
+                ));
 
             }
         };
 
-        AdditionItem.addItem("Добавить контроллер"
-                , VaadinIcons.FOLDER_ADD
-                , mycommand
-        );
+//        AdditionItem.addItem("Добавить контроллер"
+//                , VaadinIcons.FOLDER_ADD
+//                , mycommand
+//        );
 
         //Item1.setStyleName(ValoTheme.MENU_ITEM);
 

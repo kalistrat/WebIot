@@ -17,7 +17,7 @@ public class tAddDeviceWindow extends Window {
     Button SaveButton;
     Button CancelButton;
     TextField EditTextField;
-    TextField InWriteTopicName;
+    TextField deviceUID;
     tTreeContentLayout iTreeContentLayout;
     int iLeafId;
 
@@ -26,12 +26,7 @@ public class tAddDeviceWindow extends Window {
     int iNewUserDeviceId;
     String iNewIconCode;
 
-    NativeSelect DeviceActionType;
-    String LastActionTypeValue;
 
-    TextField ChildTopicField;
-    Label RootTopicName;
-    HorizontalLayout InTopicNameField;
 
     public tAddDeviceWindow(int eLeafId
             ,tTreeContentLayout eParentContentLayout
@@ -49,26 +44,9 @@ public class tAddDeviceWindow extends Window {
         EditTextField = new TextField("Наименование устройства :");
         EditTextField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
 
-        ChildTopicField = new TextField();
-        ChildTopicField.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-        ChildTopicField.setValue("");
-
-        RootTopicName = new Label();
-        RootTopicName.addStyleName("FormTextLabel");
-        setRootTopicData(iLeafId, iTreeContentLayout.iUserLog);
-
-        InTopicNameField = new HorizontalLayout(
-                RootTopicName
-                ,ChildTopicField
-        );
-        InTopicNameField.setCaption("mqtt-топик для данных :");
-        //InTopicNameField.setEnabled(false);
-
-        DeviceActionType = new NativeSelect("Тип устройства :");
-        getActionTypeData();
-        DeviceActionType.setNullSelectionAllowed(false);
-        DeviceActionType.select(LastActionTypeValue);
-        DeviceActionType.addStyleName("SelectFont");
+        deviceUID = new TextField("Наименование устройства :");
+        deviceUID.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        deviceUID.setIcon(VaadinIcons.KEY);
 
 
         SaveButton = new Button("Сохранить");
@@ -82,7 +60,8 @@ public class tAddDeviceWindow extends Window {
 
                 String sErrorMessage = "";
                 String sFieldValue = EditTextField.getValue();
-                String sChildTopicName = ChildTopicField.getValue();
+                String sUID = deviceUID.getValue();
+
 
 
                 if (sFieldValue == null){
@@ -93,25 +72,20 @@ public class tAddDeviceWindow extends Window {
                     sErrorMessage = sErrorMessage + "Наименование устройства не задано\n";
                 }
 
+                if (sUID == null){
+                    sErrorMessage = "UID устройства не задан\n";
+                }
+
+                if (sUID.equals("")){
+                    sErrorMessage = sErrorMessage + "UID устройства не задан\n";
+                }
+
                 if (sFieldValue.length() > 30){
                     sErrorMessage = sErrorMessage + "Длина наименования превышает 30 символов\n";
                 }
 
                 if (tUsefulFuctions.fIsLeafNameBusy(iTreeContentLayout.iUserLog,sFieldValue) > 0){
                     sErrorMessage = sErrorMessage + "Указанное наименование уже используется. Введите другое.\n";
-                }
-
-                if (sChildTopicName.equals("")){
-                    sErrorMessage = sErrorMessage + "Имя топика устройства не задано\n";
-                } else {
-
-                    if (!tUsefulFuctions.IsLatinAndDigits(sChildTopicName)) {
-                        sErrorMessage = sErrorMessage + "Имя топика устройства должно состоять из латиницы и цифр\n";
-                    }
-
-                    if (isExistsTopicName(RootTopicName.getValue()+sChildTopicName).intValue() == 1){
-                        sErrorMessage = sErrorMessage + "Указанный топик используется. Введите другой\n";
-                    }
                 }
 
                 if (!tUsefulFuctions.isSubscriberExists()) {
@@ -124,49 +98,39 @@ public class tAddDeviceWindow extends Window {
                             Notification.Type.TRAY_NOTIFICATION);
                 } else {
 
-                    String sFullDeviceTopicName = RootTopicName.getValue()+sChildTopicName;
+                    //String sFullDeviceTopicName = RootTopicName.getValue()+sChildTopicName;
 
 
                        addUserDevice(
                                 iLeafId//int qParentLeafId
                                 , sFieldValue//String qDeviceName
                                 , iTreeContentLayout.iUserLog//String qUserLog
-                                , (String) DeviceActionType.getValue() //String qActionTypeName
-                                , sFullDeviceTopicName
+                                , "UNKNOWN" //String qActionTypeName
+                                , sUID
                         );
 
                         String addSubsribeRes = "";
                         String addTaskRes = "";
 
-//                        if (DeviceActionType.getValue().equals("Измерительное устройство")) {
-//
-//                            addSubsribeRes = tUsefulFuctions.sendMessAgeToSubcribeServer(
-//                                    iNewUserDeviceId
-//                                    , iTreeContentLayout.iUserLog
-//                                    , "add"
-//                                    , "sensor"
-//                            );
-//                        }
 
-                        int DevSyncDaysInterval = GetSyncIntervalDays(iNewUserDeviceId);
+
                         int NewTaskId;
 
-                        if (DevSyncDaysInterval > 0 && DeviceActionType.getValue().equals("Измерительное устройство")) {
-                            NewTaskId = addUserDeviceTask(
-                                    iNewUserDeviceId
-                            , "SYNCTIME"
-                            , DevSyncDaysInterval
-                            , "DAYS"
-                            );
+                        NewTaskId = addUserDeviceTask(
+                                iNewUserDeviceId
+                        , "SYNCTIME"
+                        , 1
+                        , "DAYS"
+                        );
 
-                            addTaskRes = tUsefulFuctions.sendMessAgeToSubcribeServer(
-                                    NewTaskId
-                                    , iTreeContentLayout.iUserLog
-                                    , "add"
-                                    , "task"
-                            );
+                        addTaskRes = tUsefulFuctions.sendMessAgeToSubcribeServer(
+                                NewTaskId
+                                , iTreeContentLayout.iUserLog
+                                , "add"
+                                , "task"
+                        );
 
-                        }
+
 
                         Item newItem = iTreeContentLayout.itTree.TreeContainer.addItem(iNewLeafId);
                         newItem.getItemProperty(1).setValue(iNewTreeId);
@@ -175,7 +139,7 @@ public class tAddDeviceWindow extends Window {
                         newItem.getItemProperty(4).setValue(sFieldValue);
                         newItem.getItemProperty(5).setValue(iNewIconCode);
                         newItem.getItemProperty(6).setValue(iNewUserDeviceId);
-                        newItem.getItemProperty(7).setValue((String) DeviceActionType.getValue());
+                        newItem.getItemProperty(7).setValue("UNKNOWN");
 
                         //iTreeContentLayout.itTree.TreeContainer.setParent(iNewLeafId, iLeafId);
                         iTreeContentLayout.itTree.TreeContainer.setChildrenAllowed(iNewLeafId,false);
@@ -243,9 +207,9 @@ public class tAddDeviceWindow extends Window {
 
         FormLayout IniDevParamLayout = new FormLayout(
                 EditTextField
-                ,DeviceActionType
-                ,InTopicNameField
+                ,deviceUID
         );
+
         IniDevParamLayout.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
         IniDevParamLayout.setSizeUndefined();
         IniDevParamLayout.addStyleName("FormFont");
@@ -273,79 +237,7 @@ public class tAddDeviceWindow extends Window {
         this.setContent(WindowContentLayout);
         this.setSizeUndefined();
         this.setModal(true);
-        //this.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
-    }
 
-    public void getActionTypeData(){
-
-        try {
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            String DataSql = "select at.action_type_name\n" +
-                    "from action_type at";
-
-            PreparedStatement DataStmt = Con.prepareStatement(DataSql);
-
-            ResultSet DataRs = DataStmt.executeQuery();
-
-            while (DataRs.next()) {
-                LastActionTypeValue = DataRs.getString(1);
-                DeviceActionType.addItem(DataRs.getString(1));
-            }
-
-
-            Con.close();
-
-        } catch (SQLException se3) {
-            //Handle errors for JDBC
-            se3.printStackTrace();
-        } catch (Exception e13) {
-            //Handle errors for Class.forName
-            e13.printStackTrace();
-        }
-    }
-
-    public void setRootTopicData(int qParentLeafId, String qUserLog){
-
-        try {
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            String DataSql = "select udt.control_log\n" +
-                    "from user_devices_tree udt\n" +
-                    "join users u on u.user_id=udt.user_id\n" +
-                    "where u.user_log = ?\n" +
-                    "and udt.leaf_id = ?";
-
-            PreparedStatement DataStmt = Con.prepareStatement(DataSql);
-            DataStmt.setString(1,qUserLog);
-            DataStmt.setInt(2,qParentLeafId);
-
-            ResultSet DataRs = DataStmt.executeQuery();
-
-            while (DataRs.next()) {
-                RootTopicName.setValue("/"+DataRs.getString(1)+"/");
-            }
-
-
-            Con.close();
-
-        } catch (SQLException se3) {
-            //Handle errors for JDBC
-            se3.printStackTrace();
-        } catch (Exception e13) {
-            //Handle errors for Class.forName
-            e13.printStackTrace();
-        }
     }
 
 
@@ -396,66 +288,6 @@ public class tAddDeviceWindow extends Window {
             //return "Ошибка Class.forName";
         }
 
-    }
-
-    public Integer isExistsTopicName(String qTopicName){
-        Integer isE = 0;
-        try {
-
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            CallableStatement callStmt = Con.prepareCall("{? = call fIsExistsTopicName(?)}");
-            callStmt.registerOutParameter(1, Types.INTEGER);
-            callStmt.setString(2, qTopicName);
-            callStmt.execute();
-
-            isE =  callStmt.getInt(1);
-
-            Con.close();
-
-        }catch(SQLException se){
-            //Handle errors for JDBC
-            se.printStackTrace();
-        }catch(Exception e) {
-            //Handle errors for Class.forName
-            e.printStackTrace();
-        }
-        return isE;
-    }
-
-    public Integer GetSyncIntervalDays(int qUserDeviceId){
-        Integer isE = 0;
-        try {
-
-            Class.forName(tUsefulFuctions.JDBC_DRIVER);
-            Connection Con = DriverManager.getConnection(
-                    tUsefulFuctions.DB_URL
-                    , tUsefulFuctions.USER
-                    , tUsefulFuctions.PASS
-            );
-
-            CallableStatement callStmt = Con.prepareCall("{? = call fGetSyncIntervalDays(?)}");
-            callStmt.registerOutParameter(1, Types.INTEGER);
-            callStmt.setInt(2, qUserDeviceId);
-            callStmt.execute();
-
-            isE =  callStmt.getInt(1);
-
-            Con.close();
-
-        }catch(SQLException se){
-            //Handle errors for JDBC
-            se.printStackTrace();
-        }catch(Exception e) {
-            //Handle errors for Class.forName
-            e.printStackTrace();
-        }
-        return isE;
     }
 
     public Integer addUserDeviceTask(
